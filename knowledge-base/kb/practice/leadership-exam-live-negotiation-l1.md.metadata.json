@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "leadership-exam-live-negotiation-l1",
+    "title": "Live negotiation with a briefed role-player",
+    "section": "exam \u00b7 AIAS level 1",
+    "source_type": "practice",
+    "material_type": "exam",
+    "aias_level": 1,
+    "competencies": [
+      "17",
+      "16"
+    ],
+    "area": "leadership",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://educational-innovation.sydney.edu.au/teaching@sydney/what-to-do-about-assessments-if-we-cant-out-design-or-out-run-ai/",
+    "status": "active",
+    "family": "leadership-exam-live-negotiation-l1"
+  }
+}

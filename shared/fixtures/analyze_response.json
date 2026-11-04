@@ -1,0 +1,390 @@
+{
+  "ok": true,
+  "job_id": "mock-job",
+  "outline": {
+    "sections": [
+      {
+        "id": "course-info",
+        "kind": "heading",
+        "title": "Course information",
+        "text": "PHC 6149 Public Health Leadership. Online, Spring 2026. [INSTRUCTOR] [EMAIL_1]"
+      },
+      {
+        "id": "objectives",
+        "kind": "objective",
+        "title": "Learning objectives",
+        "text": "Students will apply leadership theories to public health organizations and communicate a shared vision to stakeholders."
+      },
+      {
+        "id": "week-3",
+        "kind": "week",
+        "title": "Week 3: Leading change",
+        "text": "Readings on change management. Discussion post (ungraded)."
+      },
+      {
+        "id": "week-6",
+        "kind": "week",
+        "title": "Week 6: Negotiation and collaboration",
+        "text": "Negotiation role-play with a partner from another discipline (ungraded)."
+      },
+      {
+        "id": "week-9",
+        "kind": "assignment",
+        "title": "Leadership reflection paper",
+        "text": "A 5-page reflection paper applying one leadership theory to a public health case. 25% of the grade."
+      },
+      {
+        "id": "week-14",
+        "kind": "assignment",
+        "title": "Final project: vision statement",
+        "text": "Teams draft and present a vision statement for a local health department. 35% of the grade."
+      },
+      {
+        "id": "policies",
+        "kind": "policy",
+        "title": "Course policies",
+        "text": "Late work loses 10% per day. Academic integrity policy applies."
+      }
+    ],
+    "assignments": [
+      {
+        "id": "a-roleplay",
+        "section_id": "week-6",
+        "title": "Negotiation role-play",
+        "weight": null,
+        "what_it_tests": "Negotiation with another discipline",
+        "assessed": false
+      },
+      {
+        "id": "a-reflection",
+        "section_id": "week-9",
+        "title": "Leadership reflection paper",
+        "weight": 0.25,
+        "what_it_tests": "Applying leadership theory",
+        "assessed": true
+      },
+      {
+        "id": "a-vision",
+        "section_id": "week-14",
+        "title": "Vision statement project",
+        "weight": 0.35,
+        "what_it_tests": "Creating and communicating a shared vision",
+        "assessed": true
+      }
+    ],
+    "ai_policy": null,
+    "claimed_competencies": [
+      10,
+      16,
+      17
+    ]
+  },
+  "competencies": [
+    {
+      "id": 1,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 2,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 3,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 4,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 5,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 6,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 7,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 8,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 9,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 10,
+      "status": "partial",
+      "evidence": [
+        "objectives",
+        "week-14"
+      ],
+      "reason": "Vision is communicated in the final project, but no assessed task asks students to tailor it to different audiences.",
+      "rule": null,
+      "workforce": {
+        "text": "[MOCK] Employers expect graduates to lead cross-sector partnerships.",
+        "evidence": [
+          "P3"
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 12,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 13,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 14,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 15,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 16,
+      "status": "covered",
+      "evidence": [
+        "week-14"
+      ],
+      "reason": "The graded vision statement project assesses creating and communicating a shared vision.",
+      "rule": null
+    },
+    {
+      "id": 17,
+      "status": "partial",
+      "evidence": [
+        "week-3"
+      ],
+      "reason": "Change management is taught in week 3, but the only task is an ungraded discussion post.",
+      "rule": "Teaching a topic without an assessed task does not count",
+      "workforce": {
+        "text": "[MOCK] Employers expect graduates to lead cross-sector partnerships.",
+        "evidence": [
+          "P3"
+        ]
+      }
+    },
+    {
+      "id": 18,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 19,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 20,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    },
+    {
+      "id": 21,
+      "status": "missing",
+      "evidence": [
+        "week-6"
+      ],
+      "reason": "The only interprofessional activity is an ungraded role-play.",
+      "rule": "A role-play alone does not count as evidence",
+      "workforce": {
+        "text": "[MOCK] Employers expect graduates to lead cross-sector partnerships.",
+        "evidence": [
+          "P3"
+        ]
+      }
+    },
+    {
+      "id": 22,
+      "status": "not_assigned",
+      "evidence": [],
+      "reason": "Not assigned to this course",
+      "rule": null
+    }
+  ],
+  "ai_rating": {
+    "score": 0,
+    "mode": "unstated",
+    "reasons": [
+      "The syllabus has no AI policy (section: policies).",
+      "No assignment uses or discusses AI tools."
+    ]
+  },
+  "assessments": {
+    "simulation": 0,
+    "real_world": 1,
+    "ai_assisted": 0
+  },
+  "edits": [
+    {
+      "edit_id": "E1",
+      "section_id": "policies",
+      "op": "insert_after",
+      "original": null,
+      "proposed": "AI use policy: AI tools are allowed for brainstorming and editing only. Disclose any AI use in a short note at the end of each submission.",
+      "rationale": "The syllabus has no AI policy. A stated, restricted-use policy gives students clear expectations and matches the school's disclosure rule.",
+      "evidence": [
+        {
+          "id": "P1",
+          "title": "ASPPH AI Framework",
+          "snippet": "Faculty should be able to clearly define acceptable use, whether through complete prohibition, restricted use, or transparent collaborative use.",
+          "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=4"
+        }
+      ],
+      "school_rule": "DEF-AI-2",
+      "ceph": [],
+      "reflection_activity": null,
+      "supervisor": "pass"
+    },
+    {
+      "edit_id": "E2",
+      "section_id": "week-6",
+      "op": "replace",
+      "original": "Negotiation role-play with a partner from another discipline (ungraded).",
+      "proposed": "Graded interprofessional negotiation simulation (10%): teams of public health and nursing students negotiate a shared response plan, using an AI-generated stakeholder brief they must fact-check. Submit the plan plus a 1-page reflection on where the AI brief was wrong or incomplete.",
+      "rationale": "Making the role-play an assessed simulation gives assessed evidence for competency 21, and the reflection teaches the limits of AI tools.",
+      "evidence": [
+        {
+          "id": "P2",
+          "title": "ASPPH AI Framework",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Framework passage about AI-powered simulations.",
+          "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=4"
+        },
+        {
+          "id": "P3",
+          "title": "Competency Mapping",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Competency Mapping passage about cross-sector collaboration skills.",
+          "uri": "s3://phact-knowledge/originals/competency-mapping.pdf#page=7"
+        }
+      ],
+      "school_rule": "DEF-AI-2",
+      "ceph": [
+        21
+      ],
+      "reflection_activity": "1-page reflection on errors or gaps in the AI-generated brief",
+      "supervisor": "pass"
+    },
+    {
+      "edit_id": "E3",
+      "section_id": "week-3",
+      "op": "replace",
+      "original": "Discussion post (ungraded).",
+      "proposed": "Graded change-management memo (5%): recommend how a health department should introduce a new data system, citing one change model.",
+      "rationale": "An assessed task turns week 3's topic into evidence for competency 17.",
+      "evidence": [
+        {
+          "id": "P3",
+          "title": "Competency Mapping",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Competency Mapping passage about cross-sector collaboration skills.",
+          "uri": "s3://phact-knowledge/originals/competency-mapping.pdf#page=7"
+        }
+      ],
+      "school_rule": null,
+      "ceph": [
+        17
+      ],
+      "reflection_activity": null,
+      "supervisor": "flagged"
+    }
+  ],
+  "passages": [
+    {
+      "id": "P1",
+      "title": "ASPPH AI Framework",
+      "section": "Teaching and Learning",
+      "snippet": "Faculty should be able to clearly define acceptable use, whether through complete prohibition, restricted use, or transparent collaborative use.",
+      "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=4",
+      "source_type": "guidance"
+    },
+    {
+      "id": "P2",
+      "title": "ASPPH AI Framework",
+      "section": "Strategic Directions",
+      "snippet": "[MOCK SNIPPET] Placeholder for a real Framework passage about AI-powered simulations.",
+      "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=4",
+      "source_type": "guidance"
+    },
+    {
+      "id": "P3",
+      "title": "Competency Mapping",
+      "section": "Leadership skill areas",
+      "snippet": "[MOCK SNIPPET] Placeholder for a real Competency Mapping passage about cross-sector collaboration skills.",
+      "uri": "s3://phact-knowledge/originals/competency-mapping.pdf#page=7",
+      "source_type": "workforce"
+    }
+  ],
+  "meta": {
+    "timings_ms": {
+      "total": 1200
+    },
+    "models": {
+      "strong": "mock",
+      "fast": "mock"
+    },
+    "tokens": {
+      "in": 0,
+      "out": 0
+    },
+    "mock": true
+  }
+}

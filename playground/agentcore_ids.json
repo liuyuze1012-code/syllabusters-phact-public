@@ -1,0 +1,6 @@
+{
+  "agent_runtime_arn": "arn:aws:bedrock-agentcore:us-west-2:217416247453:runtime/phact_agent-NyGIHl6QpZ",
+  "agent_runtime_id": "phact_agent-NyGIHl6QpZ",
+  "version": "6",
+  "region": "us-west-2"
+}

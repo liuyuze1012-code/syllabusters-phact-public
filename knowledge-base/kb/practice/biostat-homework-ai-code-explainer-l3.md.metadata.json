@@ -1,0 +1,19 @@
+{
+  "metadataAttributes": {
+    "doc_id": "biostat-homework-ai-code-explainer-l3",
+    "title": "AI writes the code, students verify and annotate it",
+    "section": "homework \u00b7 AIAS level 3",
+    "source_type": "practice",
+    "material_type": "homework",
+    "aias_level": 3,
+    "competencies": [
+      "4"
+    ],
+    "area": "biostatistics",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "biostat-homework-ai-code-explainer-l3"
+  }
+}

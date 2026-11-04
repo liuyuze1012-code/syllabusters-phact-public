@@ -1,0 +1,2419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHACT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="/client.js"></script>
+<style>
+/* Two screens. Setup: course → upload → competencies → analyze.
+   Workspace (Jobright-style): chat + changes on the left, the live syllabus on the right with every
+   edit highlighted in place and numbered citations [1] that open the exact ASPPH passage. */
+/* Visual system from the team's Figma (AWS ASPPH): navy sidebar, steel-blue actions, cool gray canvas, white cards. */
+:root{--bg:#eef1f5;--panel:#fff;--ink:#1b2a3a;--muted:#5f6f80;--line:#dbe2ea;--accent:#2c5f8a;--accent-ink:#fff;
+  --navy:#15314d;--navy-2:#1f4467;--navy-ink:#c9d6e3;--accent-soft:#e4edf5;
+  --mint:#e4edf5;--mint-strong:#b9cde0;--paper:#fff;--paper-ink:#1b1b1b;--del:#fbe3e1;--del-ink:#a33a30;
+  --ins:#d6f5e6;--ins-line:#3fbf8f;--flag:#fdf0d5;--flag-line:#e0a326;--covered:#2e8b57;--partial:#d99a1e;
+  --missing:#c8453a;--na:#d3dad8;--shadow:0 6px 24px rgba(21,49,77,.12)}
+*{box-sizing:border-box}
+[hidden]{display:none !important}  /* the hidden attribute must win over display:grid/flex rules */
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 16px;font-family:inherit;font-weight:600;font-size:14px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+button:hover:not(:disabled){filter:brightness(1.08)}
+button.ghost{background:var(--panel);color:var(--accent);border:1px solid var(--line)}
+button.soft{background:var(--accent-soft);color:var(--accent)}
+button:disabled{opacity:.5;cursor:wait}
+textarea,input[type=text],input[type=password],input[type=email],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit}
+textarea:focus,input:focus,select:focus{outline:2px solid var(--mint-strong);outline-offset:0;border-color:var(--accent)}
+.ti{font-size:18px;line-height:1}
+a{color:var(--accent)}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.status{font-size:13px;color:var(--muted);margin-top:8px;min-height:18px}
+.spin::after{content:"";display:inline-block;width:12px;height:12px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:s .8s linear infinite;margin-left:6px;vertical-align:-2px}
+@keyframes s{to{transform:rotate(360deg)}}
+table{border-collapse:collapse;width:100%;font-size:13px} td,th{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;margin:6px 0}
+.tag{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--mint);color:var(--accent);white-space:nowrap}
+.tag.ok{background:var(--ins);color:#1d7a52} .tag.flag{background:var(--flag);color:#9a5b05}
+
+/* ---------- app shell: sidebar + Home / Settings / Course pages ---------- */
+#shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--navy);color:var(--navy-ink);padding:20px 14px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:#fff;text-decoration:none;padding:0 6px;letter-spacing:.01em}
+.logo{width:34px;height:34px;border-radius:8px;border:1.5px solid rgba(255,255,255,.55);color:#fff;display:grid;place-items:center;font-size:18px}
+.raillbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8ea6bd;padding:10px 8px 0}
+.rail nav{display:flex;flex-direction:column;gap:2px}
+.rail nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;color:var(--navy-ink);text-decoration:none;font-weight:600;font-size:14.5px}
+.rail nav a:hover{background:rgba(255,255,255,.07);color:#fff} .rail nav a.on{background:var(--navy-2);color:#fff}
+.instcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;font-size:12.5px;line-height:1.45}
+.instcard b{display:block;color:#fff;font-size:13.5px} .instcard .k{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8ea6bd;margin-bottom:4px}
+.railfoot{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.railfoot a.help{color:var(--navy-ink);text-decoration:none;font-size:13.5px;display:flex;gap:8px;align-items:center;padding:0 8px}
+.me{display:flex;gap:10px;align-items:center;padding:10px 8px;border-top:1px solid rgba(255,255,255,.1)}
+.avatar{width:34px;height:34px;border-radius:50%;background:#3d6f99;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.me b{display:block;color:#fff;font-size:13.5px;line-height:1.2} .me span{font-size:12px;color:#8ea6bd}
+.me button{margin-left:auto;background:none;color:#8ea6bd;padding:6px} .me button:hover{color:#fff}
+.railmeta{font-size:11px;color:#6f8aa3;padding:0 8px}
+.mainwrap{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:14px;padding:14px 40px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.topbar .crumbs a{color:var(--muted);text-decoration:none} .topbar .crumbs b{color:var(--ink);font-weight:600}
+.privpill{display:inline-flex;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.mainv{padding:28px 40px 60px;max-width:1240px;width:100%}
+.view{display:none} .view.on{display:block}
+.pagehead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.pagehead h1{font-size:28px;margin:0 0 4px;letter-spacing:-.01em} .pagehead p{margin:0}
+a.btn{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:11px 18px;display:inline-flex;align-items:center;gap:6px;font-weight:700;text-decoration:none;font-size:14px;display:inline-block}
+a.btn.ghost{background:var(--panel);color:var(--accent);border:1px solid var(--line)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:9px;cursor:pointer;transition:transform .12s,border-color .12s;color:var(--ink);text-decoration:none;position:relative}
+.ccard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ccard .code{font-size:12.5px;font-weight:800;color:var(--accent);letter-spacing:.03em}
+.ccard .nm{font-size:18px;font-weight:700;line-height:1.25}
+.ccard .cchips{display:flex;gap:6px;flex-wrap:wrap}
+.ccard .stat{font-size:13px;color:var(--muted)}
+.ccard .del{position:absolute;top:12px;right:12px;background:none;color:var(--muted);padding:4px 8px;font-size:15px;opacity:0}
+.ccard:hover .del{opacity:1}
+.bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden} .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.ccard.new{border-style:dashed;align-items:center;justify-content:center;color:var(--accent);font-weight:700;min-height:170px;font-size:15px}
+.ccard.new .plus{font-size:30px;line-height:1}
+.empty{grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:8px} .crumb a{color:var(--muted)}
+/* Figma stepper: numbered circles joined by a line; done = filled check, current = ringed */
+.flow{display:flex;align-items:center;gap:0;margin:0 0 26px;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+.fs{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;color:var(--muted);white-space:nowrap;text-decoration:none}
+.fs .n{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;background:var(--panel);flex:none}
+.fs.done{color:var(--ink)} .fs.done .n{background:var(--accent);border-color:var(--accent);color:#fff}
+.fs.on{color:var(--accent)} .fs.on .n{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+a.fs.done:hover{color:var(--accent)}
+.fline{flex:1;min-width:24px;height:1.5px;background:var(--line);margin:0 12px} .fline.done{background:var(--accent)}
+.ws .flow{margin:0;padding:0;border:0;background:none;flex:1;max-width:760px}
+.resume{background:var(--accent-soft);border-radius:12px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.resume b{font-size:16px}
+.hubgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.hcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.hcard h2{font-size:18px;margin:0 0 8px} .hh{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.hubgrid .hcard{margin-bottom:0} .desc{margin:4px 0 2px;line-height:1.55}
+.lbl2{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+.cchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.know{list-style:none;padding:0;margin:6px 0 10px;display:flex;flex-direction:column;gap:6px;font-size:13.5px}
+.know li{color:var(--muted)} .know li::before{content:"○";margin-right:8px} .know li.yes{color:var(--ink)} .know li.yes::before{content:"✓";color:var(--covered);font-weight:800}
+pre.memo{white-space:pre-wrap;background:var(--bg);border-radius:12px;padding:10px 12px;font-size:12.5px;max-height:240px;overflow:auto}
+.samples{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0 4px;font-size:13px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px dashed var(--mint-strong);border-radius:16px;padding:26px;cursor:pointer;background:var(--bg);text-align:center}
+.drop.over,.drop:hover{border-color:var(--accent);background:var(--mint)} .drop input{display:none}
+.detect{border:1px solid var(--accent);border-radius:16px;padding:14px 16px;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.dt1{font-size:16px}
+table.docs td{padding:10px 8px;vertical-align:middle;font-size:13.5px} table.docs tr.click{cursor:pointer} table.docs tr.click:hover{background:var(--bg)}
+table.docs td.dicon{font-size:20px;width:34px} table.docs .muted{font-size:12.5px}
+table.docs button.x{background:none;color:var(--muted);padding:4px 8px;font-size:15px} table.docs button.x:hover{color:var(--missing)}
+.wk.empty{padding:6px 12px;border-style:dashed} .wk.empty .wkm{display:none} .wk.empty .wkh b{font-weight:500;color:var(--muted)}
+.rcard{display:inline-flex;align-items:center;padding:8px 12px;border-radius:12px;background:var(--bg);font-size:13px;color:var(--muted)}
+@media (max-width:900px){.hubgrid{grid-template-columns:1fr}}
+.sem .timeline{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.wk{border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.wkh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+.wkm{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.mcard{position:relative;display:flex;flex-direction:column;gap:2px;min-width:200px;max-width:280px;padding:10px 12px;border-radius:12px;background:var(--bg);color:var(--ink);text-decoration:none;border:1px solid transparent;font-size:13.5px}
+.mcard:hover{border-color:var(--accent)} .mcard .mt{font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.mcard .del{position:absolute;top:6px;right:6px;background:none;color:var(--muted);padding:2px 6px;font-size:13px;opacity:0} .mcard:hover .del{opacity:1}
+button.sm{padding:5px 11px;font-size:12.5px} .btnlike{white-space:nowrap}
+.addas{border:1px solid var(--accent);border-radius:16px;padding:14px 16px;margin-top:12px;display:flex;flex-direction:column;gap:8px}
+table.plan{margin-top:6px} table.plan td,table.plan th{padding:7px 8px} .plan .c{display:inline-block;border-radius:999px;padding:2px 9px;color:#fff;font-weight:700;font-size:12px}
+.aias{display:inline-block;margin:6px 0 2px;padding:4px 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-weight:700;font-size:12.5px}
+/* Login: navy story panel on the left, sign-in on the right (Figma "Login authentication") */
+#vLogin{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}
+.lstory{background:var(--navy);color:var(--navy-ink);padding:40px 44px;display:flex;flex-direction:column;gap:26px}
+.lstory .brand{font-size:22px}
+.lstory h2{color:#fff;font-size:30px;line-height:1.2;margin:auto 0 0;font-weight:700;letter-spacing:-.01em}
+.lstory p{margin:0;font-size:15px}
+.lpoints{display:flex;flex-direction:column;gap:14px;margin:6px 0 auto}
+.lpoint{display:flex;gap:12px;align-items:flex-start;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}
+.lpoint .ic{width:36px;height:36px;border-radius:50%;background:#2b8a83;color:#fff;display:grid;place-items:center;flex:none;font-size:18px}
+.lpoint:nth-child(2) .ic{background:#d9772b} .lpoint:nth-child(3) .ic{background:#3d6f99}
+.lpoint b{display:block;color:#fff;font-size:14.5px} .lpoint span{font-size:13px}
+.lside{display:flex;flex-direction:column;padding:26px 40px}
+.lside .need{align-self:flex-end;font-size:13px;color:var(--muted)}
+.loginbox{width:min(440px,100%);margin:auto;display:flex;flex-direction:column;gap:12px}
+.loginbox .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.loginbox h1{font-size:30px;margin:0 0 8px;letter-spacing:-.01em}
+.loginbox label{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.loginbox button#l_go{padding:13px;font-size:15px;width:100%;margin-top:4px}
+.loginbox .switchline{font-size:13.5px;color:var(--muted);text-align:center} .loginbox .switchline a{font-weight:600}
+.secure{display:flex;gap:6px;align-items:center;justify-content:center;font-size:12.5px;color:var(--muted)}
+.lfoot{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.small{font-size:12px}
+@media (max-width:900px){#vLogin{grid-template-columns:1fr}.lstory{padding:26px}.lstory h2{margin-top:10px;font-size:24px}}
+.acct{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:14px;background:var(--bg);font-size:13px}
+.acct .tag{align-self:flex-start} .acct button{align-self:flex-start;margin-top:4px}
+.importbar{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--mint);border-radius:16px;padding:14px 16px}
+.ov{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:12px}
+.ovtop{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.ovtop h2{font-size:22px;margin:10px 0 4px} .ovtop p{margin:0}
+a.btn.big{padding:14px 26px;font-size:15.5px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0 12px}
+.tile{background:var(--bg);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column}
+.tile b{font-size:24px} .tile span{font-size:12.5px;color:var(--muted)}
+.ovacts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+button.danger{background:var(--missing);color:#fff} button.ghost.danger{background:transparent;color:var(--missing);border-color:var(--missing)}
+.warnpanel{border:1px solid var(--missing);background:color-mix(in srgb, var(--missing) 10%, var(--panel));border-radius:16px;padding:16px 18px;margin-bottom:12px}
+.warnpanel p{margin:6px 0 12px}
+.resume.warn{background:var(--flag);color:#5c3b00} .resume.warn .muted{color:#7a5200}
+@media (max-width:820px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.stages{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:8px}
+.stages li{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted)}
+.stages li::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--line);flex:none}
+.stages li.on{color:var(--ink);font-weight:600} .stages li.on::before{border-color:var(--accent);border-top-color:transparent;animation:s .8s linear infinite}
+.stages li.done{color:var(--ink)} .stages li.done::before{background:var(--covered);border-color:var(--covered)}
+.setgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px 14px;font-size:13px}
+.setgrid label{display:flex;flex-direction:column;gap:4px;color:var(--muted)} .setgrid .wide{grid-column:1/-1}
+.privacy{background:var(--bg);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--muted);margin-top:10px}
+@media (max-width:820px){#shell{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;align-items:center;padding:10px 14px}
+  .rail nav{flex-direction:row}.railfoot{display:none}.mainv{padding:18px 16px 40px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.card h2{font-size:16px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.num{background:var(--accent);color:var(--accent-ink);border-radius:50%;width:24px;height:24px;display:inline-grid;place-items:center;font-size:12px}
+.cform{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px 12px;margin-top:10px;font-size:13px}
+.cform label{display:flex;flex-direction:column;gap:3px;color:var(--muted)} .cform .wide{grid-column:1/-1}
+.comps{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px;font-size:12.5px}
+.comps label{display:flex;gap:6px;align-items:flex-start;padding:5px;border-radius:8px} .comps label:hover{background:var(--bg)}
+
+/* ---------- Figma pages: dashboard, step 1–2, export, library ---------- */
+.pagehead h1{font-size:30px;font-weight:700}
+.dash{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.panel h2{font-size:17px;margin:0 0 10px;display:flex;gap:8px;align-items:center}
+.panel h2 .ti{color:var(--accent)}
+.panel .ph2{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px} .panel .ph2 h2{margin:0}
+.cont{background:var(--navy);color:var(--navy-ink);border-radius:12px;padding:20px 22px;display:flex;gap:16px;align-items:center;margin-bottom:18px}
+.cont .ic{width:46px;height:46px;border-radius:10px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:22px;color:#fff;flex:none}
+.cont .k{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8ea6bd}
+.cont b{display:block;color:#fff;font-size:19px;margin:2px 0} .cont span{font-size:13.5px}
+.cont a.btn{margin-left:auto;background:#fff;color:var(--navy)}
+table.ctab{font-size:14px} table.ctab th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:10px 8px}
+table.ctab td{padding:14px 8px;vertical-align:middle;border-bottom:1px solid var(--line)} table.ctab tr.click{cursor:pointer} table.ctab tr.click:hover td{background:#f6f8fb}
+table.ctab .cn b{display:block} table.ctab .cn span{font-size:12.5px;color:var(--muted)}
+.chipst{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.chipst.prog{background:#fdf0d5;color:#8a5a00} .chipst.done{background:#dff3e8;color:#1d7a52} .chipst.new{background:#eef1f5;color:var(--muted)}
+.prof{display:flex;gap:12px;align-items:center;margin-bottom:12px} .prof .avatar{width:44px;height:44px;font-size:15px}
+.prof b{display:block} .kv{font-size:13px;color:var(--muted);line-height:1.6}
+.sgw .ic{width:40px;height:40px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:20px;margin-bottom:8px}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.fgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 14px}
+.fgrid label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600}
+.fgrid .w2{grid-column:span 2} .fgrid .w3{grid-column:1/-1} .req{color:var(--missing)}
+.fnote{font-size:12px;color:var(--muted);margin-top:8px}
+.infocard{background:var(--accent-soft);border:1px solid var(--mint-strong);border-radius:12px;padding:16px;font-size:13.5px;margin-bottom:14px}
+.infocard b{display:flex;gap:8px;align-items:center;color:var(--navy);margin-bottom:4px}
+.quiet{font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:flex-start;padding:0 4px}
+.filerow{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:12px}
+.filerow .ti{font-size:24px;color:var(--accent)} .filerow .grow{flex:1;min-width:0} .filerow .ok{color:var(--covered);font-size:13px;font-weight:600}
+.actionbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}
+.actionbar .muted{margin-left:auto}
+button.big{padding:13px 22px;font-size:15px}
+.opts3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.optc{border:1.5px solid var(--line);border-radius:10px;padding:14px;display:flex;gap:10px;align-items:center;cursor:pointer;font-weight:600;background:var(--panel)}
+.optc input{display:none} .optc .ti{font-size:22px;color:var(--muted)}
+.optc:has(input:checked){border-color:var(--accent);background:var(--accent-soft);color:var(--navy)} .optc:has(input:checked) .ti{color:var(--accent)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg label{text-align:center;padding:11px 6px;font-weight:600;font-size:14px;cursor:pointer;border-right:1px solid var(--line);color:var(--muted)} .seg label:last-child{border-right:0}
+.seg input{display:none} .seg label:has(input:checked){background:var(--accent);color:#fff}
+.segnote{margin-top:10px;font-size:13.5px} .segnote b{color:var(--navy)}
+.checks{display:flex;flex-direction:column;gap:12px}
+.checks label{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer}
+.checks input{width:17px;height:17px;margin-top:2px;accent-color:var(--accent);flex:none}
+.checks small{display:block;color:var(--muted);font-size:12.5px}
+.pcomps{display:flex;flex-direction:column;gap:2px;max-height:440px;overflow:auto;margin:0 -6px}
+.pcomps label{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;padding:7px 6px;border-radius:8px;cursor:pointer} .pcomps label:hover{background:#f6f8fb}
+.pcomps input{width:16px;height:16px;margin-top:2px;accent-color:var(--accent);flex:none}
+.pcomps .cl{font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:0 5px;margin-left:4px}
+.willcheck{display:flex;flex-direction:column;gap:12px;font-size:13.5px}
+.willcheck div{display:flex;gap:10px} .willcheck .ti{color:var(--accent);font-size:20px} .willcheck small{display:block;color:var(--muted);font-size:12.5px}
+.savedban{background:#dff3e8;border:1px solid #b5e2c9;border-radius:12px;padding:14px 18px;display:flex;gap:12px;align-items:center;margin-bottom:16px;color:#1d5c3c}
+.savedban .ti{font-size:22px}
+.dec{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px} .dec:last-child{border-bottom:0}
+.dec .ti{font-size:20px} .dec .grow{flex:1;min-width:0}
+.exopt{display:flex;flex-direction:column;gap:10px}
+.exopt button{width:100%;justify-content:flex-start}
+.matrix td,.matrix th{padding:9px 8px;font-size:13px} .matrix th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.matrix .c{display:inline-block;border-radius:6px;padding:2px 8px;color:#fff;font-weight:700;font-size:12px}
+.modal{position:fixed;inset:0;background:rgba(21,49,77,.45);display:grid;place-items:center;z-index:50}
+.mbox{background:var(--panel);border-radius:12px;width:min(680px,92vw);max-height:82vh;overflow:auto;padding:18px 20px;box-shadow:var(--shadow)}
+.pcomps .add{margin-left:auto;flex:none} .pcomps small{display:block;color:var(--muted);font-size:12px}
+.cboxes{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+.cbox{min-width:44px;height:34px;border-radius:7px;color:#fff;font-weight:700;font-size:13px;padding:0 8px;border:2px solid transparent;transition:background .3s}
+.cbox.covered{background:var(--covered)} .cbox.partial{background:var(--partial)} .cbox.missing{background:var(--missing)} .cbox.sel{border-color:var(--navy)}
+.cinfo{background:var(--panel);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:6px}
+.ptag{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.ptag.ai_incorporation{background:#ece6fb;color:#5b3fb0} .ptag.workforce{background:#dcf1ef;color:#13695f} .ptag.competency{background:#fdf0d5;color:#8a5a00}
+.chg .undo{background:none;color:var(--accent);padding:3px 6px;font-size:12px;border:1px solid var(--line)}
+.ed.flash ins,.ed.flash{animation:flash 1.4s ease-in-out 2} @keyframes flash{50%{background:#ffe58a;box-shadow:0 0 0 4px #ffe58a}}
+.refs li.hl{background:#fff3c4}
+@media (max-width:1000px){.dash,.twocol{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr 1fr}.opts3,.seg{grid-template-columns:1fr 1fr}}
+
+/* ---------- workspace ---------- */
+#ws{height:100vh;display:grid;grid-template-rows:auto 1fr}
+.top{display:flex;align-items:center;gap:14px;padding:12px 20px;background:var(--panel);border-bottom:1px solid var(--line)}
+.top h1{font-size:18px;margin:0;white-space:nowrap}
+.iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--ink);display:grid;place-items:center;padding:0;font-size:18px}
+.spacer{flex:1}
+.split{display:grid;grid-template-columns:440px minmax(0,1fr);min-height:0}
+.left{display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--line);background:var(--panel)}
+.tabs{display:flex;gap:6px;padding:12px 16px 0}
+.tabs button{flex:1;background:var(--bg);color:var(--ink);font-weight:600;padding:9px 6px;border-radius:12px}
+.tabs button.on{background:var(--mint);color:var(--accent)}
+.pane{flex:1;overflow:auto;padding:14px 16px;display:none} .pane.on{display:block}
+#paneRevise.on{display:flex;flex-direction:column;gap:12px}
+.changes{background:var(--bg);border-radius:18px;padding:12px 14px}
+.changes h3{margin:0 0 6px;font-size:15px}
+.chg{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:7px 6px;border-radius:10px;cursor:pointer;font-size:13.5px}
+.chg:hover{background:var(--panel)}
+.chg .dot{width:10px;height:10px;border-radius:50%;background:var(--ins-line)} .chg.flagged .dot{background:var(--flag-line)}
+.chg.accepted .dot{background:var(--covered);box-shadow:0 0 0 3px var(--ins)} .chg.rejected{opacity:.5} .chg.rejected .dot{background:var(--na)}
+.chg .what{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chg .acts button{padding:4px 9px;font-size:12px}
+.chips{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.chip{background:var(--mint);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:600;font-size:13.5px}
+.chip::after{content:" ↑";color:var(--accent)}
+.thread{display:flex;flex-direction:column;gap:8px}
+.msg{padding:9px 12px;border-radius:14px;font-size:13.5px;white-space:pre-wrap;max-width:92%}
+.msg.me{background:var(--accent);color:var(--accent-ink);align-self:flex-end;border-bottom-right-radius:4px}
+.msg.bot{background:var(--bg);align-self:flex-start;border-bottom-left-radius:4px}
+.msg .meta{display:block;margin-top:6px;font-size:11.5px;color:var(--muted)}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.typing{align-self:flex-start;background:var(--bg);border-radius:14px;padding:10px 14px}
+.typing i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin:0 2px;animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-4px);opacity:.4}}
+.composer{margin:0 16px 8px;border:2px solid var(--mint-strong);border-radius:18px;padding:10px 12px;background:var(--panel)}
+.composer textarea{border:0;background:transparent;resize:none;padding:2px;outline:none}
+.composer .row{justify-content:space-between}
+.foot{text-align:center;font-size:12px;color:var(--muted);padding:0 0 10px}
+.heat{display:grid;grid-template-columns:repeat(11,1fr);gap:4px;margin:6px 0 4px}
+.cell{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:11.5px;font-weight:700;color:#fff;cursor:pointer}
+.covered{background:var(--covered)} .partial{background:var(--partial)} .missing{background:var(--missing)} .not_assigned{background:var(--na);color:var(--muted)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted)} .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.comp{border-left:4px solid var(--c);padding:6px 10px;margin:8px 0;background:var(--bg);border-radius:0 10px 10px 0;font-size:13px}
+.src{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin:8px 0;font-size:13px}
+.src .snip{white-space:pre-wrap;color:var(--muted);margin-top:4px;max-height:140px;overflow:auto}
+.warnbox{background:var(--flag);color:#5c3b00;border-radius:12px;padding:8px 10px;font-size:13px}
+
+.cm{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.cm .c{display:flex;align-items:center;gap:6px;border-radius:999px;padding:5px 6px 5px 10px;font-size:12.5px;font-weight:700;color:#fff}
+.cm .c button{background:rgba(0,0,0,.18);color:#fff;padding:1px 7px;font-size:12px}
+.addc{border:1px dashed var(--line);border-radius:14px;padding:10px 12px;font-size:13px}
+.addc .comps{grid-template-columns:1fr;max-height:260px;overflow:auto;margin:8px 0}
+.note{background:var(--mint);border-radius:14px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.ph{font-size:14px;margin:16px 0 6px} .ph:first-child{margin-top:0}
+.sx{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;background:var(--panel)}
+.sx>.hd{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;font-weight:700;font-size:14px}
+.sx>.hd .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sx>.hd .chev{color:var(--muted);transition:.15s} .sx.open>.hd .chev{transform:rotate(180deg)}
+.sx>.bd{display:none;padding:0 12px 12px} .sx.open>.bd{display:block}
+.sx textarea{background:var(--bg);border:0;border-radius:10px;min-height:90px;font-size:13.5px;line-height:1.5;resize:vertical}
+.sx .mini{border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px;font-size:13px}
+.sx .mini textarea{min-height:60px;margin-top:4px}
+.addsec,.stylebox{border:1px dashed var(--line);border-radius:14px;padding:12px;margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+.stylebox{border-style:solid} .stylebox label{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px}
+.stylebox label.switch{flex-direction:row;color:var(--ink)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tpls{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.tpl{border:2px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;background:var(--bg);color:var(--ink);text-align:left;font-weight:600}
+.tpl.on{border-color:var(--accent)} .tpl small{display:block;color:var(--muted);font-weight:400;font-size:11.5px}
+.tpl .pv{height:54px;background:#fff;border-radius:6px;margin-bottom:6px;padding:6px;overflow:hidden}
+.tpl .pv i{display:block;height:3px;background:#ccc;border-radius:2px;margin:3px 0}
+.tpl .pv i.h{height:4px;width:45%}
+input[type=range]{accent-color:var(--accent)} input[type=color]{width:44px;height:30px;border:0;background:none;padding:0}
+.ed-mine{font:600 10px -apple-system,sans-serif;color:#6b4bb8;background:#efe9fb;border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px}
+.added{border-left:3px solid #8f74d6;padding-left:10px;background:#faf8ff}
+.paper table.sched{border-collapse:collapse;width:100%;font-size:.92em;margin:6px 0}
+.paper table.sched td{border:1px solid #cfcfcf;padding:4px 6px;vertical-align:top}
+/* ---------- the document ---------- */
+.right{display:flex;flex-direction:column;min-height:0}
+.docbar{display:flex;align-items:center;gap:14px;padding:10px 20px;border-bottom:1px solid var(--line);background:var(--panel);font-size:14px}
+.docbar b{font-size:15px}
+.switch{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:38px;height:22px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;margin:0}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.switch input:checked{background:var(--accent)} .switch input:checked::after{left:19px}
+.docwrap{flex:1;overflow:auto;padding:24px;position:relative}
+.paper{--pf:Georgia,serif;--hf:Georgia,serif;--ps:14.5px;--hs:15px;--ts:24px;--pl:1.55;--pc:#1f3a5f;--pm:56px;--pg:6px;--pu:uppercase;
+  max-width:860px;margin:0 auto;background:var(--paper);color:var(--paper-ink);box-shadow:var(--shadow);border-radius:4px;
+  padding:calc(var(--pm) * .85) var(--pm);font-family:var(--pf);font-size:var(--ps);line-height:var(--pl);position:relative}
+.paper h1.dt{font-family:var(--hf);font-size:var(--ts);color:var(--pc);margin:0 0 4px;text-align:var(--ta,left)}
+.paper .dsub{font-size:.9em;color:#555;margin-bottom:10px;text-align:var(--ta,left)}
+.paper h2{font-family:var(--hf);font-size:var(--hs);letter-spacing:.04em;text-transform:var(--pu);color:var(--pc);border-bottom:var(--rule,1px solid currentColor);padding-bottom:2px;margin:20px 0 8px}
+.paper h3{font-family:var(--hf);font-weight:700;font-size:calc(var(--hs) * .9);color:var(--pc);margin:14px 0 2px;opacity:.9}
+.paper .sec{margin-bottom:var(--pg);white-space:pre-wrap}
+.paper .sep{display:inline-block;width:1px;height:1em;background:#bbb;margin:0 8px;vertical-align:-2px}
+.pii{font:600 11px -apple-system,sans-serif;background:#e8ecef;color:#46525c;border-radius:4px;padding:1px 6px;vertical-align:1px}
+.ed{border-radius:3px;cursor:pointer;transition:background .2s}
+.ed ins{background:var(--ins);text-decoration:none;box-shadow:inset 0 -2px 0 var(--ins-line);padding:0 1px}
+.ed del{background:var(--del);color:var(--del-ink);padding:0 1px}
+.ed.flagged ins{background:var(--flag);box-shadow:inset 0 -2px 0 var(--flag-line)}
+.ed.accepted ins{background:#bdebd4;box-shadow:none}
+.ed:hover ins,.ed.sel ins{background:#a8e6c8} .ed.flagged:hover ins,.ed.flagged.sel ins{background:#f6dc9f}
+.ed.rejected{cursor:pointer}
+.ed .etag{font:700 10px -apple-system,sans-serif;color:#0d7d6f;background:#e6f6f1;border-radius:4px;padding:0 4px;margin-left:3px;vertical-align:2px}
+.ed.rejected .etag{color:#777;background:#eee}
+.blk{display:block;margin:6px 0;padding:6px 10px;border-left:3px solid var(--ins-line);background:#f3fbf7}
+.blk.flagged{border-left-color:var(--flag-line);background:#fffaf0}
+.cite{font:700 10.5px -apple-system,sans-serif;color:#0d7d6f;cursor:pointer;padding:0 1px}
+.cite:hover{text-decoration:underline}
+.ai-only{font:600 10px -apple-system,sans-serif;color:#9a5b05;margin-left:3px;vertical-align:2px}
+.changed ins{animation:pulse 1.2s ease-in-out 3}
+@keyframes pulse{50%{background:var(--mint-strong);box-shadow:0 0 0 4px var(--mint-strong)}}
+.refs{margin-top:28px;font-size:13px}
+.refs ol{padding-left:22px;margin:6px 0} .refs li{margin:4px 0}
+.refs li.hl{background:#e6f6f1;border-radius:4px}
+.unplaced{margin-top:18px;font:13px -apple-system,sans-serif;color:#7a5200}
+/* popover */
+#pop{position:absolute;z-index:5;width:400px;max-width:calc(100% - 32px);background:var(--panel);color:var(--ink);border:1px solid var(--line);
+  border-radius:16px;box-shadow:var(--shadow);padding:14px 16px;font:13.5px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;display:none}
+#pop .h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+#pop .lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+#pop .x{margin-left:auto;background:none;color:var(--muted);padding:2px 6px;font-size:16px}
+#pop .snip{white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:8px 10px;max-height:200px;overflow:auto;margin-top:4px}
+#pop .acts{display:flex;gap:8px;margin-top:12px}
+.bottombar{display:flex;justify-content:center;gap:12px;padding:12px;border-top:1px solid var(--line);background:var(--panel)}
+.bottombar button{padding:12px 28px;font-size:15px}
+@media (max-width:1000px){#ws{height:auto}.split{grid-template-columns:1fr}.left{border-right:0;border-bottom:1px solid var(--line)}.pane{max-height:none}
+  .paper{padding:28px 20px}.docwrap{padding:12px}}
+</style>
+</head>
+<body>
+
+<!-- ===================== APP SHELL (Figma: AWS ASPPH) ===================== -->
+<!-- Login (accounts on): Cognito checks the password; on AWS the page keeps Cognito's ID token for this tab -->
+<div id="vLogin" hidden>
+  <aside class="lstory">
+    <div class="brand"><span class="logo"><i class="ti ti-book-2"></i></span>PHACT</div>
+    <h2>Public health courses, ready for AI and aligned to CEPH.</h2>
+    <p>PHACT reads your syllabus and assessments, maps them to the CEPH competencies, and proposes changes backed by ASPPH guidance.</p>
+    <div class="lpoints">
+      <div class="lpoint"><span class="ic"><i class="ti ti-books"></i></span><div><b>Grounded in ASPPH sources</b><span>Every suggestion cites the exact passage it relies on.</span></div></div>
+      <div class="lpoint"><span class="ic"><i class="ti ti-target-arrow"></i></span><div><b>Mapped to CEPH competencies</b><span>See which competencies your course covers, and where.</span></div></div>
+      <div class="lpoint"><span class="ic"><i class="ti ti-user-check"></i></span><div><b>You decide every change</b><span>Nothing reaches your syllabus until you accept it.</span></div></div>
+    </div>
+    <p class="small" style="color:#8ea6bd">Built for ASPPH · AWS Breaking Barriers 2026</p>
+  </aside>
+  <section class="lside">
+    <div class="need">Need access? Ask your ASPPH contact.</div>
+    <div class="loginbox">
+      <div class="eyebrow">Welcome to PHACT</div>
+      <h1 id="l_title">A better course starts here.</h1>
+      <div class="seg" id="l_as" style="grid-template-columns:1fr 1fr" title="Which workspace to open. Your account's role decides what you can actually do.">
+        <label><input type="radio" name="l_as" value="professor" checked>Professor</label>
+        <label><input type="radio" name="l_as" value="admin">University admin</label>
+      </div>
+      <label id="l_namewrap" hidden>Your name<input type="text" id="l_name" autocomplete="name" placeholder="Dr. Elena Morgan"></label>
+      <label>University email<input type="email" id="l_email" autocomplete="username" placeholder="you@university.edu"></label>
+      <label>Password<input type="password" id="l_pw" autocomplete="current-password"></label>
+      <p class="muted" id="l_hint" hidden style="margin:0">At least 8 characters, with a lowercase letter and a number.</p>
+      <label id="l_invitewrap" hidden>Invite code from your university <span class="muted" style="font-weight:400">(optional for independent faculty)</span>
+        <input type="text" id="l_invite" placeholder="e.g. K7QM-3XRT" autocomplete="off" style="text-transform:uppercase"></label>
+      <button id="l_go" onclick="doLogin()"><i class="ti ti-arrow-right"></i><span id="l_golbl">Sign in to PHACT</span></button>
+      <div class="status" id="l_st" style="margin:0;text-align:center"></div>
+      <div class="switchline" id="l_switch"></div>
+      <div class="secure"><i class="ti ti-shield-check"></i>Passwords are checked by Amazon Cognito, never stored by PHACT</div>
+    </div>
+    <div class="lfoot"><span>© 2026 PHACT. Team Syllabusters.</span><span>Synthetic demo data only</span></div>
+  </section>
+</div>
+
+<div id="shell">
+  <aside class="rail">
+    <a class="brand" href="#/"><span class="logo"><i class="ti ti-book-2"></i></span>PHACT</a>
+    <div class="raillbl">Faculty workspace</div>
+    <nav>
+      <a href="#/" data-nav="home"><i class="ti ti-layout-dashboard"></i>Overview</a>
+      <a href="#/courses" data-nav="courses"><i class="ti ti-book"></i>My courses</a>
+      <a href="#/library" data-nav="library"><i class="ti ti-books"></i>Reference library</a>
+      <a href="#/settings" data-nav="settings"><i class="ti ti-shield-lock"></i>Privacy &amp; data</a>
+      <a href="/admin" id="navAdmin" hidden><i class="ti ti-settings-cog"></i>ASPPH admin</a>
+    </nav>
+    <div class="instcard" id="instCard"><div class="k">Your institution</div><b id="instName">Not set</b><span id="instSub">Add it in Privacy &amp; data</span></div>
+    <div class="railfoot">
+      <a class="help" href="#/library"><i class="ti ti-help-circle"></i>Help &amp; resources</a>
+      <div class="railmeta"><span id="models"></span><br><span id="syncState"></span></div>
+      <div class="me" id="acct" hidden></div>
+    </div>
+  </aside>
+  <div class="mainwrap">
+    <header class="topbar">
+      <div class="crumbs" id="crumbs"></div><span class="spacer"></span>
+      <span class="privpill"><i class="ti ti-shield-check"></i>Private faculty workspace</span>
+      <span class="avatar" id="topAvatar" style="width:30px;height:30px;font-size:12px">P</span>
+    </header>
+  <main class="mainv">
+
+    <!-- Overview (Figma: Faculty dashboard) -->
+    <section class="view" id="vHome">
+      <div class="pagehead">
+        <div><h1 id="hello">Welcome.</h1><p class="muted">You're making thoughtful progress. Pick up where you left off, or start something new.</p></div>
+        <a class="btn" href="#/new"><i class="ti ti-plus"></i>Upload new syllabus</a>
+      </div>
+      <div class="dash">
+        <div>
+          <div id="contBox"></div>
+          <section class="panel">
+            <div class="ph2"><h2>Your courses</h2><a href="#/courses" class="muted">All courses</a></div>
+            <div id="courseTable"></div>
+          </section>
+        </div>
+        <div>
+          <section class="panel" id="profCard"></section>
+          <section class="panel sgw">
+            <div class="ic"><i class="ti ti-books"></i></div>
+            <h2 style="margin-bottom:6px">A source-grounded workspace</h2>
+            <p class="muted" style="margin:0 0 10px">Every suggestion connects to ASPPH guidance and the CEPH competencies, and shows its source. You approve every change.</p>
+            <span class="chipst" id="kbChip">ASPPH knowledge base</span>
+            <p style="margin:12px 0 0"><a href="#/library">Explore the reference library →</a></p>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <!-- My courses: every course as a card -->
+    <section class="view" id="vCourses">
+      <div class="pagehead">
+        <div><h1>My courses</h1><p class="muted">Every course you've added. Open one to keep revising it, or upload a new syllabus.</p></div>
+        <a class="btn" href="#/new"><i class="ti ti-plus"></i>Upload new syllabus</a>
+      </div>
+      <div class="cgrid" id="courseGrid"></div>
+    </section>
+
+    <!-- Reference library: search the ASPPH knowledge base -->
+    <section class="view" id="vLibrary">
+      <div class="pagehead"><div><h1>Reference library</h1><p class="muted">The ASPPH sources PHACT relies on. Search them the way PHACT does.</p></div></div>
+      <section class="panel">
+        <h2><i class="ti ti-search"></i>Search the ASPPH knowledge base</h2>
+        <div class="row"><input type="text" id="lib_q" placeholder="e.g. acceptable student use of AI in assessments" style="flex:1"><button id="lib_btn">Search</button></div>
+        <div id="lib_hits"></div>
+      </section>
+      <section class="panel">
+        <h2><i class="ti ti-info-circle"></i>How PHACT uses these sources</h2>
+        <div class="willcheck">
+          <div><i class="ti ti-file-certificate"></i><span><b>Cited, not invented</b><small>A suggestion without a matching ASPPH passage is labeled "AI suggestion · no source".</small></span></div>
+          <div><i class="ti ti-users"></i><span><b>Peer examples are separate</b><small>Syllabi shared by other faculty and approved by ASPPH inspire ideas, but are never cited as evidence.</small></span></div>
+          <div><i class="ti ti-refresh"></i><span><b>Curated by ASPPH staff</b><small>Staff publish and retire documents in the admin console, so retired guidance stops being used.</small></span></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Privacy & data: the professor's profile, defaults, standing preferences, and activity -->
+    <section class="view" id="vSettings">
+      <div class="pagehead"><div><h1>Privacy &amp; data</h1><p class="muted">Your profile, your defaults for new courses, and what PHACT keeps.</p></div></div>
+      <section class="panel">
+        <h2><i class="ti ti-shield-lock"></i>What happens to your data</h2>
+        <div class="willcheck">
+          <div><i class="ti ti-eye-off"></i><span><b>Names never reach the AI</b><small>Names, emails and phone numbers are hidden by Amazon Comprehend before Claude reads anything, and restored in your download.</small></span></div>
+          <div><i class="ti ti-lock"></i><span><b>Your account only</b><small>Your courses and uploads are stored under your account (DynamoDB and S3). Other faculty can't see them.</small></span></div>
+          <div><i class="ti ti-school-off"></i><span><b>Instructor materials only</b><small>PHACT refuses documents that look like student submissions.</small></span></div>
+        </div>
+      </section>
+      <section class="panel">
+        <h2><i class="ti ti-user"></i>Your profile</h2>
+        <div class="setgrid">
+          <label>Your name (for the greeting)<input type="text" id="p_name" placeholder="e.g. Dr. Rivera"></label>
+          <label>Institution<input type="text" id="p_inst" placeholder="e.g. Westbridge University"></label>
+          <label>School or department<input type="text" id="p_dept" placeholder="e.g. School of Public Health"></label>
+        </div>
+        <div class="privacy">🔒 Your name is never sent to the AI.</div>
+      </section>
+      <section class="panel">
+        <h2><i class="ti ti-adjustments"></i>Defaults for new courses</h2>
+        <div class="setgrid">
+          <label>Degree level<select id="p_level"><option value="AA">Associate Level (AA)</option><option value="BA/BS">Bachelor's Level (BA/BS)</option><option value="MA/MS/MPH" selected>Master's Level (MA/MS/MPH)</option><option value="PhD/DrPH">Doctoral Level (PhD/DrPH)</option></select></label>
+          <label>Format<select id="p_format"><option value="in_person">In person</option><option value="online_sync">Virtual</option><option value="hybrid">Hybrid</option><option value="online_async">Online, self-paced</option></select></label>
+          <label>AI use in your courses<select id="p_stance"><option value="ban">None: no AI use</option><option value="restricted">Guided: AI supports, doesn't author</option><option value="open">Integrated: collaborative, disclosed</option></select></label>
+          <label>Your comfort with AI<select id="p_comfort"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></label>
+          <label>Syllabus style<select id="p_template"><option>Classic</option><option>Modern</option><option>Compact</option><option>Academic</option></select></label>
+        </div>
+      </section>
+      <section class="panel">
+        <h2><i class="ti ti-message-cog"></i>Standing preferences for PHACT</h2>
+        <p class="muted" style="margin-top:0">PHACT reads these in every analysis and chat, for every course.</p>
+        <textarea id="p_notes" rows="4" placeholder="e.g. Keep added workload small: many of my students work full time. Prefer low-stakes, in-class activities over new papers."></textarea>
+      </section>
+      <div class="row"><button id="btnSavePrefs">Save settings</button><span class="muted" id="prefsSaved"></span>
+        <span class="spacer"></span><button class="ghost" id="btnClearAll">Clear all saved courses</button></div>
+      <section class="panel" id="activityCard" hidden style="margin-top:16px">
+        <h2><i class="ti ti-history"></i>Your activity</h2>
+        <p class="muted" style="margin-top:0">Saved to your account: logins, uploads, analyses, decisions and downloads.</p>
+        <div id="activity"></div>
+      </section>
+    </section>
+
+    <!-- Step 1: upload the syllabus (nothing else; step 2 shows what PHACT read from it) -->
+    <section class="view" id="vNew">
+      <div id="n_flow"></div>
+      <div class="pagehead"><div><h1 id="n_title">Start with your syllabus.</h1><p class="muted" id="n_sub">Upload your current syllabus. PHACT reads it and fills in the course details for you to check in the next step.</p></div></div>
+      <div class="twocol">
+        <div>
+          <section class="panel" id="n_upcard">
+            <div class="ph2"><h2><i class="ti ti-upload"></i>Upload your syllabus</h2><span class="chipst" id="n_upchip" hidden>Uploaded</span></div>
+            <label class="drop" id="n_drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="nDrop(event)">
+              <input type="file" id="n_file" accept=".pdf,.docx,.txt" onchange="nPicked()">
+              <i class="ti ti-cloud-upload" style="font-size:28px;color:var(--accent)"></i>
+              <b>Drop your syllabus here, or browse files</b><span class="muted">PDF, Word or text</span></label>
+            <div id="n_filerow"></div>
+            <div class="samples" id="n_samples"></div>
+            <details><summary>…or paste text instead</summary><textarea id="n_paste" rows="4" placeholder="Paste the syllabus"></textarea></details>
+          </section>
+          <div class="status" id="n_st"></div>
+          <div class="actionbar">
+            <a class="btn ghost" href="#/" id="n_back"><i class="ti ti-arrow-left"></i>Back to dashboard</a>
+            <span class="muted" id="n_saved"></span>
+            <button class="big" id="n_go">Continue to course details<i class="ti ti-arrow-right"></i></button>
+          </div>
+        </div>
+        <div>
+          <div class="infocard"><b><i class="ti ti-info-circle"></i>Your course, your decisions</b>PHACT compares your syllabus with your preferences and selected ASPPH reference materials. No changes are made until you accept them.</div>
+          <div class="quiet"><i class="ti ti-lock"></i><span>Personal details (names, emails, phone numbers) are hidden from the AI before it reads anything. Instructor materials only, never student work.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 2: course details (filled in from the syllabus) and how the professor wants to teach -->
+    <section class="view" id="vPrefs">
+      <div id="pf_flow"></div>
+      <div class="pagehead"><div><h1>Course details and preferences.</h1><p class="muted" id="pf_sub"></p></div><span class="chipst" id="pf_saved" hidden>Saved</span></div>
+      <div id="pf_warn"></div>
+      <section class="panel">
+        <div class="ph2"><h2><i class="ti ti-book"></i>Course details</h2><span class="muted" id="pf_autonote"></span></div>
+        <div class="fgrid">
+          <label class="w3"><span>Course title <span class="req">*</span></span><input type="text" id="pf_name" placeholder="Public Health Policy & Practice"></label>
+          <label><span>Course code <span class="req">*</span></span><input type="text" id="pf_code" placeholder="HPM 520"></label>
+          <label>Academic term<input type="text" id="pf_term" placeholder="Fall 2026"></label>
+          <label>Credits<input type="text" id="pf_credits" placeholder="3"></label>
+          <label>Lead professor<input type="text" id="pf_prof" placeholder="Dr. Elena Morgan"></label>
+          <label>Department<input type="text" id="pf_dept" placeholder="Health Policy & Management"></label>
+          <label>Degree level<select id="pf_level"><option value="">Choose…</option><option value="AA">Associate Level (AA)</option><option value="BA/BS">Bachelor's Level (BA/BS)</option><option value="MA/MS/MPH">Master's Level (MA/MS/MPH)</option><option value="PhD/DrPH">Doctoral Level (PhD/DrPH)</option></select></label>
+          <label>Class size<input type="text" id="pf_size" placeholder="40"></label>
+          <div class="w3"><div style="font-size:13px;font-weight:600;margin-bottom:6px">Teaching format</div>
+            <div class="opts3">
+              <label class="optc"><input type="radio" name="pf_format" value="online_sync"><i class="ti ti-device-laptop"></i>Virtual</label>
+              <label class="optc"><input type="radio" name="pf_format" value="in_person"><i class="ti ti-school"></i>In person</label>
+              <label class="optc"><input type="radio" name="pf_format" value="hybrid"><i class="ti ti-arrows-exchange"></i>Hybrid</label>
+            </div></div>
+        </div>
+        <p class="fnote"><span class="req">*</span> Required. The professor's name stays with you: it is never sent to the AI.</p>
+      </section>
+      <div class="twocol" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div>
+          <section class="panel">
+            <h2>AI incorporation level</h2>
+            <p class="muted" style="margin-top:0">Choose a guidance level, not a percentage of course content.</p>
+            <div class="seg">
+              <label><input type="radio" name="pf_ai" value="none">None</label>
+              <label><input type="radio" name="pf_ai" value="assistive">Assistive</label>
+              <label><input type="radio" name="pf_ai" value="guided">Guided</label>
+              <label><input type="radio" name="pf_ai" value="integrated">Integrated</label>
+            </div>
+            <div class="segnote" id="pf_ainote"></div>
+          </section>
+          <section class="panel">
+            <h2>Learning assessments you'd like to incorporate in the course</h2>
+            <div class="checks" id="pf_designs">
+              <label><input type="checkbox" name="pf_design" value="discussion"><span>Discussion Posts</span></label>
+              <label><input type="checkbox" name="pf_design" value="scenarios"><span>Real-life Scenarios</span></label>
+              <label><input type="checkbox" name="pf_design" value="quiz"><span>Quiz</span></label>
+              <label><input type="checkbox" name="pf_design" value="group"><span>Group Project</span></label>
+              <label><input type="checkbox" name="pf_design" value="ai_analysis"><span>AI-assistance Analysis</span></label>
+              <label><input type="checkbox" name="pf_design" value="writing"><span>Essay &amp; Writings</span></label>
+              <label><input type="checkbox" name="pf_design" value="cases"><span>Case Studies</span></label>
+            </div>
+          </section>
+          <section class="panel">
+            <h2>Anything else PHACT should know about this course?</h2>
+            <textarea id="pf_notes" rows="3" placeholder="e.g. many students are working nurses; keep added workload small"></textarea>
+          </section>
+        </div>
+        <div>
+          <section class="panel">
+            <div class="ph2"><h2>CEPH competencies</h2><span class="chipst" id="pf_ccount"></span></div>
+            <p class="muted" style="margin-top:0" id="pf_cnote">Suggested by PHACT from your learning objectives. Uncheck any that don't apply.</p>
+            <div class="pcomps" id="pf_comps"></div>
+            <button class="ghost" style="margin-top:10px" onclick="openCompPicker()"><i class="ti ti-plus"></i>Add more competencies</button>
+          </section>
+        </div>
+      </div>
+      <div class="status" id="pf_st"></div>
+      <div class="actionbar">
+        <a class="btn ghost" id="pf_back"><i class="ti ti-arrow-left"></i>Back to upload</a>
+        <span class="muted">About 1–2 minutes</span>
+        <button class="ghost big" id="pf_save" hidden>Save details</button>
+        <button class="big" id="pf_go"><i class="ti ti-sparkles"></i>Run AI analysis</button>
+      </div>
+      <!-- "Add more competencies": the remaining CEPH competencies, narrowed as you type -->
+      <div class="modal" id="cmodal" hidden onclick="if (event.target === this) closeCompPicker()">
+        <div class="mbox">
+          <div class="ph2"><h2>Add competencies</h2><button class="ghost sm" onclick="closeCompPicker()"><i class="ti ti-x"></i></button></div>
+          <input type="text" id="cm_q" placeholder="Search competencies, e.g. policy, data, communication…" oninput="renderCompPicker()">
+          <div class="pcomps" id="cm_list" style="margin-top:10px;max-height:52vh"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: AI analysis in progress -->
+    <section class="view" id="vRun">
+      <div id="run_flow"></div>
+      <div class="pagehead"><div><h1>Analyzing your syllabus.</h1><p class="muted" id="run_sub"></p></div></div>
+      <section class="panel" style="max-width:720px"><div id="run_box"></div></section>
+    </section>
+
+    <!-- Course hub: a course whose syllabus has been analyzed (documents, semester, sharing) -->
+    <section class="view" id="vCourse">
+      <div class="pagehead"><div><h1 id="courseTitle">Course</h1><p class="muted" id="courseSub"></p></div>
+        <div class="row" id="hubActs"></div></div>
+      <div id="resumeBox"></div>
+    </section>
+
+    <!-- Step 5 (Figma: Export and saved course) -->
+    <section class="view" id="vExport">
+      <div id="ex_flow"></div>
+      <div id="ex_body"></div>
+    </section>
+  </main>
+  </div>
+</div>
+
+<!-- ===================== WORKSPACE ===================== -->
+<div id="ws" class="ws" hidden>
+  <div class="top">
+    <button class="iconbtn" title="Back to the course" onclick="showSetup()"><i class="ti ti-arrow-left"></i></button>
+    <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><h1 id="wsTitle">Syllabus review</h1><span class="muted" id="courseChip" style="font-size:12.5px;white-space:nowrap"></span></div>
+    <span class="spacer" style="max-width:24px"></span>
+    <div id="wsFlow" style="flex:1;display:flex"></div>
+    <button class="soft" id="btnComps" hidden></button>
+    <span class="muted" id="wsModels" hidden></span>
+  </div>
+  <div class="split">
+    <!-- left: chat + changes -->
+    <div class="left">
+      <div class="tabs">
+        <button class="on" data-tab="Revise"><i class="ti ti-sparkles"></i>Recommendations</button>
+        <button data-tab="Style"><i class="ti ti-typography"></i>Style</button>
+      </div>
+      <div class="pane on" id="paneRevise">
+        <div class="changes">
+          <h3>Competency alignment</h3>
+          <div class="cboxes" id="cboxes"></div>
+          <div class="legend"><span style="--c:var(--covered)">covered</span><span style="--c:var(--partial)">partial</span><span style="--c:var(--missing)">missing</span></div>
+          <div id="cinfo"></div>
+        </div>
+        <div class="changes">
+          <h3>See what's changed</h3>
+          <div id="chgList"></div>
+          <div id="droppedBox"></div>
+        </div>
+        <div class="thread" id="thread"></div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="pane" id="paneEditor" hidden>
+        <div class="note">Edit the syllabus yourself, alongside PHACT. Your changes show live on the page, go into the download, and are listed as <b>instructor edits</b> in the review copy. 🔒 tags are personal details hidden from the AI: leave them as they are.</div>
+        <div id="edList"></div>
+        <div class="addsec">
+          <b>+ Add a section</b>
+          <div class="row"><select id="addPreset"></select><select id="addAfter"></select></div>
+          <div class="row"><button class="soft" id="btnAddSec">Add section</button><button class="ghost" id="btnAddAsk" title="Ask PHACT to draft it, backed by ASPPH sources">✦ Ask PHACT to draft it</button></div>
+        </div>
+      </div>
+      <div class="pane" id="paneStyle">
+        <div class="stylebox">
+          <b>Syllabus template</b>
+          <div class="tpls" id="tpls"></div>
+        </div>
+        <div class="stylebox">
+          <b>Accent color</b>
+          <div class="row"><input type="color" id="st_accent"><span class="muted">Headings and rules</span></div>
+        </div>
+        <div class="stylebox">
+          <b>Font</b>
+          <label>Body font<select id="st_font"></select></label>
+          <label>Heading font<select id="st_hfont"></select></label>
+          <div class="grid2">
+            <label>Title<select id="st_title"></select></label><label>Section headers<select id="st_h"></select></label>
+            <label>Body text<select id="st_body"></select></label><label>Line spacing<select id="st_line"></select></label>
+          </div>
+        </div>
+        <div class="stylebox">
+          <b>Layout</b>
+          <label class="switch"><input type="checkbox" id="st_table"> Show the schedule as a table</label>
+          <label class="switch"><input type="checkbox" id="st_upper"> Uppercase section headers</label>
+          <label>Margins<input type="range" id="st_margin" min="0.5" max="1.5" step="0.25"></label>
+          <label>Space between paragraphs<input type="range" id="st_gap" min="0" max="12" step="2"></label>
+          <label class="switch"><input type="checkbox" id="st_apply"> Also restyle my uploaded Word file <span class="muted">(off = keep its own formatting)</span></label>
+          <button class="ghost" id="btnResetStyle">↺ Reset formatting</button>
+        </div>
+      </div>
+      <div class="pane" id="paneEvidence" hidden>
+        <h3 class="ph">Alignment matrix</h3>
+        <p class="muted" style="margin-top:0">Each CEPH competency for this course: where the syllabus covers it, and which PHACT changes close the gaps.</p>
+        <div id="matrix"></div>
+        <h3 class="ph">Competencies for this course</h3>
+        <div id="compMgr"></div>
+        <h3 class="ph">CEPH coverage</h3>
+        <div class="heat" id="heat"></div>
+        <div class="legend"><span style="--c:var(--covered)">covered</span><span style="--c:var(--partial)">partial</span><span style="--c:var(--missing)">missing</span><span style="--c:var(--na)">not assigned</span></div>
+        <div id="compList"></div>
+        <div id="peerBox"></div>
+        <h3 class="ph">ASPPH sources</h3>
+        <p class="muted">Every ASPPH passage PHACT retrieved for this syllabus. Numbers match the citations in the document.</p>
+        <div id="srcList"></div>
+        <h3 style="font-size:14px;margin:18px 0 6px">Search the knowledge base</h3>
+        <div class="row"><input type="text" id="q" placeholder="e.g. acceptable student use of AI" style="flex:1"><button id="btnSearch">Search</button></div>
+        <div id="hits"></div>
+        <h3 class="ph">Details</h3>
+        <div id="outlineBox"></div>
+        <details><summary>What PHACT searched for (retrieval log)</summary><div id="searches"></div></details>
+        <details><summary>Timing and tokens per Claude call</summary><div id="stats"></div></details>
+      </div>
+      <div class="composer" id="composer">
+        <textarea id="msg" rows="2" placeholder="Tell me how you'd like to change the edits…"></textarea>
+        <div class="row"><span class="muted" id="st4"></span><button id="btnSend" title="Send">↑</button></div>
+      </div>
+      <div class="foot" id="foot">Every change cites ASPPH sources. Names are hidden from the AI.</div>
+    </div>
+
+    <!-- right: the live document -->
+    <div class="right">
+      <div class="docbar">
+        <b id="docTitle"></b><span class="spacer"></span>
+        <label class="switch"><input type="checkbox" id="showChanges" checked> Show changes</label>
+        <span class="muted" id="docCounts"></span>
+      </div>
+      <div class="docwrap" id="docwrap">
+        <div class="paper" id="paper"></div>
+        <div id="pop"></div>
+      </div>
+      <div class="bottombar">
+        <button class="ghost" id="btnAcceptAll"><i class="ti ti-checks"></i>Accept all verified</button>
+        <button class="ghost" id="btnReview" title="Highlighted changes, [PHACT E#] tags, and a Changes and sources appendix">Review copy with sources</button>
+        <button id="btnExport" title="Clean: reads as your own syllabus, no highlights"><i class="ti ti-download"></i>Download (.docx)</button>
+        <button id="btnToExport" class="big">Continue to export &amp; save<i class="ti ti-arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S = {text:"", docId:null, outline:null, checklist:[], comps:[], passages:[], edits:[], decisions:{}, history:[],
+           changed:new Set(), course:null, last:null, sel:null,
+           manual:{}, added:[], style:null, openSec:null};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const md = t => String(t ?? "").replace(/#{1,6}\s*/g, "").replace(/\*\*/g, "").trim();  // passages are stored as markdown
+const srcHref = uri => `/api/source?uri=${encodeURIComponent(uri)}`;
+const srcLink = uri => uri ? `<a href="#" onclick="event.preventDefault();event.stopPropagation();openSource(${esc(JSON.stringify(uri))})">open PDF page ↗</a>` : "";
+window.openSource = async uri => {
+  const w = window.open("", "_blank");  // opened now (inside the click), so popup blockers allow it
+  try {
+    const r = await fetch(srcHref(uri) + "&json=1"); const j = await r.json();
+    if (!r.ok || !j.url) throw new Error(j.detail || r.statusText);
+    if (w) w.location = j.url; else location.href = j.url;
+  } catch (e) { if (w) w.close(); alert("Couldn't open the source: " + e.message); }
+};
+
+async function post(url, body, isForm){
+  if (PHACT.jobs && PHACT.isLong(url)) {  // on AWS: run as an async job (API Gateway stops waiting at ~30 s)
+    let file = null;
+    if (isForm) { const f = body.get("file"); file = {name: f.name, b64: await PHACT.fileToB64(f)}; body = null; }
+    return PHACT.runJob(url, body, file);
+  }
+  const r = await fetch(url, {method:"POST", body: isForm ? body : JSON.stringify(body),
+                              headers: isForm ? {} : {"Content-Type":"application/json"}});
+  const j = await r.json().catch(() => ({detail: r.statusText}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+function busy(btn, statusEl, msg){ btn.disabled = true; statusEl.innerHTML = `<span class="spin">${esc(msg)}</span>`; }
+function done(btn, statusEl, msg){ btn.disabled = false; statusEl.textContent = msg; }
+
+
+// ---------- saved data (this browser only) ----------
+const STANCE_LABEL = {ban:"AI banned", restricted:"AI restricted", open:"AI open"};
+const FORMAT_LABEL = {in_person:"in person", online_sync:"online live", online_async:"online self-paced", hybrid:"hybrid"};
+// Storage. Accounts off: this browser (localStorage). Accounts on: the user's account, held in memory
+// after login (so the rest of the page stays synchronous) and saved to the server in the background:
+// courses → DynamoDB, each course's progress → S3, preferences → the profile. Style stays per browser.
+const local = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch { return false; } },
+  del(k){ try { localStorage.removeItem(k); } catch {} },
+};
+const ACC = {on: false, user: null, cache: {}, pending: new Map(), timer: null, syncedCourses: []};
+const store = {
+  get(k, d){ if (!ACC.on || k === "phact.style") return local.get(k, d); return k in ACC.cache ? JSON.parse(JSON.stringify(ACC.cache[k])) : d; },
+  set(k, v){ if (!ACC.on || k === "phact.style") return local.set(k, v); ACC.cache[k] = JSON.parse(JSON.stringify(v)); queueSave(k); return true; },
+  del(k){ if (!ACC.on || k === "phact.style") return local.del(k); delete ACC.cache[k]; },
+};
+function queueSave(k){ ACC.pending.set(k, true); setSync("Saving…"); clearTimeout(ACC.timer); ACC.timer = setTimeout(flushSaves, 700); }
+async function api(method, path, body){
+  const r = await fetch(path, {method, headers: body ? {"Content-Type": "application/json"} : {}, body: body ? JSON.stringify(body) : undefined});
+  if (r.status === 401 && ACC.on) { showLogin("Your session ended. Please log in again."); throw new Error("Please log in."); }
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+  return r.json();
+}
+async function flushSaves(){
+  const keys = [...ACC.pending.keys()]; ACC.pending.clear();
+  try {
+    for (const k of keys) {
+      if (k === "phact.prefs") await api("PUT", "/api/data/profile", {prefs: ACC.cache[k] || {}});
+      else if (k === "phact.courses") {
+        const now = ACC.cache[k] || [], codes = new Set(now.map(c => c.code));
+        for (const c of now) await api("PUT", `/api/data/courses/${encodeURIComponent(c.code)}`, {course: c});
+        for (const old of ACC.syncedCourses.filter(c => !codes.has(c))) await api("DELETE", `/api/data/courses/${encodeURIComponent(old)}`);
+        ACC.syncedCourses = [...codes];
+      } else if (k.startsWith("phact.session.") && ACC.cache[k]) {
+        await api("PUT", `/api/data/progress/${encodeURIComponent(k.slice(14))}`, ACC.cache[k]);
+      }
+    }
+    setSync(ACC.pending.size ? "Saving…" : "✓ Saved to your account");
+  } catch (e) { setSync("⚠ Not saved: " + e.message); keys.forEach(k => ACC.pending.set(k, true)); }
+}
+function setSync(t){ const el = document.getElementById("syncState"); if (el) el.textContent = ACC.on ? t : ""; }
+window.addEventListener("beforeunload", e => { if (ACC.on && ACC.pending.size) { flushSaves(); e.preventDefault(); e.returnValue = ""; } });
+function logEvent(type, detail = "", course = S.course?.code || ""){  // history (Phase 6); fire and forget
+  if (ACC.on) fetch("/api/data/events", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({type, course, detail: String(detail).slice(0, 300)})}).catch(() => {});
+}
+function loadCourses(){ return store.get("phact.courses", []); }
+function saveCourses(list){ store.set("phact.courses", list); }
+function prefs(){ return store.get("phact.prefs", {level:"MPH", format:"in_person", stance:"restricted", comfort:"beginner", template:"Classic", notes:"", name:"", inst:""}); }
+const sessKey = code => "phact.session." + code;
+function loadSession(code){ return store.get(sessKey(code), null); }
+// One saved session per course: the syllabus outline, PHACT's edits, your decisions, hand edits and chat.
+// Semester agent: the syllabus is the course's root document; each assessment (homework, exam, project,
+// written) is a document of its own under session.materials[id], with exactly the same fields, so the
+// workspace works for both. S.active = null (syllabus) or the open assessment's id.
+function saveSession(){
+  if (!S.course?.code || !S.outline) return;
+  const root = loadSession(S.course.code) || {};
+  const doc = {outline: S.outline, comps: S.comps, passages: S.passages, edits: S.edits,
+    decisions: S.decisions, decidedAt: S.decidedAt || {}, manual: S.manual, added: S.added, history: S.history, docId: S.docId,
+    last: {dropped: S.last?.dropped || [], searches: S.last?.searches || [], stats: S.last?.stats || [], examples: S.last?.examples || []}, savedAt: Date.now()};
+  if (S.active) { root.materials = root.materials || {}; root.materials[S.active] = {...root.materials[S.active], ...doc}; }
+  else Object.assign(root, doc);
+  const ok = store.set(sessKey(S.course.code), root);
+  if (!ok) console.warn("Couldn't save this course in the browser (storage full?)");
+  const list = loadCourses(), c = list.find(x => x.code === S.course.code);
+  if (c) { c.updatedAt = Date.now(); saveCourses(list); }
+}
+function useSession(code){  // load a course's saved work into the page state
+  const d = loadSession(code) || {};
+  Object.assign(S, {outline: d.outline || null, comps: d.comps || [], passages: d.passages || [], edits: d.edits || [],
+    decisions: d.decisions || {}, decidedAt: d.decidedAt || {}, manual: d.manual || {}, added: d.added || [],
+    history: d.history || [], docId: d.docId || null, last: d.last || null, changed: new Set(), text: ""});
+  S.loadedCode = code; S.active = null; S.mat = null;
+}
+function useMaterial(code, id){  // load one assessment's work into the page state
+  const d = loadSession(code)?.materials?.[id];
+  if (!d) return false;
+  Object.assign(S, {outline: d.outline, comps: d.comps || [], passages: d.passages || [], edits: d.edits || [],
+    decisions: d.decisions || {}, decidedAt: d.decidedAt || {}, manual: d.manual || {}, added: d.added || [],
+    history: d.history || [], docId: d.docId || null, last: d.last || null, changed: new Set(), text: ""});
+  S.loadedCode = code; S.active = id; S.mat = d;
+  return true;
+}
+function materials(code){ return Object.values(loadSession(code)?.materials || {}).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); }
+// What PHACT should remember about this course in every assessment analysis and chat (the "course memory").
+function courseMemory(){
+  const root = loadSession(S.course.code) || {}, mats = materials(S.course.code);
+  const comps = (root.comps || []).filter(c => c.status !== "not_assigned").map(c => `#${c.id}`).join(", ") || "not chosen yet";
+  const docs = [{name: "the syllabus", d: root}, ...mats.map(m => ({name: m.title, d: m}))];
+  const decided = k => docs.flatMap(({name, d}) => (d.edits || []).filter(e => (d.decisions || {})[e.edit_id] === k)
+    .map(e => `${name}: ${(e.proposed || "").slice(0, 90)}${e.aias_level ? ` (AIAS ${e.aias_level})` : ""}`)).slice(-5);
+  return [`Syllabus AI policy: ${(root.outline?.ai_policy || "none stated").slice(0, 400)}`,
+          `Course competencies: ${comps}`,
+          mats.length ? `Assessments so far: ${mats.map(m => `${m.title} (${m.type}${m.week ? ", " + weekName(m.week, root) : ""})${m.summary ? ": " + m.summary : ""}`).join("; ")}` : "",
+          (root.refs || []).length ? `Other course materials: ${root.refs.map(r => `${r.title}${r.week ? " (" + weekName(r.week, root) + ")" : ""}: ${r.summary}`).join("; ")}` : "",
+          decided("accepted").length ? `The professor accepted: ${decided("accepted").join(" | ")}` : "",
+          decided("rejected").length ? `The professor rejected (don't repeat these ideas): ${decided("rejected").join(" | ")}` : ""]
+    .filter(Boolean).join("\n");
+}
+function weekName(id, root){ const sec = (root || loadSession(S.course.code) || {}).outline?.sections?.find(x => x.id === id); return sec ? sec.title : id; }
+// The professor's standing preferences travel with every analysis and chat (never their name).
+function courseForAI(){
+  const pf = prefs().notes?.trim(), c = S.course;
+  const desc = c.description || syllabusDescription(loadSession(c.code) || {});
+  const lv = c.ai_level && AI_LEVELS[c.ai_level] ? `AI incorporation level chosen: ${plain(AI_LEVELS[c.ai_level].note)}` : "";
+  const design = (c.design || []).map(d => DESIGN[d]).filter(Boolean).length ? `Learning assessments the professor wants to incorporate: ${c.design.map(d => DESIGN[d]).filter(Boolean).join("; ")}` : "";
+  const {professor, ...rest} = c;  // the professor's name never goes to the AI
+  return {...rest, notes: [pf ? `Standing preferences: ${pf}` : "", lv, design, c.term ? `Term: ${c.term}` : "", c.department ? `Department: ${c.department}` : "",
+                           desc ? `Course description: ${desc.slice(0, 600)}` : "", c.notes].filter(Boolean).join(" · ")};
+}
+
+// ---------- routing: #/  #/settings  #/new  #/c/CODE  #/c/CODE/revise  #/c/CODE/m/ID (an assessment) ----------
+const NAV_OF = {vHome: "home", vCourses: "courses", vLibrary: "library", vSettings: "settings"};
+function showView(id, crumbs){
+  $("shell").hidden = id === "ws"; $("ws").hidden = id !== "ws";
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === id));
+  document.querySelectorAll(".rail nav a").forEach(a => a.classList.toggle("on", a.dataset.nav === (NAV_OF[id] || "courses")));
+  const cr = crumbs || {vHome: ["Overview"], vCourses: ["My courses"], vLibrary: ["Reference library"], vSettings: ["Privacy & data"]}[id] || ["My courses"];
+  $("crumbs").innerHTML = cr.map((c, i) => i < cr.length - 1 ? (c === "My courses" ? `<a href="#/courses">${esc(c)}</a>` : esc(c)) : `<b>${esc(c)}</b>`).join(" › ");
+  window.scrollTo(0, 0);
+}
+// The Figma flow: 1 Course details → 2 Preferences → 3 AI analysis → 4 Syllabus review → 5 Export & save
+const FLOW = ["Upload syllabus", "Course details", "AI analysis", "Syllabus review", "Export & save"];
+function flowHTML(on, c){
+  const root = c ? loadSession(c.code) || {} : {};
+  const reach = [!!c, !!root.outline, !!(root.edits || []).length, !!(root.edits || []).length, !!(root.edits || []).length];
+  const href = c ? [`#/c/${encodeURIComponent(c.code)}/details`, `#/c/${encodeURIComponent(c.code)}/prefs`, null, `#/c/${encodeURIComponent(c.code)}/revise`, `#/c/${encodeURIComponent(c.code)}/export`] : ["#/new"];
+  return `<nav class="flow">${FLOW.map((name, i) => {
+    const n = i + 1, done = n < on || (n !== on && reach[i] && n !== 3 && n < 5), cls = n === on ? "on" : done ? "done" : "";
+    const inner = `<span class="n">${done ? `<i class="ti ti-check"></i>` : n}</span>${esc(name)}`;
+    const link = done && href[i] && n !== on;
+    return (i ? `<span class="fline ${n <= on || done ? "done" : ""}"></span>` : "") + (link ? `<a class="fs ${cls}" href="${href[i]}">${inner}</a>` : `<span class="fs ${cls}">${inner}</span>`);
+  }).join("")}</nav>`;
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1) || "/"), parts = h.split("/").filter(Boolean);
+  hidePop?.();
+  if (!parts.length) { renderHome(); return showView("vHome"); }
+  if (parts[0] === "courses") { renderCourses(); return showView("vCourses"); }
+  if (parts[0] === "library") return showView("vLibrary");
+  if (parts[0] === "settings") { renderPrefs(); return showView("vSettings"); }
+  if (parts[0] === "new" && parts[1] === "details") {  // step 2 of a new course: the syllabus read in step 1
+    if (!pending()) { location.replace("#/new"); return; }
+    S.course = null; S.loadedCode = null; useSession("\u0000none"); S.loadedCode = null;
+    openPrefs(null); return showView("vPrefs", ["My courses", "New course"]);
+  }
+  if (parts[0] === "new") { openDetails(null); return showView("vNew", ["My courses", "New course"]); }
+  if (parts[0] === "c" && parts[1]) {
+    const c = loadCourses().find(x => x.code === parts[1]);
+    if (!c) { location.hash = "#/"; return; }
+    S.course = c;
+    const crumbs = ["My courses", `${c.code} · ${c.term || c.name}`];
+    if (parts[2] === "details") { if (S.loadedCode !== c.code || S.active) useSession(c.code); openDetails(c); return showView("vNew", crumbs); }
+    if (parts[2] === "prefs") { if (S.loadedCode !== c.code || S.active) useSession(c.code); if (!S.outline) { location.hash = `#/c/${encodeURIComponent(c.code)}/details`; return; } openPrefs(c); return showView("vPrefs", crumbs); }
+    if (parts[2] === "export") { if (S.loadedCode !== c.code || S.active) useSession(c.code); if (!S.edits.length) { location.hash = `#/c/${encodeURIComponent(c.code)}`; return; } renderExport(c); return showView("vExport", crumbs); }
+    if (parts[2] === "m" && parts[3]) {  // an assessment's workspace
+      if (S.loadedCode !== c.code || S.active !== parts[3]) {
+        if (S.loadedCode === c.code) saveSession();
+        if (!useMaterial(c.code, parts[3])) { location.hash = `#/c/${encodeURIComponent(c.code)}`; return; }
+        $("thread").innerHTML = "";
+      }
+      return openWorkspace();
+    }
+    if (S.loadedCode !== c.code || S.active) {  // back to the course's syllabus
+      if (S.loadedCode === c.code) saveSession();
+      useSession(c.code); $("thread").innerHTML = ""; S.startOver = false;
+    }
+    if (parts[2] === "revise") {
+      if (!S.edits.length) { location.hash = `#/c/${encodeURIComponent(c.code)}`; return; }
+      return openWorkspace();
+    }
+    // the course's own page depends on how far it got: no syllabus → step 1, read but not analyzed → step 2, else the hub
+    if (!S.outline) { location.replace(`#/c/${encodeURIComponent(c.code)}/details`); return; }
+    if (!S.edits.length) { location.replace(`#/c/${encodeURIComponent(c.code)}/prefs`); return; }
+    openCourse(c); return showView("vCourse", crumbs);
+  }
+  location.hash = "#/";
+}
+window.addEventListener("hashchange", route);
+function showWs(){ location.hash = `#/c/${encodeURIComponent(S.course.code)}/revise`; }
+function showSetup(){ location.hash = `#/c/${encodeURIComponent(S.course.code)}`; }  // ← in the workspace: back to the course hub
+
+// ---------- Home ----------
+function ago(t){ if (!t) return ""; const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(t).toLocaleDateString(); }
+function courseState(c){  // where a course is in the flow, for the dashboard
+  const d = loadSession(c.code), edits = d?.edits || [], dec = d?.decisions || {}, enc = encodeURIComponent(c.code);
+  const open = edits.filter(e => !dec[e.edit_id]).length;
+  if (!d?.outline) return {label: "Needs syllabus", cls: "new", href: `#/c/${enc}/details`, next: "Upload your syllabus next.", step: 1};
+  if (!edits.length) return {label: "Set preferences", cls: "prog", href: `#/c/${enc}/prefs`, next: "Your syllabus is uploaded. Set your teaching preferences next.", step: 2};
+  if (c.exportedAt && !open) return {label: "Exported", cls: "done", href: `#/c/${enc}`, next: "Exported. Add assessments as the semester goes.", step: 5};
+  return {label: open ? "In review" : "Ready to export", cls: open ? "prog" : "", href: `#/c/${enc}/revise`, next: open ? `${open} of ${edits.length} recommendations still to review.` : "Every recommendation is decided. Export your course next.", step: 4};
+}
+function initials(s){ return String(s || "").replace(/^(dr|prof)\.?\s+/i, "").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("") || "P"; }
+function myName(){ return prefs().name || ACC.user?.name || ""; }
+function renderHome(){
+  const name = myName(), hr = new Date().getHours();
+  $("hello").textContent = `Good ${hr < 12 ? "morning" : hr < 18 ? "afternoon" : "evening"}${name ? ", " + name.split(" ").slice(0, 2).join(" ") : ""}.`;
+  const list = loadCourses().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  const cur = list.map(c => ({c, s: courseState(c)})).find(x => x.s.step < 5);
+  $("contBox").innerHTML = cur ? `<div class="cont"><span class="ic"><i class="ti ti-file-text"></i></span>
+      <div><div class="k">Continue where you left off</div><b>${esc(cur.c.code)} · ${esc(cur.c.name)}</b><span>${esc(cur.s.next)}</span></div>
+      <a class="btn" href="${cur.s.href}">${cur.s.step === 4 ? "Continue review" : "Continue setup"}<i class="ti ti-arrow-right"></i></a></div>` : "";
+  $("courseTable").innerHTML = list.length ? `<table class="ctab"><tr><th>Course</th><th>Status</th><th>Last edited</th><th></th></tr>${list.map(c => {
+      const s = courseState(c);
+      return `<tr class="click" onclick="location.hash='${s.href}'"><td class="cn"><b>${esc(c.code)} · ${esc(c.name)}</b><span>${esc([c.term, c.level, FORMAT_LABEL[c.format]].filter(Boolean).join(" · "))}</span></td>
+        <td><span class="chipst ${s.cls}">${esc(s.label)}</span></td><td class="muted">${c.updatedAt ? ago(c.updatedAt) : "—"}</td><td><i class="ti ti-chevron-right muted"></i></td></tr>`;
+    }).join("")}</table>`
+    : `<p class="muted">No courses yet. <a href="#/new">Upload your first syllabus</a>${ACC.on ? "" : `, or <a href="#" onclick="event.preventDefault();loadDemo()">open the saved demo</a>`}.</p>`;
+  const pf = prefs(), u = ACC.user || {};
+  $("profCard").innerHTML = `<h2>Your faculty profile</h2><div class="prof"><span class="avatar">${esc(initials(name || u.email))}</span><div><b>${esc(name || "Add your name")}</b><span class="muted">${esc({faculty: "Professor", "aspph-admin": "ASPPH admin", "school-admin": "School admin"}[u.role] || "Professor")}</span></div></div>
+    <div class="kv">${esc(pf.inst || "Institution not set")}${pf.dept ? "<br>" + esc(pf.dept) : ""}${u.email ? "<br>" + esc(u.email) : ""}</div>
+    <a class="btn ghost" href="#/settings" style="width:100%;justify-content:center;margin-top:12px">Manage profile</a>`;
+}
+function renderCourses(){
+  const cards = loadCourses().sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0)).map(c => {
+    const d = loadSession(c.code), edits = d?.edits || [], dec = d?.decisions || {};
+    const acc = edits.filter(e => dec[e.edit_id] === "accepted").length, decided = edits.filter(e => dec[e.edit_id]).length;
+    const cs = courseState(c), stat = edits.length ? `${edits.length} changes · ${acc} accepted${Object.keys(d.manual || {}).length ? " · edited by you" : ""}` : cs.next;
+    const pct = edits.length ? Math.round(100 * decided / edits.length) : d?.outline ? 15 : 0;
+    const href = cs.href;
+    return `<a class="ccard" href="${href}">
+      <button class="del" title="Delete course" onclick="event.preventDefault();event.stopPropagation();deleteCourse('${esc(c.code)}')">🗑</button>
+      <span class="code">${esc(c.code)}${c.term ? " · " + esc(c.term) : ""}</span><span class="nm">${esc(c.name)}</span>
+      <span class="cchips"><span class="chipst ${cs.cls}">${esc(cs.label)}</span><span class="tag">${esc(c.level)}</span><span class="tag">${esc(FORMAT_LABEL[c.format] || c.format)}</span><span class="tag">${esc(STANCE_LABEL[c.ai_stance])}</span></span>
+      <span class="stat">${esc(stat)}</span><span class="bar"><i style="width:${pct}%"></i></span>
+      <span class="stat">${c.updatedAt ? "Updated " + ago(c.updatedAt) : "Not started"}</span></a>`;
+  });
+  const offer = ACC.on && ACC.user && !local.get("phact.imported." + ACC.user.sub, false)
+    && browserCourses().filter(c => !loadCourses().some(x => x.code === c.code));
+  $("courseGrid").innerHTML = (offer && offer.length ? `<div class="importbar"><div><b>We found ${offer.length} course${offer.length > 1 ? "s" : ""} saved in this browser</b> (${offer.map(c => esc(c.code)).join(", ")}).
+      <span class="muted">Copy ${offer.length > 1 ? "them" : "it"} into your account so ${offer.length > 1 ? "they're" : "it's"} saved and available on any computer?</span></div>
+      <div class="row"><button onclick="importBrowserCourses()">Add to my account</button><button class="ghost" onclick="skipImport()">Not now</button></div></div>` : "") + cards.join("") + `<a class="ccard new" href="#/new"><span class="plus">+</span>Upload new syllabus</a>`;
+}
+window.deleteCourse = code => {
+  if (!confirm(`Delete ${code} and all its saved work from this browser?`)) return;
+  saveCourses(loadCourses().filter(c => c.code !== code)); store.del(sessKey(code));
+  if (S.loadedCode === code) S.loadedCode = null;
+  logEvent("delete_course", code, code); route();
+};
+
+// ---------- Settings ----------
+async function renderActivity(){
+  $("activityCard").hidden = !ACC.on;
+  if (!ACC.on) return;
+  try {
+    const ev = await api("GET", "/api/data/events?limit=40");
+    const label = {login: "Logged in", signup: "Created account", upload: "Uploaded", analyze: "Analyzed", decision: "Decision", export: "Downloaded", import: "Imported", delete_course: "Deleted course"};
+    $("activity").innerHTML = ev.length ? `<table class="plan">${ev.map(e => `<tr><td class="muted">${new Date(e.at).toLocaleString()}</td><td>${esc(label[e.type] || e.type)}</td><td>${esc(e.course)}</td><td class="muted">${esc(e.detail)}</td></tr>`).join("")}</table>` : `<p class="muted">Nothing yet.</p>`;
+  } catch (e) { $("activity").textContent = e.message; }
+}
+function renderPrefs(){
+  renderActivity();
+  const pf = prefs();
+  for (const k of ["name", "inst", "dept", "level", "format", "stance", "comfort", "template", "notes"]) $("p_" + k).value = pf[k] ?? "";
+  $("prefsSaved").textContent = "";
+}
+$("btnSavePrefs").onclick = () => {
+  const pf = Object.fromEntries(["name", "inst", "dept", "level", "format", "stance", "comfort", "template", "notes"].map(k => [k, $("p_" + k).value.trim()]));
+  store.set("phact.prefs", pf);
+  if (!store.get("phact.style", null)) useTemplate(pf.template);
+  $("prefsSaved").textContent = "Saved. New courses start with these defaults; PHACT follows your standing preferences everywhere."; renderChrome();
+};
+$("btnClearAll").onclick = () => {
+  if (!confirm("Delete every saved course and its work from this browser? Settings are kept.")) return;
+  loadCourses().forEach(c => store.del(sessKey(c.code))); saveCourses([]); S.loadedCode = null;
+  $("prefsSaved").textContent = "All courses cleared.";
+};
+
+// ---------- Step 1: upload the syllabus. PHACT reads it AND its course details (step 2 shows them, editable) ----------
+const spin = t => `<span class="spin">${esc(t)}</span>`;
+const PEND = "phact.pending";  // a just-read syllabus of a NEW course, between step 1 and step 2 (the course doesn't exist yet)
+function pending(){ try { return JSON.parse(sessionStorage.getItem(PEND)); } catch { return S.pend1 || null; } }
+function setPending(v){ S.pend1 = v; try { v ? sessionStorage.setItem(PEND, JSON.stringify(v)) : sessionStorage.removeItem(PEND); } catch {} }
+const DEGREE = {"AA": "Associate Level (AA)", "BA/BS": "Bachelor's Level (BA/BS)", "MA/MS/MPH": "Master's Level (MA/MS/MPH)", "PhD/DrPH": "Doctoral Level (PhD/DrPH)"};
+const normLevel = l => DEGREE[l] ? l : ({MPH: "MA/MS/MPH", DrPH: "PhD/DrPH", BS: "BA/BS", other: ""}[l] ?? "");
+function fileRow(name, info, done){
+  return `<div class="filerow"><i class="ti ti-file-text"></i><div class="grow"><b>${esc(name)}</b><div class="muted">${esc(info)}</div></div>
+    ${done ? `<span class="ok"><i class="ti ti-circle-check"></i> Read</span><button class="ghost sm" onclick="nReplace()">Replace</button>` : `<button class="ghost sm" onclick="nClear()">Remove</button>`}</div>`;
+}
+function openDetails(c){
+  if (!c) { S.course = null; S.loadedCode = null; useSession("\u0000none"); S.loadedCode = null; }
+  const root = c ? loadSession(c.code) || {} : {}, has = !!root.outline, enc = c ? encodeURIComponent(c.code) : "";
+  $("n_flow").innerHTML = flowHTML(1, c);
+  $("n_title").textContent = has ? "Your syllabus." : "Start with your syllabus.";
+  $("n_sub").textContent = has ? "This is the syllabus PHACT read. Replace it to start this course's analysis from a new version."
+                               : "Upload your current syllabus. PHACT reads it and fills in the course details for you to check in the next step.";
+  $("n_upchip").hidden = !has; $("n_drop").hidden = has;
+  $("n_filerow").innerHTML = has ? fileRow(root.fileName || "Your syllabus", `${root.outline.sections.length} sections · ${root.outline.assignments.length} assignments`, true) : "";
+  $("n_file").value = ""; $("n_paste").value = ""; $("n_st").textContent = ""; $("n_saved").textContent = "";
+  $("n_samples").innerHTML = (S.samples || []).filter(n => /syllabus/i.test(n))
+    .map(n => `<span class="muted">No syllabus handy?</span> <button class="ghost sm" onclick="nUseSample(${esc(JSON.stringify(n))})">Use the fictional ${esc(n)}</button>`).join("");
+  $("n_back").href = has ? `#/c/${enc}` : "#/";
+  $("n_back").innerHTML = `<i class="ti ti-arrow-left"></i>${has ? "Back to the course" : "Back to dashboard"}`;
+  S.nReplace = false;
+}
+window.nReplace = () => { S.nReplace = true; $("n_drop").hidden = false; $("n_filerow").innerHTML = ""; $("n_upchip").hidden = true; };
+window.nClear = () => { $("n_file").value = ""; $("n_filerow").innerHTML = ""; $("n_drop").hidden = false; };
+window.nPicked = () => { const f = $("n_file").files[0]; if (!f) return; $("n_drop").hidden = true; $("n_filerow").innerHTML = fileRow(f.name, `${Math.max(1, Math.round(f.size / 1024))} KB · PHACT reads it when you continue`, false); };
+window.nDrop = ev => { ev.preventDefault(); $("n_drop").classList.remove("over"); if (ev.dataTransfer.files[0]) { $("n_file").files = ev.dataTransfer.files; nPicked(); } };
+window.nUseSample = async name => {
+  const r = await fetch("/api/samples/file?name=" + encodeURIComponent(name)); const blob = await r.blob();
+  const fname = decodeURIComponent((r.headers.get("content-disposition") || "").match(/filename\*?=(?:UTF-8'')?"?([^";]+)/)?.[1] || "sample.docx");
+  const dt = new DataTransfer(); dt.items.add(new File([blob], fname, {type: blob.type}));
+  $("n_file").files = dt.files; nPicked();
+};
+$("n_go").onclick = async () => {
+  const b = $("n_go"), st = $("n_st"), c = S.course, root = c ? loadSession(c.code) || {} : {};
+  const enc = c ? encodeURIComponent(c.code) : "";
+  if (c && root.outline && !S.nReplace) { location.hash = `#/c/${enc}/prefs`; return; }
+  const file = $("n_file").files[0], paste = $("n_paste").value.trim();
+  if (!file && !paste) { st.textContent = "Upload your syllabus (or paste it) to continue."; return; }
+  if (c && (root.edits || []).length && !confirm(`Replace the syllabus? Its ${root.edits.length} recommendations and your decisions on them will be lost (your assessments stay).`)) return;
+  b.disabled = true;
+  try {
+    let text, docId = null;
+    if (file) {
+      st.innerHTML = spin("Extracting text… (PDFs take ~20 s: Amazon Textract reads the tables)");
+      const fd = new FormData(); fd.append("file", file);
+      const r = await post("/api/extract", fd, true); text = r.text; docId = r.doc_id;
+    } else text = paste;
+    st.innerHTML = spin("Reading your syllabus and its course details… (~15 s)");
+    const r = await post("/api/structure", {text, doc_id: docId, with_info: true});
+    const read = {outline: r.outline, docId, fileName: file ? file.name : "Pasted syllabus", pii: r.pii_removed || {}, info: r.info || {}};
+    logEvent("upload", `syllabus (${read.fileName})`, c?.code || "");
+    if (c) {  // an existing course: its syllabus is replaced now; the analysis runs from step 2
+      Object.assign(S, {outline: r.outline, docId, comps: [], passages: [], edits: [], decisions: {}, decidedAt: {}, manual: {}, added: [], history: [], last: null});
+      $("thread").innerHTML = ""; saveSession();
+      const saved = loadSession(c.code); Object.assign(saved, {fileName: read.fileName, pii: read.pii, info: read.info}); store.set(sessKey(c.code), saved);
+      location.hash = `#/c/${enc}/prefs`;
+    } else {      // a new course: it's created in step 2, once the professor has checked its code and title
+      setPending(read);
+      location.hash = "#/new/details";
+    }
+  } catch (e) { st.textContent = "Error: " + e.message; }
+  finally { b.disabled = false; }
+};
+
+// ---------- Step 2: course details (autofilled) + preferences + AI-suggested competencies ----------
+const AI_LEVELS = {
+  none: {stance: "ban", note: "<b>None</b> · Students don't use AI. PHACT strengthens AI-resilient assessment and teaches about AI's limits."},
+  assistive: {stance: "restricted", note: "<b>Assistive</b> · AI may help students plan and brainstorm, disclosed. The final work is their own."},
+  guided: {stance: "restricted", note: "<b>Guided</b> · AI supports inquiry, not final authorship. Students may use AI for specific tasks, with disclosure and critical reflection."},
+  integrated: {stance: "open", note: "<b>Integrated</b> · AI is a disclosed collaborator in selected assessments, evaluated alongside independent work."}};
+const DESIGN = {discussion: "discussion posts", scenarios: "real-life scenarios", quiz: "quizzes", group: "group projects",
+                ai_analysis: "AI-assisted analysis", writing: "essays and writing assignments", cases: "case studies"};
+const plain = h => String(h).replace(/<[^>]+>/g, "");
+const DETAIL_IDS = {name: "pf_name", code: "pf_code", term: "pf_term", credits: "pf_credits", professor: "pf_prof", department: "pf_dept", level: "pf_level", size: "pf_size"};
+function aiLevelOf(c){ return c.ai_level || ({ban: "none", restricted: "guided", open: "integrated"}[c.ai_stance] || "guided"); }
+const LEVEL_ORDER = ["none", "assistive", "guided", "integrated"], STANCE_TOP = {ban: "none", restricted: "guided", open: "integrated"};
+function uniCap(){ return ACC.uni ? STANCE_TOP[ACC.uni.policy?.max_ai_stance || "open"] : "integrated"; }
+function pfNote(){
+  const v = document.querySelector('[name=pf_ai]:checked')?.value, cap = uniCap();
+  $("pf_ainote").innerHTML = (v ? AI_LEVELS[v].note : "") + (ACC.uni && cap !== "integrated"
+    ? `<div class="muted" style="margin-top:6px"><i class="ti ti-building"></i> ${esc(ACC.uni.name)} policy allows AI up to <b>${esc(cap[0].toUpperCase() + cap.slice(1))}</b>. Its rules go above yours, and PHACT follows them.</div>` : "");
+}
+window.pfCount = () => { $("pf_ccount").textContent = `${document.querySelectorAll("#pf_comps input:checked").length} selected`; };
+function openPrefs(c){
+  const p = c ? null : pending(), root = c ? loadSession(c.code) || {} : {}, info = (c ? root.info : p?.info) || {};
+  const outline = c ? S.outline : p.outline, pf = prefs(), enc = c ? encodeURIComponent(c.code) : "";
+  $("pf_flow").innerHTML = flowHTML(2, c);
+  $("pf_sub").textContent = c ? `${c.code} · ${c.name}${c.term ? " · " + c.term : ""}. Your selections guide every recommendation.`
+                              : "PHACT filled these in from your syllabus. Check them, fill any blanks, then tell PHACT how you want to teach.";
+  // course details: what's saved for the course, else what PHACT read from the syllabus; blank when unclear
+  const val = {name: c?.name || info.title, code: c?.code || info.code, term: c?.term || info.term, credits: c?.credits || info.credits,
+               professor: c?.professor || (c ? "" : pf.name), department: c?.department || info.department,
+               level: normLevel(c?.level) || info.level || "", size: c?.size || info.class_size};
+  for (const [k, id] of Object.entries(DETAIL_IDS)) $(id).value = val[k] ?? "";
+  $("pf_code").disabled = !!c;  // the code is the course's id
+  const fmt = (c?.format === "online_async" ? "online_sync" : c?.format) || info.format || "";
+  document.querySelectorAll("[name=pf_format]").forEach(x => x.checked = x.value === fmt);
+  const blanks = ["name", "code", "term", "level"].filter(k => !val[k]).length + (fmt ? 0 : 1);
+  $("pf_autonote").textContent = c ? "" : blanks ? `Filled in from your syllabus · ${blanks} field${blanks > 1 ? "s" : ""} weren't clear: please fill them in` : "Filled in from your syllabus · please check";
+  // preferences
+  const cap = uniCap(), capI = LEVEL_ORDER.indexOf(cap), want = c ? aiLevelOf(c) : "guided";
+  const lv = LEVEL_ORDER.indexOf(want) > capI ? cap : want;  // the university's maximum wins
+  document.querySelectorAll("[name=pf_ai]").forEach(x => { x.checked = x.value === lv; x.disabled = LEVEL_ORDER.indexOf(x.value) > capI;
+    x.parentElement.style.opacity = x.disabled ? .4 : 1; x.parentElement.title = x.disabled ? "Above your university's AI policy" : ""; });
+  pfNote();
+  const ds = new Set(c?.design || []); document.querySelectorAll("[name=pf_design]").forEach(x => x.checked = ds.has(x.value));
+  $("pf_notes").value = c?.notes || "";
+  // competencies: the analysis's (if any), else PHACT's suggestions from the learning objectives, else what the syllabus claims
+  const why = Object.fromEntries((info.competencies || []).map(x => [x.id, x.why]));
+  const assigned = S.comps.filter(x => x.status !== "not_assigned").map(x => x.id);
+  S.pfWhy = why;
+  S.pfComps = assigned.length && c ? assigned : (info.competencies || []).length ? info.competencies.map(x => x.id) : [...(outline.claimed_competencies || [])];
+  S.pfChecked = new Set(S.pfComps);
+  $("pf_cnote").textContent = assigned.length && c ? "The competencies of your last analysis. Uncheck any that don't apply, or add more."
+    : (info.competencies || []).length ? "Suggested by PHACT from your learning objectives. Uncheck any that don't apply, or add more."
+    : "PHACT couldn't match competencies from the syllabus. Add the ones this course is assigned.";
+  renderPfComps();
+  $("pf_warn").innerHTML = S.edits.length ? `<div class="warnpanel"><b>Running the analysis again replaces your review.</b>
+      <p>Its ${S.edits.length} recommendations and your decisions will be lost. To change only the details, use Save details.</p></div>` : "";
+  $("pf_back").href = c ? `#/c/${enc}/details` : "#/new";
+  $("pf_save").hidden = !(c && S.edits.length);
+  $("pf_st").textContent = ""; $("pf_saved").hidden = true;
+}
+function renderPfComps(){
+  $("pf_comps").innerHTML = S.pfComps.map(id => { const k = S.checklist.find(x => x.id === id) || {statement: ""};
+    return `<label title="${esc(k.statement)}"><input type="checkbox" value="${id}" ${S.pfChecked.has(id) ? "checked" : ""} onchange="pfToggle(${id}, this.checked)">
+      <span><b>#${id}</b> ${esc(k.statement)}${S.pfWhy?.[id] ? `<small>${esc(S.pfWhy[id])}</small>` : ""}</span></label>`; }).join("")
+    || `<p class="muted">None yet. Use "Add more competencies" to choose the ones this course is assigned.</p>`;
+  pfCount();
+}
+window.pfToggle = (id, on) => { on ? S.pfChecked.add(id) : S.pfChecked.delete(id); pfCount(); };
+window.openCompPicker = () => { $("cmodal").hidden = false; $("cm_q").value = ""; renderCompPicker(); setTimeout(() => $("cm_q").focus(), 30); };
+window.closeCompPicker = () => { $("cmodal").hidden = true; };
+window.renderCompPicker = () => {
+  const words = $("cm_q").value.toLowerCase().split(/\s+/).filter(Boolean);
+  const rest = S.checklist.filter(k => !S.pfComps.includes(k.id))
+    .filter(k => words.every(w => `#${k.id} ${k.statement} ${k.domain || ""}`.toLowerCase().includes(w)));
+  $("cm_list").innerHTML = rest.map(k => `<label onclick="event.preventDefault();addComp(${k.id})"><span><b>#${k.id}</b> ${esc(k.statement)}</span>
+      <button class="soft sm add"><i class="ti ti-plus"></i>Add</button></label>`).join("") || `<p class="muted">No competencies match "${esc($("cm_q").value)}".</p>`;
+};
+window.addComp = id => { S.pfComps.push(id); S.pfChecked.add(id); renderPfComps(); renderCompPicker(); };
+document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("cmodal").hidden) closeCompPicker(); });
+function detailsFromForm(){
+  const d = Object.fromEntries(Object.entries(DETAIL_IDS).map(([k, id]) => [k, $(id).value.trim()]));
+  return {...d, size: parseInt(d.size) || null, format: document.querySelector("[name=pf_format]:checked")?.value || ""};
+}
+function savePrefsForm(){
+  const list = loadCourses(), c = list.find(x => x.code === S.course.code); if (!c) return S.course;
+  const lv = document.querySelector("[name=pf_ai]:checked")?.value || "guided", d = detailsFromForm();
+  Object.assign(c, {name: d.name || c.name, term: d.term, credits: d.credits, professor: d.professor, department: d.department,
+                    level: d.level || c.level, size: d.size, format: d.format || c.format || "in_person",
+                    ai_level: lv, ai_stance: AI_LEVELS[lv].stance,
+                    design: [...document.querySelectorAll("[name=pf_design]:checked")].map(x => x.value), notes: $("pf_notes").value.trim(), updatedAt: Date.now()});
+  saveCourses(list); S.course = c; return c;
+}
+document.querySelectorAll("#vPrefs input[name], #pf_notes").forEach(x => x.addEventListener("change", () => {
+  if (x.name === "pf_ai") pfNote();
+  if (S.course) { savePrefsForm(); $("pf_saved").hidden = false; }  // a new course is saved when the analysis starts
+}));
+$("pf_save").onclick = () => { savePrefsForm(); location.hash = `#/c/${encodeURIComponent(S.course.code)}`; };
+$("pf_go").onclick = () => {
+  const st = $("pf_st"), d = detailsFromForm(), ids = [...S.pfChecked];
+  if (!d.name || !d.code) { st.textContent = "Give the course a title and a code (Course details)."; $(d.name ? "pf_code" : "pf_name").focus(); return; }
+  if (!ids.length) { st.textContent = "Select at least one competency."; return; }
+  if (!S.course) {  // create the new course from what the professor checked, with the syllabus read in step 1
+    const p = pending();
+    if (!p) { location.hash = "#/new"; return; }
+    if (loadCourses().some(x => x.code === d.code)) { st.textContent = `You already have ${d.code}. Use another code, or open it from My courses.`; return; }
+    const pf = prefs(), c = {code: d.code, name: d.name, level: d.level || "MA/MS/MPH", format: d.format || pf.format || "in_person",
+                             ai_stance: "restricted", ai_comfort: pf.comfort || "beginner", notes: "", createdAt: Date.now(), updatedAt: Date.now()};
+    saveCourses([...loadCourses(), c]);
+    S.course = c; useSession(c.code);
+    Object.assign(S, {outline: p.outline, docId: p.docId, comps: [], passages: [], edits: [], decisions: {}, decidedAt: {}, manual: {}, added: [], history: [], last: null});
+    $("thread").innerHTML = ""; saveSession();
+    const saved = loadSession(c.code); Object.assign(saved, {fileName: p.fileName, pii: p.pii, info: p.info}); store.set(sessKey(c.code), saved);
+    setPending(null);
+    history.replaceState(null, "", `#/c/${encodeURIComponent(c.code)}/prefs`);  // a reload now lands on this course
+  } else if (S.edits.length && !confirm(`Replace your ${S.edits.length} recommendations and decisions with a new analysis?`)) return;
+  runAnalysis(savePrefsForm(), ids);
+};
+
+// ---------- Step 3: the analysis, with a progress screen ----------
+async function runAnalysis(c, ids){
+  const enc = encodeURIComponent(c.code);
+  $("run_flow").innerHTML = flowHTML(3, c);
+  $("run_sub").textContent = `${c.code} · ${c.name}. PHACT maps your syllabus to the CEPH competencies, finds ASPPH sources, and writes recommendations.`;
+  showView("vRun", ["My courses", `${c.code} · ${c.term || c.name}`]);
+  const timer = progress(STAGES_SYL, $("run_box"));
+  try {
+    const r = await post("/api/analyze", {outline: S.outline, confirmed: ids, course: courseForAI(), memory: courseMemory()});
+    clearInterval(timer);
+    logEvent("analyze", `syllabus · ${r.edits.length} changes`, c.code);
+    if (S.loadedCode !== c.code) useSession(c.code);
+    Object.assign(S, {comps: r.competencies, passages: r.passages, edits: r.edits, decisions: {}, decidedAt: {}, changed: new Set(), last: r, manual: {}, added: [], history: []});
+    $("thread").innerHTML = ""; saveSession(); S.fresh = true;
+    location.hash = `#/c/${enc}/revise`;
+  } catch (e) {
+    clearInterval(timer);
+    $("run_box").innerHTML = `<div class="warnpanel"><b>The analysis didn't finish.</b><p>${esc(e.message)}</p><a class="btn" href="#/c/${enc}/prefs">Back to preferences</a></div>`;
+  }
+}
+
+// ---------- Course hub: a course whose syllabus has been analyzed ----------
+function openCourse(c){
+  const enc = encodeURIComponent(c.code);
+  $("courseTitle").textContent = `${c.code} · ${c.name}`;
+  $("courseSub").textContent = [c.term, c.level, FORMAT_LABEL[c.format], c.size ? c.size + " students" : "", STANCE_LABEL[c.ai_stance]].filter(Boolean).join(" · ");
+  $("hubActs").innerHTML = `<a class="btn ghost" href="#/c/${enc}/prefs"><i class="ti ti-edit"></i>Course details</a>
+    <a class="btn ghost" href="#/c/${enc}/export"><i class="ti ti-download"></i>Export</a>
+    <a class="btn" href="#/c/${enc}/revise"><i class="ti ti-sparkles"></i>Open syllabus review</a>`;
+  $("resumeBox").innerHTML = renderHub(c);
+  if ($("samples")) $("samples").innerHTML = sampleButtons();
+  renderMyShares();
+}
+window.editDetails = () => { location.hash = `#/c/${encodeURIComponent(S.course.code)}/prefs`; };
+
+// ---------- Course hub: about, what PHACT knows, upload any document, the documents library, the semester ----------
+const TYPE_LABEL = {syllabus: "Syllabus", homework: "Homework", exam: "Exam / quiz", project: "Project", written: "Written assignment", other: "Course material"};
+const TYPE_ICON = {syllabus: "📘", homework: "📝", exam: "🧪", project: "🧩", written: "✍️", other: "📎"};
+const AIAS_NAME = {1: "No AI", 2: "AI-assisted planning", 3: "AI-assisted task completion", 4: "Full AI", 5: "AI exploration"};  // revised AIAS paper
+const STANCE_MAX = {ban: 1, restricted: 3, open: 5};
+const ASSESS_TYPES = ["homework", "exam", "project", "written"];
+function levelsOf(m){  // AIAS levels the document's changes set: accepted ones, else proposed
+  const live = (m.edits || []).filter(e => e.aias_level && (m.decisions || {})[e.edit_id] !== "rejected");
+  const acc = live.filter(e => (m.decisions || {})[e.edit_id] === "accepted");
+  return [...new Set((acc.length ? acc : live).map(e => e.aias_level))].sort();
+}
+function syllabusDescription(root){  // the syllabus's own course description, when it has one
+  const sec = (root.outline?.sections || []).find(x => /description|overview|about the course|purpose/i.test(x.title + " " + x.id));
+  if (!sec) return "";
+  const lines = sec.text.split("\n"); if (lines.length > 1 && lines[0].trim().toLowerCase().startsWith(sec.title.toLowerCase().slice(0, 12))) lines.shift();
+  return lines.join(" ").trim().slice(0, 700);
+}
+function weekFromHint(root, n){
+  if (!n) return "";
+  const w = (root.outline?.sections || []).find(x => x.kind === "week" && (x.id === `week-${n}` || new RegExp(`^(week|module) ?${n}\\b`, "i").test(x.title)));
+  return w ? w.id : "";
+}
+function docRow(c, d){
+  const href = d.kind === "syllabus" ? `#/c/${encodeURIComponent(c.code)}${d.edits?.length ? "/revise" : ""}` : d.kind === "material" ? `#/c/${encodeURIComponent(c.code)}/m/${d.id}` : "";
+  const acc = (d.edits || []).filter(e => (d.decisions || {})[e.edit_id] === "accepted").length, lv = levelsOf(d);
+  const status = d.kind === "ref" ? "Reference: in PHACT's context, not analyzed"
+    : !d.outline ? "Not uploaded yet" : !(d.edits || []).length ? "Read · choose competencies" : `${d.edits.length} changes · ${acc} accepted${lv.length ? ` · AIAS ${lv.join(", ")}` : ""}`;
+  return `<tr class="${href ? "click" : ""}" ${href ? `onclick="location.hash='${href}'"` : ""}>
+    <td class="dicon">${TYPE_ICON[d.type] || "📄"}</td>
+    <td><b>${esc(d.title)}</b><div class="muted">${esc(d.summary || "")}</div></td>
+    <td><span class="tag">${esc(TYPE_LABEL[d.type] || d.type)}</span></td>
+    <td class="muted">${d.week ? esc(weekName(d.week)) : "—"}</td>
+    <td class="muted">${esc(status)}</td>
+    <td>${d.kind !== "syllabus" ? `<button class="x" title="Remove" onclick="event.stopPropagation();removeDoc('${d.kind}','${d.id}')">🗑</button>` : ""}</td></tr>`;
+}
+function renderHub(c){
+  const root = loadSession(c.code) || {}, mats = materials(c.code), refs = root.refs || [], pf = prefs();
+  const assigned = (root.comps || []).filter(x => x.status !== "not_assigned");
+  const color = {covered: "var(--covered)", partial: "var(--partial)", missing: "var(--missing)"};
+  const desc = c.description || syllabusDescription(root);
+  const decided = [root, ...mats].reduce((n, d) => n + Object.values(d.decisions || {}).filter(Boolean).length, 0);
+  const docs = [{kind: "syllabus", id: "syllabus", type: "syllabus", title: root.outline ? "Course syllabus" : "Syllabus (upload it first)",
+                 summary: root.outline ? `${root.outline.sections.length} sections, ${root.outline.assignments.length} assignments${root.outline.ai_policy ? ", AI policy found" : ", no AI policy"}` : "",
+                 ...root},
+                ...mats.map(m => ({kind: "material", ...m})), ...refs.map(r => ({kind: "ref", type: "other", ...r}))];
+  return `
+  <div class="hubgrid">
+    <section class="hcard">
+      <div class="hh"><h2>About this course</h2><button class="ghost sm" onclick="editDescription()">✎ Edit</button></div>
+      <div id="descBox">${desc ? `<p class="desc">${esc(desc)}</p><p class="muted">${c.description ? "Written by you" : "From your syllabus"}</p>`
+        : `<p class="muted">No description yet. Upload your syllabus or write one: PHACT uses it to tailor every suggestion.</p>`}</div>
+      <div class="cchips"><span class="tag">${esc(c.level)}</span><span class="tag">${esc(FORMAT_LABEL[c.format] || "")}</span>${c.size ? `<span class="tag">${c.size} students</span>` : ""}
+        <span class="tag">${esc(STANCE_LABEL[c.ai_stance])} · up to AIAS ${STANCE_MAX[c.ai_stance] || 3}</span></div>
+      <div class="lbl2">Competencies</div>
+      <div class="cm">${assigned.map(x => { const st = effStatus(x, root.edits, root.decisions); return `<span class="c" style="background:${color[st]}" title="${esc((S.checklist.find(k => k.id === x.id) || {}).statement || "")}">#${x.id} ${st}</span>`; }).join("") || `<span class="muted">Chosen when you analyze the syllabus.</span>`}</div>
+    </section>
+    <section class="hcard">
+      <h2>What PHACT knows about this course</h2>
+      <p class="muted" style="margin-top:0">Everything below goes into the AI's context for every analysis and chat in ${esc(c.code)}. Names and emails are hidden from it.</p>
+      <ul class="know">
+        <li class="yes">Course details and AI stance (${esc(STANCE_LABEL[c.ai_stance])})</li>
+        <li class="${desc ? "yes" : ""}">Course description</li>
+        <li class="${pf.notes ? "yes" : ""}">Your standing preferences ${pf.notes ? "" : `(<a href="#/settings">add in Settings</a>)`}</li>
+        <li class="${root.outline ? "yes" : ""}">Syllabus${root.outline ? `: ${root.outline.ai_policy ? "its AI policy" : "no AI policy found"}, ${assigned.length} competencies` : " (not uploaded)"}</li>
+        <li class="${mats.length ? "yes" : ""}">${mats.length} assessment${mats.length === 1 ? "" : "s"}${mats.length ? ": " + mats.map(m => esc(m.title)).join(", ") : ""}</li>
+        <li class="${refs.length ? "yes" : ""}">${refs.length} reference document${refs.length === 1 ? "" : "s"} (summaries)</li>
+        <li class="${decided ? "yes" : ""}">${decided} of your accept/reject decisions, so PHACT doesn't repeat rejected ideas</li>
+      </ul>
+      <details><summary>Show the exact course memory PHACT sends</summary><pre class="memo">${esc(S.course ? courseMemory() : "")}</pre></details>
+    </section>
+  </div>
+
+  <section class="hcard" id="uploadCard">
+    <h2>Upload a course document</h2>
+    <p class="muted" style="margin-top:0">Syllabus, homework, exam or quiz, project, written assignment, or any other course material. PHACT tells you what it detected before doing anything.</p>
+    <label class="drop" id="drop" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="dropFile(event)">
+      <input type="file" id="up_file" accept=".pdf,.docx,.txt" onchange="detectDoc()">
+      <b>Drop a file here, or click to choose</b><span class="muted">PDF, Word or text</span></label>
+    <div class="samples" id="samples"></div>
+    <details><summary>…or paste text instead</summary><textarea id="up_paste" rows="4" placeholder="Paste the document"></textarea><button class="soft sm" onclick="detectDoc()">Detect</button></details>
+    <input type="hidden" id="up_week" value="">
+    <div class="privacy">🔒 Instructor materials only, never student work. PHACT refuses documents that look like student submissions (student privacy).</div>
+    <div class="status" id="up_st"></div><div id="up_res"></div>
+  </section>
+
+  <section class="hcard">
+    <h2>Course documents</h2>
+    <table class="docs">${docs.map(d => docRow(c, d)).join("")}</table>
+  </section>
+  ${root.outline ? renderSemester(c) : ""}
+  ${(root.edits || []).length ? `<section class="hcard"><h2>Share as an example syllabus</h2>
+      <p class="muted" style="margin-top:0">Help other faculty: send your revised syllabus to ASPPH. Staff review it, and the parts they approve become peer examples that inspire PHACT's suggestions for other courses. They're never shown as evidence, and names are removed.</p>
+      <div id="shareBox"><button class="ghost" onclick="askShare()">Share this syllabus…</button></div><div id="myShares"></div></section>` : ""}
+  <div class="ovacts"><button class="ghost" onclick="editDetails()">✎ Edit course details</button></div>`;
+}
+// ---------- share as an example syllabus (consent → ASPPH review queue) ----------
+function revisedSections(root){  // the syllabus as revised: accepted PHACT changes and the professor's own edits applied
+  const acc = (root.edits || []).filter(e => (root.decisions || {})[e.edit_id] === "accepted");
+  return (root.outline?.sections || []).map(sec => {
+    let text = (root.manual || {})[sec.id] ?? sec.text, changed = (root.manual || {})[sec.id] !== undefined;
+    for (const e of acc.filter(x => x.section_id === sec.id)) {
+      if (e.op === "insert_after") { text += "\n" + (e.proposed || ""); changed = true; }
+      else if (e.original && text.includes(e.original)) { text = text.replace(e.original, e.op === "delete" ? "" : (e.proposed || "")); changed = true; }
+    }
+    return {id: sec.id, title: sec.title, text, suggested: changed};
+  });
+}
+window.askShare = () => {
+  $("shareBox").innerHTML = `<div class="warnpanel" style="border-color:var(--accent);background:var(--mint)">
+    <b>Before you share</b>
+    <ul style="margin:6px 0 10px;padding-left:18px;font-size:13.5px">
+      <li>ASPPH staff will read your revised syllabus (with PHACT's accepted changes) and a short summary: competencies, AI policy, AI levels.</li>
+      <li>Names, emails and phone numbers are already hidden and stay hidden; published parts show "[instructor]".</li>
+      <li>Staff publish only the parts they choose, as anonymous peer examples for other PHACT users.</li>
+      <li>You can withdraw at any time, and anything published is removed from PHACT.</li>
+    </ul>
+    <label class="switch"><input type="checkbox" id="sh_ok"> I agree to share this syllabus with ASPPH on these terms</label>
+    <div class="row" style="margin-top:8px"><button onclick="doShare()">Share</button><button class="ghost" onclick="openCourse(S.course)">Cancel</button><span class="muted" id="sh_st"></span></div></div>`;
+};
+window.doShare = async () => {
+  if (!$("sh_ok").checked) { $("sh_st").textContent = "Tick the box to agree first."; return; }
+  const root = loadSession(S.course.code) || {}, mats = materials(S.course.code);
+  const comps = (root.comps || []).filter(x => x.status !== "not_assigned");
+  const payload = {consent: true, title: `${S.course.code} ${S.course.name}`, course: {code: S.course.code, name: S.course.name, level: S.course.level, format: S.course.format, ai_stance: S.course.ai_stance},
+    sections: revisedSections(root),
+    summary: {competencies: comps.filter(x => effStatus(x, root.edits, root.decisions) === "covered").map(x => x.id), "AI policy": root.outline?.ai_policy ? "yes" : "no",
+              "changes accepted": (root.edits || []).filter(e => (root.decisions || {})[e.edit_id] === "accepted").length,
+              "AIAS levels": [...new Set(mats.flatMap(levelsOf))]}};
+  try { await post("/api/submissions", payload); logEvent("submit", "shared as an example syllabus"); openCourse(S.course); }
+  catch (e) { $("sh_st").textContent = "Error: " + e.message; }
+};
+async function renderMyShares(){
+  if (!$("myShares")) return;
+  try {
+    const mine = (await (await fetch("/api/submissions/mine")).json()).filter(x => x.course_code === S.course.code);
+    $("myShares").innerHTML = mine.map(x => `<div class="row" style="margin-top:8px"><span class="tag">${esc({pending: "Waiting for ASPPH review", approved: "Approved: published as a peer example", returned: "Returned", withdrawn: "Withdrawn"}[x.status] || x.status)}</span>
+      <span class="muted">shared ${new Date(x.consent_at).toLocaleDateString()}${x.review_note ? " · note: " + esc(x.review_note) : ""}</span>
+      ${x.status !== "withdrawn" ? `<button class="ghost sm" onclick="withdrawShare('${x.id}')">Withdraw</button>` : ""}</div>`).join("");
+  } catch {}
+}
+window.withdrawShare = async id => {
+  if (!confirm("Withdraw this syllabus? Anything ASPPH published from it is removed from PHACT.")) return;
+  await post(`/api/submissions/${id}/withdraw`, {}); logEvent("withdraw", "example syllabus"); renderMyShares();
+};
+
+window.editDescription = () => {
+  const root = loadSession(S.course.code) || {};
+  $("descBox").innerHTML = `<textarea id="descText" rows="5">${esc(S.course.description || syllabusDescription(root))}</textarea>
+    <div class="row"><button class="sm" onclick="saveDescription()">Save</button><button class="ghost sm" onclick="openCourse(S.course)">Cancel</button><span class="muted">PHACT uses this in every analysis and chat.</span></div>`;
+};
+window.saveDescription = async () => {
+  const text = $("descText").value.trim();
+  const clean = text ? (await post("/api/scrub", {text, doc_id: null})).text : "";  // hand-typed text passes the Safety gate
+  const list = loadCourses(), c = list.find(x => x.code === S.course.code); c.description = clean; saveCourses(list);
+  S.course = c; openCourse(c);
+};
+window.removeDoc = (kind, id) => {
+  const root = loadSession(S.course.code) || {};
+  const title = kind === "material" ? root.materials?.[id]?.title : (root.refs || []).find(r => r.id === id)?.title;
+  if (!confirm(`Remove "${title}" from this course? Its changes and PHACT's memory of it are deleted.`)) return;
+  if (kind === "material") delete root.materials[id]; else root.refs = (root.refs || []).filter(r => r.id !== id);
+  store.set(sessKey(S.course.code), root); openCourse(S.course);
+};
+// "Try a sample": fictional EPID 601 documents, loaded into the file input as if the professor chose them
+
+function sampleButtons(){ return (S.samples || []).length ? `<span class="muted">Try a sample (fictional EPID 601):</span> ` + S.samples.map(n => `<button class="ghost sm" onclick="useSample(${esc(JSON.stringify(n))})">${esc(n)}</button>`).join(" ") : ""; }
+window.useSample = async name => {
+  const r = await fetch("/api/samples/file?name=" + encodeURIComponent(name)); const blob = await r.blob();
+  const fname = decodeURIComponent((r.headers.get("content-disposition") || "").match(/filename\*?=(?:UTF-8'')?"?([^";]+)/)?.[1] || "sample.docx");
+  const dt = new DataTransfer(); dt.items.add(new File([blob], fname, {type: blob.type}));
+  $("up_file").files = dt.files; detectDoc();
+};
+window.dropFile = ev => {
+  ev.preventDefault(); $("drop").classList.remove("over");
+  if (ev.dataTransfer.files[0]) { $("up_file").files = ev.dataTransfer.files; detectDoc(); }
+};
+window.addForWeek = week => {  // "+ Add" on a week of the semester timeline
+  $("up_week").value = week || ""; $("uploadCard").scrollIntoView({behavior: "smooth", block: "center"});
+  $("up_st").textContent = week ? `New document will be added to ${weekName(week)}.` : "";
+};
+
+// Step 1: extract + detect what it is (Safety gate first), and show it
+window.detectDoc = async () => {
+  const st = $("up_st"), root = loadSession(S.course.code) || {};
+  try {
+    let text, docId = null;
+    st.innerHTML = `<span class="spin">Extracting text…</span>`;
+    if ($("up_file").files[0]) {
+      const fd = new FormData(); fd.append("file", $("up_file").files[0]);
+      const r = await post("/api/extract", fd, true); text = r.text; docId = r.doc_id;
+    } else if ($("up_paste").value.trim()) text = $("up_paste").value;
+    else { st.textContent = "Choose a file or paste text first."; return; }
+    st.innerHTML = `<span class="spin">Detecting the document type…</span>`;
+    const d = await post("/api/classify", {text});
+    logEvent("upload", `${d.title} (${d.doc_type})`);
+    S.upload = {text, docId, ...d};
+    const weeks = (root.outline?.sections || []).filter(x => x.kind === "week");
+    const week = $("up_week").value || weekFromHint(root, d.week_hint);
+    st.textContent = "";
+    $("up_res").innerHTML = `<div class="detect">
+      <div class="dt1">${TYPE_ICON[d.doc_type]} Detected: <b>${esc(TYPE_LABEL[d.doc_type])}</b> <span class="tag">${esc(d.confidence)} confidence</span></div>
+      <div><b>${esc(d.title)}</b></div><div class="muted">${esc(d.summary)}</div>
+      <div class="cform">
+        <label>Type (change if wrong)<select id="up_type" onchange="renderNext()">${Object.keys(TYPE_LABEL).map(k => `<option value="${k}" ${k === d.doc_type ? "selected" : ""}>${TYPE_LABEL[k]}</option>`).join("")}</select></label>
+        <label>Week<select id="up_wsel"><option value="">Not tied to a week</option>${weeks.map(w => `<option value="${esc(w.id)}" ${w.id === week ? "selected" : ""}>${esc(w.title)}</option>`).join("")}</select></label>
+      </div>
+      <div id="up_next"></div></div>`;
+    renderNext();
+  } catch (e) { st.textContent = "Error: " + e.message; }
+};
+// Step 2: what happens next depends on the (confirmed) type
+window.renderNext = () => {
+  const t = $("up_type").value, root = loadSession(S.course.code) || {};
+  if (t === "syllabus") {
+    const has = (root.edits || []).length;
+    $("up_next").innerHTML = (has ? `<div class="warnpanel"><b>This replaces the course's syllabus.</b> Its ${root.edits.length} proposed changes and your decisions on them will be lost (your assessments stay). <label class="switch"><input type="checkbox" id="up_ok"> I understand</label></div>` : "")
+      + `<div class="row"><button id="up_go" onclick="readSyllabus()">Read the syllabus</button></div><div id="up_more"></div>`;
+  } else if (ASSESS_TYPES.includes(t)) {
+    $("up_next").innerHTML = `<p class="muted">PHACT will check it against your course's competencies and suggest complete AI-integration designs, up to AIAS ${STANCE_MAX[S.course.ai_stance] || 3}.</p>
+      <div class="row"><button id="up_go" onclick="readAssessment()">Read the assessment</button></div><div id="up_more"></div>`;
+  } else {
+    $("up_next").innerHTML = `<p class="muted">PHACT doesn't analyze this type yet. Saved as a reference, its summary goes into the course memory, so suggestions can connect to it (for example, a reading guide for the week of an assignment).</p>
+      <div class="row"><button onclick="saveReference()">Save as course reference</button></div>`;
+  }
+};
+window.saveReference = () => {
+  const u = S.upload, root = loadSession(S.course.code) || {};
+  root.refs = [...(root.refs || []), {id: "r" + Date.now().toString(36), title: u.title, summary: u.summary, week: $("up_wsel").value || null, createdAt: Date.now()}];
+  store.set(sessKey(S.course.code), root); S.upload = null; openCourse(S.course);
+};
+function compPicker(pre){
+  return `<div class="comps">${S.checklist.map(k => `<label title="${esc(k.statement)}"><input type="checkbox" value="${k.id}" ${pre.has(k.id) ? "checked" : ""}> <span><b>#${k.id}</b> ${esc(k.statement.slice(0, 60))}…</span></label>`).join("")}</div>`;
+}
+function progress(stages, el){
+  const t0 = performance.now();
+  const tick = () => { const sec = (performance.now() - t0) / 1000; let acc = 0;
+    el.innerHTML = `<p class="muted">${Math.round(sec)} s · times are typical, not exact. Please stay on this page.</p><ul class="stages">` + stages.map(([l, d], i) => { const s0 = acc; acc += d;
+      return `<li class="${sec >= acc && i < stages.length - 1 ? "done" : sec >= s0 ? "on" : ""}">${esc(l)}</li>`; }).join("") + "</ul>"; };
+  tick(); return setInterval(tick, 1000);
+}
+// Syllabus: read → competencies → analyze → syllabus workspace
+window.readSyllabus = async () => {
+  if ($("up_ok") && !$("up_ok").checked) { $("up_more").innerHTML = `<p class="muted">Tick "I understand" first.</p>`; return; }
+  const u = S.upload, b = $("up_go"); b.disabled = true;
+  $("up_more").innerHTML = `<p class="spin muted">Claude Haiku is reading the syllabus… (~15 s)</p>`;
+  try {
+    const r = await post("/api/structure", {text: u.text, doc_id: u.docId});
+    S.pendingSyl = {outline: r.outline, docId: u.docId};
+    $("up_more").innerHTML = `<p class="muted">${r.outline.sections.length} sections · ${r.outline.assignments.length} assignments. Tick the CEPH competencies this course is assigned (the ones the syllabus claims are pre-ticked).</p>
+      ${compPicker(new Set(r.outline.claimed_competencies))}<div class="row" style="margin-top:10px"><button id="up_an" onclick="analyzeSyllabus()">Analyze (~1–2 min)</button></div><div id="up_prog"></div>`;
+  } catch (e) { $("up_more").textContent = "Error: " + e.message; b.disabled = false; }
+};
+const STAGES_SYL = [["Mapping your syllabus to the CEPH competencies (Claude Opus)", 15], ["Finding ASPPH sources", 5], ["Writing evidence-backed edits (Claude Opus)", 50], ["Supervisor double-checks every edit", 8]];
+window.analyzeSyllabus = async () => {
+  const ids = [...document.querySelectorAll("#up_more .comps input:checked")].map(x => +x.value);
+  if (!ids.length) { $("up_prog").innerHTML = `<p class="muted">Tick at least one competency first.</p>`; return; }
+  $("up_an").disabled = true; const timer = progress(STAGES_SYL, $("up_prog"));
+  try {
+    const r = await post("/api/analyze", {outline: S.pendingSyl.outline, confirmed: ids, course: courseForAI(), memory: courseMemory()});
+    logEvent("analyze", `syllabus · ${r.edits.length} changes`);
+    useSession(S.course.code);  // the course's syllabus document, then replace it with the new one
+    Object.assign(S, {outline: S.pendingSyl.outline, docId: S.pendingSyl.docId, comps: r.competencies, passages: r.passages, edits: r.edits,
+                      decisions: {}, decidedAt: {}, changed: new Set(), last: r, manual: {}, added: [], history: []});
+    $("thread").innerHTML = ""; saveSession(); S.fresh = true;
+    location.hash = `#/c/${encodeURIComponent(S.course.code)}/revise`;
+  } catch (e) { $("up_prog").textContent = "Error: " + e.message; $("up_an").disabled = false; }
+  finally { clearInterval(timer); }
+};
+// Assessment: read → competencies → analyze → its workspace
+window.readAssessment = async () => {
+  const u = S.upload, b = $("up_go"); b.disabled = true;
+  $("up_more").innerHTML = `<p class="spin muted">Claude Haiku is reading the assessment… (~10 s)</p>`;
+  try {
+    const r = await post("/api/assessment/structure", {text: u.text, doc_id: u.docId, type_hint: $("up_type").value});
+    S.pending = {outline: r.outline, meta: r.meta, docId: u.docId, week: $("up_wsel").value || null, summary: u.summary};
+    const root = loadSession(S.course.code) || {};
+    const pre = new Set([...(root.comps || []).filter(x => x.status !== "not_assigned").map(x => x.id), ...(r.outline.claimed_competencies || [])]);
+    $("up_more").innerHTML = `<p class="muted">${r.meta.task_count} tasks · ${r.meta.has_rubric ? "rubric found" : "no rubric"} · AI rule: ${r.meta.ai_rule ? "stated" : "none"}.
+      Which competencies should it demonstrate? Your course's are pre-ticked.</p>${compPicker(pre)}
+      <div class="row" style="margin-top:10px"><button id="up_an" onclick="analyzeAssessment()">Analyze (~1–2 min)</button></div><div id="up_prog"></div>`;
+  } catch (e) { $("up_more").textContent = "Error: " + e.message; b.disabled = false; }
+};
+const ASTAGES = [["Mapping the assessment to your competencies (Claude Opus)", 12], ["Finding AI-integration patterns and ASPPH sources", 5],
+                 ["Writing complete AI-integration designs (Claude Opus)", 75], ["Supervisor double-checks every design and citation", 8]];
+window.analyzeAssessment = async () => {
+  const ids = [...document.querySelectorAll("#up_more .comps input:checked")].map(x => +x.value);
+  if (!ids.length) { $("up_prog").innerHTML = `<p class="muted">Tick at least one competency first.</p>`; return; }
+  $("up_an").disabled = true; const timer = progress(ASTAGES, $("up_prog"));
+  try {
+    const p = S.pending;
+    const r = await post("/api/assessment/analyze", {outline: p.outline, meta: p.meta, confirmed: ids, course: courseForAI(), memory: courseMemory()});
+    logEvent("analyze", `${p.meta.title} · ${r.edits.length} changes`);
+    const id = "m" + Date.now().toString(36), root = loadSession(S.course.code) || {};
+    root.materials = root.materials || {};
+    root.materials[id] = {id, title: p.meta.title || "Assessment", type: p.meta.material_type, week: p.week, meta: p.meta, summary: p.summary, createdAt: Date.now(),
+      outline: p.outline, comps: r.competencies, passages: r.passages, edits: r.edits, decisions: {}, decidedAt: {}, manual: {}, added: [],
+      history: [], docId: p.docId, last: {dropped: r.dropped, searches: r.searches, stats: r.stats, examples: r.examples || []}, savedAt: Date.now()};
+    store.set(sessKey(S.course.code), root);
+    S.fresh = true;
+    location.hash = `#/c/${encodeURIComponent(S.course.code)}/m/${id}`;
+  } catch (e) { $("up_prog").textContent = "Error: " + e.message; $("up_an").disabled = false; }
+  finally { clearInterval(timer); }
+};
+
+// ---------- Semester view: assessments by week, the course AI plan, competencies across the semester ----------
+function matCard(c, m){
+  const acc = (m.edits || []).filter(e => (m.decisions || {})[e.edit_id] === "accepted").length, lv = levelsOf(m);
+  return `<a class="mcard" href="#/c/${encodeURIComponent(c.code)}/m/${m.id}"><span class="mt">${TYPE_ICON[m.type] || ""} ${esc(TYPE_LABEL[m.type] || m.type)}</span><b>${esc(m.title)}</b>
+    <span class="muted">${(m.edits || []).length} changes · ${acc} accepted${lv.length ? ` · AIAS ${lv.join(", ")}` : ""}</span></a>`;
+}
+function renderSemester(c){
+  const root = loadSession(c.code) || {}, mats = materials(c.code), refs = root.refs || [];
+  const weeks = (root.outline?.sections || []).filter(x => x.kind === "week");
+  const row = (id, title, list, rs) => `<div class="wk ${list.length || rs.length ? "" : "empty"}"><div class="wkh"><b>${esc(title)}</b>
+      <button class="ghost sm" onclick="addForWeek(${id ? `'${esc(id)}'` : "null"})">+ Add</button></div>
+      <div class="wkm">${list.map(m => matCard(c, m)).join("")}${rs.map(r => `<span class="rcard">📎 ${esc(r.title)}</span>`).join("")}</div></div>`;
+  const inWeek = (arr, w) => arr.filter(m => m.week === w);
+  const loose = arr => arr.filter(m => !m.week || !weeks.some(w => w.id === m.week));
+  const timeline = weeks.map(w => row(w.id, w.title, inWeek(mats, w.id), inWeek(refs, w.id))).join("")
+    + (loose(mats).length || loose(refs).length || !weeks.length ? row(null, weeks.length ? "Not tied to a week" : "Assessments", loose(mats), loose(refs)) : "");
+  const assigned = (root.comps || []).filter(x => x.status !== "not_assigned");
+  const cov = assigned.map(k => {
+    const where = mats.filter(m => (m.comps || []).some(x => x.id === k.id && effStatus(x, m.edits, m.decisions) === "covered"));
+    const part = mats.filter(m => (m.comps || []).some(x => x.id === k.id && x.status === "partial"));
+    const cls = where.length ? "covered" : part.length ? "partial" : "missing";
+    return `<tr><td><span class="c ${cls}">#${k.id}</span></td><td>${esc((S.checklist.find(x => x.id === k.id) || {}).statement?.slice(0, 80) || "")}…</td>
+      <td>${where.map(m => esc(m.title)).join(", ") || `<span class="muted">${part.length ? "partly in " + part.map(m => esc(m.title)).join(", ") : "not assessed yet"}</span>`}</td></tr>`;
+  }).join("");
+  const plan = mats.map(m => {
+    const lv = levelsOf(m), over = lv.some(l => l > (STANCE_MAX[c.ai_stance] || 3));
+    return `<tr><td><a href="#/c/${encodeURIComponent(c.code)}/m/${m.id}">${esc(m.title)}</a></td><td>${esc(TYPE_LABEL[m.type] || m.type)}</td>
+      <td>${m.week ? esc(weekName(m.week, root)) : "—"}</td><td>${lv.length ? lv.map(l => `AIAS ${l} · ${AIAS_NAME[l]}`).join("<br>") : "No AI change"}${over ? " ⚠" : ""}</td></tr>`;
+  }).join("");
+  return `<section class="hcard sem"><h2>Semester</h2>
+      <p class="muted" style="margin-top:0">Every week from your syllabus, with its assessments and materials. Use <b>+ Add</b> to upload a document for a week.</p>
+      <details ${mats.length || refs.length ? "open" : ""}><summary>Weekly timeline</summary><div class="timeline">${timeline}</div></details>
+      ${mats.length ? `<h3 class="ph">Course AI plan</h3><table class="plan"><tr><th>Assessment</th><th>Type</th><th>Week</th><th>AI level (accepted, else proposed)</th></tr>${plan}</table>
+        <p class="muted">Course stance: ${esc(STANCE_LABEL[c.ai_stance])}, so up to AIAS ${STANCE_MAX[c.ai_stance] || 3}. ⚠ marks a level above it.</p>` : ""}
+      ${assigned.length ? `<h3 class="ph">Competencies across the semester</h3><table class="plan cov"><tr><th></th><th>Competency</th><th>Graded in</th></tr>${cov}</table>` : ""}
+    </section>`;
+}
+
+function enterWorkspace(r, fresh){
+  S.fresh = fresh;
+  showWs();
+}
+function openWorkspace(){  // render the workspace from the page state (fresh analysis or a saved course)
+  const m = S.active ? S.mat : null;
+  $("courseChip").textContent = `${S.course.code} · ${STANCE_LABEL[S.course.ai_stance]}` + (m ? ` · ${TYPE_LABEL[m.type] || m.type}` : "");
+  $("docTitle").textContent = m ? `${m.title} — PHACT draft` : `${S.course.code} ${S.course.name} — PHACT draft`;
+  $("btnComps").hidden = true;  // the Competencies tab was removed (Nov 5): alignment shows as boxes in Recommendations
+  $("wsTitle").textContent = m ? `Review: ${m.title}` : "Syllabus review";
+  $("courseChip").textContent = `${S.course.code} · ${S.course.name}` + (m ? ` · ${TYPE_LABEL[m.type] || m.type}` : "");
+  $("wsFlow").innerHTML = m ? "" : flowHTML(4, S.course);
+  // syllabus: step 5 (export page) holds the downloads; an assessment downloads right here
+  $("btnToExport").hidden = !!m; $("btnExport").hidden = $("btnReview").hidden = !m;
+  if (!$("thread").children.length) {
+    if ((S.fresh || !S.history.length) && m) botMsg(`I found ${S.edits.length} changes for "${m.title}". Each is a complete design: its AI level (AI Assessment Scale), what AI and students each do, how it's graded, and what to tell students. Click a highlight to see it all, check the sources, and accept or reject it.`);
+    else if (S.fresh || !S.history.length) botMsg(`I found ${S.edits.length} changes for ${S.course.code}. Each one is highlighted in your syllabus on the right; the small numbers are its ASPPH sources. Click any highlight to see why, check the source, and accept or reject it.`);
+    for (const t of S.history) t.role === "professor" ? addMsg("me", esc(t.text)) : botMsg(t.text);
+  }
+  S.fresh = false;
+  renderCoverage(); renderDetails(S.last || {dropped: [], searches: [], stats: []});
+  renderAll(); setTab("Revise");
+  showView("ws");
+}
+
+// ---------- the live document ----------
+const PII = /\[(NAME|EMAIL|PHONE|ADDRESS|USERNAME)_\d+\]/g;
+const PII_LABEL = {NAME:"name", EMAIL:"email", PHONE:"phone", ADDRESS:"address", USERNAME:"username"};
+function tidy(text){  // PDF table fragments read as text: no stray leading "|", "• | x" → "• x", "o Ch 11" → "◦ Ch 11"
+  return String(text ?? "").replace(/^[ \t]*(\|[ \t]*)+/gm, "").replace(/[ \t]*\|[ \t]*$/gm, "")
+    .replace(/•[ \t]*\|[ \t]*/g, "• ").replace(/(^|\| )o (?=[A-Z0-9])/gm, "$1◦ ");
+}
+function fmt(text){  // plain syllabus text → safe HTML: hidden-PII pills, table columns, line breaks kept by CSS
+  return esc(tidy(text)).replace(PII, (m, k) => `<span class="pii" title="Hidden from the AI. Restored in your download.">🔒 ${PII_LABEL[k]}</span>`)
+                  .replace(/ \| /g, `<span class="sep"></span>`);
+}
+function flex(original){  // same matching as the export: ignores spacing, line breaks and table pipes
+  const words = String(original || "").trim().split(/[\s|]+/).filter(Boolean).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  return words.length ? new RegExp(words.join("[\\s|]*"), "i") : null;
+}
+function status(e){ return S.decisions[e.edit_id] || "draft"; }
+function refNumbers(){  // number sources in order of first citation, like a paper's reference list
+  const n = {}; let k = 0;
+  for (const e of S.edits) if (status(e) !== "rejected") for (const x of e.evidence) if (!(x.id in n)) n[x.id] = ++k;
+  return n;
+}
+function cites(e, refs){
+  if (!e.evidence.length) return `<span class="ai-only" title="No ASPPH passage backs this edit">AI suggestion · no source</span>`;
+  return `<sup>${e.evidence.map(x => `<span class="cite" data-p="${esc(x.id)}" title="${esc(x.title)}">[${refs[x.id]}]</span>`).join("")}</sup>`;
+}
+function edMarkup(e, refs, block){
+  const st = status(e), show = $("showChanges").checked;
+  const cls = `ed ${st} ${e.supervisor === "flagged" ? "flagged" : ""} ${S.changed.has(e.edit_id) ? "changed" : ""} ${S.sel === e.edit_id ? "sel" : ""}`;
+  const orig = e.original ? fmt(e.original) : "";
+  const prop = e.proposed ? fmt(e.proposed) : "";
+  let inner;
+  if (!show) inner = st === "accepted" ? prop : orig;                    // clean preview: what the file would say
+  else if (st === "rejected") inner = `${orig}<span class="etag">${esc(e.edit_id)} rejected</span>`;
+  else inner = `${orig ? `<del>${orig}</del> ` : ""}${prop ? `<ins>${prop}</ins>` : ""}${cites(e, refs)}<span class="etag">${esc(e.edit_id)}${e.version > 1 ? " v" + e.version : ""}</span>`;
+  if (!show) return inner;
+  return block ? `<span class="${cls} blk ${e.supervisor === "flagged" ? "flagged" : ""}" data-id="${esc(e.edit_id)}">${inner}</span>`
+               : `<span class="${cls}" data-id="${esc(e.edit_id)}">${inner}</span>`;
+}
+function sectionText(sec){ return S.manual[sec.id] ?? sec.text; }
+function effectiveOutline(){ return {...S.outline, sections: S.outline.sections.map(x => ({...x, text: sectionText(x)}))}; }
+function renderSection(sec, refs, show, unplaced, keepFirst){
+  const text = sectionText(sec);
+  const mine = S.edits.filter(e => e.section_id === sec.id);
+  const spans = [], after = [];
+  for (const e of mine) {
+    if (e.op === "insert_after") { after.push(e); continue; }
+    const m = flex(e.original)?.exec(text);
+    if (!m || spans.some(s => m.index < s.b && s.a < m.index + m[0].length)) { after.push(e); unplaced.push(e.edit_id); continue; }
+    spans.push({a: m.index, b: m.index + m[0].length, e});
+  }
+  spans.sort((x, y) => x.a - y.a);
+  // Every section gets its title as a heading (from Station 1). If the text's first line just repeats
+  // the title, it's skipped so the title isn't shown twice, unless an edit starts inside that line.
+  const first = text.split("\n")[0], norm = x => x.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const dup = !keepFirst && norm(first) && (norm(first).startsWith(norm(sec.title)) || norm(sec.title).startsWith(norm(first)))
+              && norm(first).length < norm(sec.title).length + 25 && !spans.some(s => s.a < first.length);
+  let pos = dup ? first.length + 1 : 0, out = "";
+  for (const s of spans) { out += fmt(text.slice(pos, s.a)) + edMarkup(s.e, refs); pos = s.b; }
+  out += fmt(text.slice(pos));
+  const blocks = after.filter(e => e.op === "insert_after" || show || status(e) === "accepted")
+                      .map(e => edMarkup({...e, original: e.op === "insert_after" ? null : e.original}, refs, true)).join("");
+  const mineTag = show && S.manual[sec.id] !== undefined ? `<span class="ed-mine">✎ edited by you</span>` : "";
+  return {body: out.replace(/^\n+|\n+$/g, ""), blocks, mineTag};
+}
+function asRows(html){  // schedule-as-table: each balanced line becomes a row, " | " columns become cells
+  return html.split("\n").map(ln => {
+    const open = (ln.match(/<span/g) || []).length, close = (ln.match(/<\/span>/g) || []).length;
+    if (open !== close || !ln.includes('class="sep"')) return null;
+    return `<tr>${ln.split('<span class="sep"></span>').map(c => `<td>${c}</td>`).join("")}</tr>`;
+  });
+}
+function renderDoc(){
+  const refs = refNumbers(), show = $("showChanges").checked, unplaced = [], st = S.style || {};
+  let html = S.active
+    ? `<h1 class="dt">${esc(S.mat.title)}</h1><div class="dsub">${esc(S.course.code)} · ${esc(TYPE_LABEL[S.mat.type] || S.mat.type)}${S.mat.week ? " · " + esc(weekName(S.mat.week)) : ""}</div>`
+    : `<h1 class="dt">${esc(S.course.code)} ${esc(S.course.name)}</h1><div class="dsub">Syllabus · ${esc(S.course.level)} · ${esc(FORMAT_LABEL[S.course.format] || "")}</div>`;
+  let table = null;  // open schedule table (Style: schedule as a table)
+  const closeTable = () => { if (table !== null) { html += `<table class="sched">${table}</table>`; table = null; } };
+  for (const sec of S.outline.sections) {
+    const asTable = st.table && sec.kind === "week";  // a schedule row keeps its first line: it IS the row
+    const r = renderSection(sec, refs, show, unplaced, asTable);
+    const rows = asTable && !r.blocks ? asRows(r.body) : null;
+    if (rows && rows.every(Boolean)) {
+      table = (table ?? "") + rows.join("");
+    } else {
+      closeTable();
+      const head = sec.kind === "week" ? `<h3 data-sec="${esc(sec.id)}">${fmt(sec.title)}${r.mineTag}</h3>` : `<h2 data-sec="${esc(sec.id)}">${fmt(sec.title)}${r.mineTag}</h2>`;
+      html += `${head}<div class="sec" data-sec="${esc(sec.id)}">${r.body}${r.blocks}</div>`;
+    }
+    for (const a of S.added.filter(x => x.after === sec.id)) {
+      closeTable();
+      html += `<h2>${fmt(a.title)}${show ? `<span class="ed-mine">+ added by you</span>` : ""}</h2><div class="sec ${show ? "added" : ""}">${fmt(a.text)}</div>`;
+    }
+  }
+  closeTable();
+  const list = Object.entries(refs).sort((a, b) => a[1] - b[1]).map(([pid, n]) => {
+    const p = S.passages.find(x => x.id === pid) || {}; const by = S.edits.filter(e => status(e) !== "rejected" && e.evidence.some(x => x.id === pid)).map(e => e.edit_id);
+    return `<li id="ref-${esc(pid)}"><b>${esc(p.title || pid)}</b>${p.section ? ` › ${esc(p.section)}` : ""}. <span class="muted">${esc(pid)} · cited by ${by.join(", ")}</span> ${srcLink(p.uri)}</li>`;
+  }).join("");
+  $("paper").innerHTML = html + (show && list ? `<div class="refs"><h2>References (ASPPH sources behind PHACT's changes)</h2><ol>${list}</ol></div>` : "")
+    + (show && unplaced.length ? `<div class="unplaced">⚠ ${unplaced.join(", ")}: the exact original text wasn't found, so the change is shown after its section.</div>` : "");
+}
+// double-click any part of the page to edit that section by hand
+// (no hand editing: the syllabus changes only through recommendations the professor accepts)
+$("showChanges").onchange = () => { hidePop(); renderDoc(); };
+
+// click a highlight → edit card; click a citation → source card
+$("paper").addEventListener("click", ev => {
+  const c = ev.target.closest(".cite");
+  if (c && c.dataset.p) { ev.stopPropagation(); return toRef(c.dataset.p); }
+  const ed = ev.target.closest(".ed");
+  if (ed) { ev.stopPropagation(); showEdit(ed.dataset.id, ed); }
+});
+document.addEventListener("click", ev => { if (!ev.target.closest("#pop")) hidePop(); });
+document.addEventListener("keydown", ev => { if (ev.key === "Escape") hidePop(); });
+function place(anchor){
+  const pop = $("pop"), wrap = $("docwrap"), r = anchor.getBoundingClientRect(), w = wrap.getBoundingClientRect();
+  pop.style.display = "block";
+  const left = Math.min(Math.max(8, r.left - w.left + wrap.scrollLeft), wrap.clientWidth - pop.offsetWidth - 8);
+  pop.style.left = left + "px"; pop.style.top = (r.bottom - w.top + wrap.scrollTop + 8) + "px";
+  pop.scrollIntoView({behavior: "smooth", block: "nearest"});
+}
+function hidePop(){ $("pop").style.display = "none"; if (S.sel) { S.sel = null; document.querySelectorAll(".ed.sel").forEach(x => x.classList.remove("sel")); } }
+const PURPOSE = {ai_incorporation: "AI incorporation", workforce: "Workforce standard", competency: "Completing competencies"};
+function purposeOf(e){  // the AI tags each change; older saved changes get the same rule applied here
+  if (PURPOSE[e.purpose]) return e.purpose;
+  if (e.aias_level || /\b(AI|A\.I\.|generative|chatgpt|large language)\b/i.test(e.proposed || "")) return "ai_incorporation";
+  if ((e.evidence || []).some(x => (S.passages.find(p => p.id === x.id) || {}).source_type === "workforce")) return "workforce";
+  return (e.ceph || []).length ? "competency" : "ai_incorporation";
+}
+function showEdit(id, anchor){
+  const e = S.edits.find(x => x.edit_id === id); if (!e) return;
+  const refs = refNumbers(), st = status(e), pu = purposeOf(e);
+  S.sel = id; document.querySelectorAll(".ed").forEach(x => x.classList.toggle("sel", x.dataset.id === id));
+  const nums = e.evidence.filter(x => refs[x.id]).map(x => `<a href="#" class="cite" onclick="event.preventDefault();event.stopPropagation();toRef('${esc(x.id)}')">[${refs[x.id]}]</a>`).join(" ");
+  $("pop").innerHTML = `
+    <div class="h"><b>${esc(e.edit_id)}</b><span class="ptag ${pu}">${PURPOSE[pu]}</span>
+      ${e.supervisor === "flagged" ? `<span class="tag flag">Flagged</span>` : ""}${e.ceph.map(c => `<span class="tag">CEPH #${c}</span>`).join("")}
+      <button class="x" onclick="hidePop()">✕</button></div>
+    <div class="lbl">Why</div><div>${esc(e.rationale)}</div>
+    ${e.rubric_row ? `<div class="lbl">How it's graded</div><div>${esc(e.rubric_row)}</div>` : ""}
+    ${e.practicalities ? `<div class="lbl">Practicalities</div><div>${esc(e.practicalities)}</div>` : ""}
+    <div class="lbl">Sources</div><div>${nums || `<span class="muted">No ASPPH source: treat this as the AI's suggestion.</span>`}</div>
+    <div class="acts">${st === "draft"
+      ? `<button onclick="decide('${e.edit_id}','accepted')">Accept</button><button class="ghost" onclick="decide('${e.edit_id}','rejected')">Reject</button>`
+      : `<span class="tag ${st === "accepted" ? "ok" : ""}">${st === "accepted" ? "✓ Accepted" : "Rejected"}</span><button class="ghost" onclick="undoDecision('${e.edit_id}')"><i class="ti ti-arrow-back-up"></i>Undo</button>`}</div>`;
+  place(anchor);
+}
+// a source number → its entry in the References at the bottom of the page
+window.toRef = pid => {
+  hidePop();
+  const li = document.getElementById("ref-" + pid); if (!li) return;
+  document.querySelectorAll(".refs li").forEach(x => x.classList.toggle("hl", x === li));
+  li.scrollIntoView({behavior: "smooth", block: "center"});
+};
+window.hidePop = hidePop;
+window.askAbout = id => { hidePop(); $("msg").value = `Why ${id}? Which source supports it?`; $("msg").focus(); };
+
+// ---------- left panel: score, changes, chips ----------
+function renderChanges(){
+  $("chgList").innerHTML = S.edits.map(e => {
+    const st = status(e), where = (S.outline.sections.find(s => s.id === e.section_id) || {}).title || e.section_id, pu = purposeOf(e);
+    return `<div class="chg ${st} ${e.supervisor === "flagged" ? "flagged" : ""}" onclick="jump('${e.edit_id}')">
+      <span class="dot"></span><span class="what"><b>${esc(e.edit_id)}</b> <span class="ptag ${pu}">${PURPOSE[pu]}</span> ${esc(where)}<br><span class="muted">${esc((e.proposed || "delete").slice(0, 70))}</span></span>
+      <span class="acts">${st === "draft" ? `<button class="soft" title="Accept" onclick="event.stopPropagation();decide('${e.edit_id}','accepted')">✓</button> <button class="soft" title="Reject" onclick="event.stopPropagation();decide('${e.edit_id}','rejected')">✕</button>`
+        : `<span class="muted">${st}</span> <button class="undo" title="Undo" onclick="event.stopPropagation();undoDecision('${e.edit_id}')"><i class="ti ti-arrow-back-up"></i>Undo</button>`}</span></div>`;
+  }).join("") || `<p class="muted">No edits.</p>`;
+  const counts = ["accepted", "rejected"].map(k => `${S.edits.filter(e => status(e) === k).length} ${k}`).join(" · ");
+  $("docCounts").textContent = `${S.edits.length} changes · ${counts}`;
+  renderBoxes();
+}
+// competency boxes: one per competency, colored by where it stands NOW (an accepted change that closes it turns it green)
+function effStatus(c, edits = S.edits, dec = S.decisions){
+  return c.status === "covered" || (edits || []).some(e => (dec || {})[e.edit_id] === "accepted" && (e.ceph || []).includes(c.id)) ? "covered" : c.status;
+}
+function renderBoxes(){
+  if (!$("cboxes")) return;
+  const assigned = S.comps.filter(c => c.status !== "not_assigned");
+  $("cboxes").innerHTML = assigned.map(c => `<button class="cbox ${effStatus(c)} ${S.cbox === c.id ? "sel" : ""}" title="#${c.id}: ${effStatus(c)}" onclick="boxInfo(${c.id})">#${c.id}</button>`).join("")
+    || `<span class="muted">No competencies for this ${S.active ? "assessment" : "course"}.</span>`;
+  const c = assigned.find(x => x.id === S.cbox);
+  $("cinfo").innerHTML = c ? `<div class="cinfo"><b>#${c.id}</b> ${esc((S.checklist.find(k => k.id === c.id) || {}).statement || "")}
+      ${effStatus(c) === "covered" ? "" : `<div class="muted" style="margin-top:4px"><b>Missing:</b> ${esc((c.reason || "").split(/(?<=\.)\s/)[0])}</div>`}</div>` : "";
+}
+window.boxInfo = id => { S.cbox = S.cbox === id ? null : id; renderBoxes(); };
+function renderChips(){
+  const flagged = S.edits.filter(e => e.supervisor === "flagged").map(e => e.edit_id);
+  if (S.active) {
+    const flaggedA = S.edits.filter(e => e.supervisor === "flagged").map(e => e.edit_id);
+    $("chips").innerHTML = ["Make one task AI-resilient (AIAS 1)", "Add a verification log to the AI task", "Tighten the rubric for the AI work",
+      flaggedA.length ? `Find stronger sources for ${flaggedA.join(", ")}` : "Write one AI-use statement for the whole assignment"]
+      .map(c => `<button class="chip" onclick="send(${esc(JSON.stringify(c))})">${esc(c)}</button>`).join("");
+    return;
+  }
+  const chips = ["Make the edits shorter and simpler", S.course.ai_stance === "ban" ? "Add more teaching about AI's limits" : "Use less AI, more teaching about AI",
+                 flagged.length ? `Find stronger ASPPH sources for ${flagged.join(", ")}` : "Which source backs each change?",
+                 "Add a week on data ethics"];
+  $("chips").innerHTML = chips.map(c => `<button class="chip" onclick="send(${esc(JSON.stringify(c))})">${esc(c)}</button>`).join("");
+}
+function docOrder(e){  // sort edits as they appear in the syllabus, so E-list and [1][2] numbering read top to bottom
+  const i = S.outline.sections.findIndex(s => s.id === e.section_id);
+  const m = e.op === "insert_after" ? null : flex(e.original)?.exec(i < 0 ? "" : sectionText(S.outline.sections[i]));
+  return (i < 0 ? 1e4 : i) * 1e6 + (m ? m.index : 999999);
+}
+function renderAll(){ S.edits.sort((a, b) => docOrder(a) - docOrder(b)); renderChanges(); renderChips(); renderDoc(); renderSources(); if (S.checklist.length) renderMatrix(); saveSession(); }
+window.jump = id => {
+  hidePop();
+  const el = document.querySelector(`.ed[data-id="${id}"]`);
+  if (!el) return;
+  el.scrollIntoView({behavior: "smooth", block: "center"});
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");  // a brief highlight shows which one
+};
+window.undoDecision = id => {  // back to undecided (e.g. accepted by accident)
+  logEvent("decision", `${S.active ? (S.mat?.title || "assessment") : "syllabus"}: ${id} undo`);
+  S.decisions[id] = ""; S.changed = new Set(); hidePop(); renderAll();
+};
+
+// Linked edits (Edit.requires): accepting one accepts what it needs; rejecting one warns about what needs it.
+window.decide = (id, d) => {
+  logEvent("decision", `${S.active ? (S.mat?.title || "assessment") : "syllabus"}: ${id} ${S.decisions[id] === d ? "un" : ""}${d}`);
+  const stamp = x => { S.decidedAt = S.decidedAt || {}; S.decidedAt[x] = new Date().toLocaleString(); };
+  const undo = S.decisions[id] === d, notes = [];
+  S.decisions[id] = undo ? "" : d; stamp(id);
+  if (!undo && d === "accepted") {
+    const need = [], todo = [id];
+    while (todo.length) {
+      const e = S.edits.find(x => x.edit_id === todo.pop());
+      for (const r of e?.requires || []) if (S.decisions[r] !== "accepted" && S.edits.some(x => x.edit_id === r)) { S.decisions[r] = "accepted"; stamp(r); need.push(r); todo.push(r); }
+    }
+    if (need.length) notes.push(`${id} only works together with ${need.join(", ")}, so I accepted ${need.length > 1 ? "those" : "that"} too.`);
+  }
+  if (!undo && d === "rejected") {
+    const users = S.edits.filter(x => (x.requires || []).includes(id) && S.decisions[x.edit_id] === "accepted").map(x => x.edit_id);
+    if (users.length) notes.push(`Heads-up: ${users.join(", ")} depend${users.length > 1 ? "" : "s"} on ${id}. Reject ${users.length > 1 ? "them" : "it"} too, or the syllabus may not add up (e.g. grade weights).`);
+  }
+  S.changed = new Set(); hidePop(); renderAll();
+  notes.forEach(botMsg);
+};
+$("btnAcceptAll").onclick = () => {
+  const ok = S.edits.filter(e => e.supervisor === "pass" && status(e) === "draft").map(e => e.edit_id);
+  ok.forEach(id => { S.decisions[id] = "accepted"; (S.decidedAt = S.decidedAt || {})[id] = new Date().toLocaleString(); });
+  ok.forEach(id => (S.edits.find(e => e.edit_id === id).requires || []).forEach(r => { if (S.edits.some(x => x.edit_id === r)) S.decisions[r] = "accepted"; }));
+  renderAll(); botMsg(ok.length ? `Accepted ${ok.join(", ")} (Supervisor-verified). Flagged edits are left for you to review.` : "No verified drafts left to accept.");
+};
+
+// ---------- chat ----------
+function addMsg(who, html){ const d = document.createElement("div"); d.className = "msg " + who; d.innerHTML = html; $("thread").appendChild(d); scrollChat(); return d; }
+function botMsg(text, meta){ return addMsg("bot", esc(text) + (meta ? `<span class="meta">${esc(meta)}</span>` : "")); }
+function scrollChat(){ const p = $("paneRevise"); p.scrollTop = p.scrollHeight; }
+async function send(picked){
+  const text = (typeof picked === "string" ? picked : $("msg").value).trim(); if (!text) return;
+  if (!S.edits.length) { $("st4").textContent = "Run an analysis first."; return; }
+  document.querySelectorAll(".opts button").forEach(x => x.disabled = true);
+  const b = $("btnSend"), st = $("st4");
+  addMsg("me", esc(text)); $("msg").value = ""; hidePop();
+  const dots = addMsg("bot typing", "<i></i><i></i><i></i>"); dots.className = "typing";
+  try {
+    busy(b, st, "Reading → searching sources → rewriting");
+    const r = await post("/api/chat", {message: text, history: S.history, outline: effectiveOutline(), edits: S.edits,
+                                       passages: S.passages, course: courseForAI(), mode: S.active ? "assessment" : "syllabus",
+                                       memory: courseMemory()});
+    dots.remove();
+    S.history.push({role:"professor", text}, {role:"assistant", text: r.reply});
+    S.passages = S.passages.concat(r.new_passages);
+    S.changed = new Set(r.edits.map(e => e.edit_id));
+    for (const e of r.edits) {
+      const i = S.edits.findIndex(x => x.edit_id === e.edit_id);
+      if (i >= 0) { S.edits[i] = e; if (S.decisions[e.edit_id] === "accepted") S.decisions[e.edit_id] = ""; }  // a changed edit needs a fresh decision
+      else S.edits.push(e);
+    }
+    S.edits = S.edits.filter(e => !r.removed_edit_ids.includes(e.edit_id));
+    renderAll();
+    if (r.kind === "clarify") {  // vague request: one question, each button sends a fully specified request
+      botMsg(r.reply);
+      const box = document.createElement("div"); box.className = "opts";
+      for (const o of r.options) { const btn = document.createElement("button"); btn.className = "soft"; btn.textContent = o.label; btn.title = o.message; btn.onclick = () => send(o.message); box.appendChild(btn); }
+      $("thread").appendChild(box); scrollChat(); done(b, st, ""); return;
+    }
+    if (r.kind === "blocked") { botMsg("🛡 " + r.reply, "Blocked by the safety guardrail. Nothing was sent to Claude."); done(b, st, ""); return; }
+    const meta = [r.edits.length ? `Updated ${r.edits.map(e => e.edit_id + (e.version > 1 ? " v" + e.version : "")).join(", ")} in your syllabus` : "",
+                  r.new_passages.length ? `new sources ${r.new_passages.map(p => p.id).join(", ")}` : "",
+                  r.removed_edit_ids.length ? `removed ${r.removed_edit_ids.join(", ")}` : ""].filter(Boolean).join(" · ");
+    botMsg(r.reply, meta);
+    if (r.edits.length) setTimeout(() => document.querySelector(`.ed[data-id="${r.edits[0].edit_id}"]`)?.scrollIntoView({behavior:"smooth", block:"center"}), 100);
+    done(b, st, "");
+  } catch (e) { dots.remove(); done(b, st, ""); botMsg("Something went wrong: " + e.message); }
+}
+window.send = send;
+$("btnSend").onclick = send;
+$("msg").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+
+// ---------- tabs ----------
+function activeTab(){ return document.querySelector(".tabs button.on")?.dataset.tab; }
+function setTab(name){
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x.dataset.tab === name));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id === "pane" + name));
+  $("composer").hidden = $("foot").hidden = name !== "Revise";  // like Jobright: chat only in AI Revise
+  if (name === "Editor") renderEditor();
+}
+document.querySelectorAll(".tabs button").forEach(t => t.onclick = () => setTab(t.dataset.tab));
+// ---------- Competencies: add or remove later, without redoing the analysis ----------
+$("btnComps").onclick = () => { setTab("Evidence"); $("compMgr").scrollIntoView({behavior: "smooth"}); };
+function renderCompMgr(){
+  const color = {covered: "var(--covered)", partial: "var(--partial)", missing: "var(--missing)"};
+  const assigned = S.comps.filter(c => c.status !== "not_assigned");
+  const others = S.checklist.filter(c => !assigned.some(a => a.id === c.id));
+  $("compMgr").innerHTML = `
+    <div class="cm">${assigned.map(c => `<span class="c" style="background:${color[c.status]}" title="${esc((S.checklist.find(x => x.id === c.id) || {}).statement || "")}: ${c.status}">#${c.id} ${c.status}
+      <button title="Remove from this course" onclick="removeComp(${c.id})">✕</button></span>`).join("") || `<span class="muted">None yet.</span>`}</div>
+    ${S.active ? `<p class="muted">Competencies for this assessment. Change the course's competencies from the syllabus workspace.</p>` : `<div class="addc"><b>+ Add competencies</b> <span class="muted">PHACT analyzes only the ones you add (~40 s). Your edits and decisions stay.</span>
+      <div class="comps">${others.map(c => `<label title="${esc(c.statement)}"><input type="checkbox" value="${c.id}"> <span><b>#${c.id}</b> ${esc(c.statement.slice(0, 80))}…</span></label>`).join("")}</div>
+      <div class="row"><button id="btnAddComps" onclick="addComps()">Analyze the added competencies</button><span class="muted" id="stAdd"></span></div></div>`}`;
+}
+window.addComps = async () => {
+  const ids = [...document.querySelectorAll("#compMgr .comps input:checked")].map(x => +x.value);
+  if (!ids.length) { $("stAdd").textContent = "Tick at least one."; return; }
+  const b = $("btnAddComps");
+  busy(b, $("stAdd"), `Mapping #${ids.join(", #")}, finding sources, writing edits for any gaps… (~40 s)`);
+  try {
+    const r = await post("/api/analyze_more", {outline: effectiveOutline(), new_ids: ids, edits: S.edits, passages: S.passages, course: courseForAI()});
+    for (const c of r.competencies) { const i = S.comps.findIndex(x => x.id === c.id); if (i >= 0) S.comps[i] = c; else S.comps.push(c); }
+    S.passages = S.passages.concat(r.new_passages);
+    S.edits = S.edits.concat(r.edits);
+    S.changed = new Set(r.edits.map(e => e.edit_id));
+    S.last = {...(S.last || {}), dropped: [...(S.last?.dropped || []), ...r.dropped], searches: [...(S.last?.searches || []), ...r.searches],
+              stats: [...(S.last?.stats || []), ...r.stats]};
+    renderCoverage(); renderDetails(S.last); renderAll();
+    const st = r.competencies.map(c => `#${c.id} is ${c.status}`).join(", ");
+    setTab("Revise");
+    botMsg(`Added ${ids.map(i => "#" + i).join(", ")}: ${st}. ` + (r.edits.length ? `I wrote ${r.edits.length} new change${r.edits.length > 1 ? "s" : ""} (${r.edits.map(e => e.edit_id).join(", ")}), highlighted on the page.`
+           : "The syllabus already covers it, so no new changes were needed."), r.dropped.length ? `${r.dropped.length} held back by PHACT's checks` : "");
+    if (r.edits.length) setTimeout(() => jump(r.edits[0].edit_id), 200);
+  } catch (e) { done(b, $("stAdd"), "Error: " + e.message); }
+};
+window.removeComp = id => {
+  const c = S.comps.find(x => x.id === id); if (!c) return;
+  const only = S.edits.filter(e => e.ceph.includes(id) && e.ceph.every(x => x === id || !S.comps.some(k => k.id === x && k.status !== "not_assigned"))
+                                   && status(e) !== "rejected").map(e => e.edit_id);
+  if (only.length && !confirm(`Remove #${id}? ${only.join(", ")} ${only.length > 1 ? "were" : "was"} written only for it. OK = remove #${id} and reject ${only.length > 1 ? "them" : "it"}; Cancel = keep everything.`)) return;
+  c.status = "not_assigned"; c.reason = "Removed from this course by the instructor";
+  only.forEach(i => { S.decisions[i] = "rejected"; });
+  renderCoverage(); renderAll();
+  botMsg(`Removed #${id} from ${S.course.code}.` + (only.length ? ` Rejected ${only.join(", ")}, which only served it.` : ""));
+};
+
+function renderMatrix(){
+  const color = {covered: "var(--covered)", partial: "var(--partial)", missing: "var(--missing)"};
+  const rows = S.comps.filter(c => c.status !== "not_assigned").map(c => {
+    const k = S.checklist.find(x => x.id === c.id) || {}, fixes = S.edits.filter(e => e.ceph.includes(c.id));
+    return `<tr><td><span class="c" style="background:${color[c.status]}">#${c.id}</span></td><td><b>${esc((k.statement || "").slice(0, 90))}${(k.statement || "").length > 90 ? "…" : ""}</b><div class="muted">${esc(c.reason || "")}</div></td>
+      <td>${esc(c.status)}</td><td>${fixes.map(f => `<a href="#" onclick="event.preventDefault();jump('${f.edit_id}')">${f.edit_id}</a> <span class="muted">${status(f) === "draft" ? "" : status(f)}</span>`).join("<br>") || `<span class="muted">none needed</span>`}</td></tr>`;
+  }).join("");
+  $("matrix").innerHTML = rows ? `<table class="matrix"><tr><th></th><th>Competency · where the syllabus stands</th><th>Status</th><th>PHACT changes</th></tr>${rows}</table>` : `<p class="muted">No competencies chosen.</p>`;
+}
+function renderCoverage(){
+  renderCompMgr(); renderMatrix();
+  $("heat").innerHTML = S.comps.map(c => `<div class="cell ${c.status}" title="#${c.id}: ${c.status}" onclick="document.getElementById('c${c.id}')?.scrollIntoView({behavior:'smooth'})">${c.id}</div>`).join("");
+  const colors = {covered:"var(--covered)", partial:"var(--partial)", missing:"var(--missing)"};
+  $("compList").innerHTML = S.comps.filter(c => c.status !== "not_assigned").map(c => {
+    const stmt = (S.checklist.find(x => x.id === c.id) || {}).statement || "";
+    const fixes = S.edits.filter(e => e.ceph.includes(c.id)).map(e => e.edit_id);
+    return `<div class="comp" id="c${c.id}" style="--c:${colors[c.status]}"><b>#${c.id} ${c.status.toUpperCase()}</b>: ${esc(stmt)}<br>${esc(c.reason)}
+      ${c.rule ? `<div class="muted">CEPH rule applied: “${esc(c.rule)}”</div>` : ""}
+      ${fixes.length ? `<div class="muted">Addressed by ${fixes.map(f => `<a href="#" onclick="event.preventDefault();jump('${f}')">${f}</a>`).join(", ")}</div>` : ""}</div>`;
+  }).join("");
+}
+function renderSources(){
+  const refs = refNumbers();
+  $("srcList").innerHTML = S.passages.map(p => `<div class="src"><b>${refs[p.id] ? `[${refs[p.id]}] ` : ""}${esc(p.id)} · ${esc(p.title)}</b>${p.section ? ` › ${esc(p.section)}` : ""} <span class="tag">${esc(p.source_type)}</span> ${srcLink(p.uri)}
+    <details><summary>show the exact passage</summary><div class="snip">${esc(md(p.snippet))}</div></details></div>`).join("");
+}
+function renderPeers(r){  // approved example syllabi used for inspiration: listed apart from the cited sources
+  const ex = (r && r.examples) || [];
+  $("peerBox").innerHTML = ex.length ? `<h3 class="ph">Peer examples PHACT drew on</h3><p class="muted" style="margin-top:0">Approved syllabi shared by other faculty, for inspiration only. They're never cited as evidence.</p>`
+    + ex.map(e => `<div class="src"><b>${esc(e.title)}</b>${e.section ? ` › ${esc(e.section)}` : ""}<details><summary>show the example</summary><div class="snip">${esc(e.text)}</div></details></div>`).join("") : "";
+}
+function renderDetails(r){
+  renderPeers(r);
+  const o = S.outline;
+  $("outlineBox").innerHTML = `<p class="muted"><b>AI policy found:</b> ${o.ai_policy ? esc(o.ai_policy.slice(0,200)) : "none"} · <b>Claims CEPH:</b> ${o.claimed_competencies.join(", ") || "none"}</p>
+    <details><summary>Assignments (${o.assignments.length})</summary><table><tr><th>assignment</th><th>graded</th><th>weight</th><th>tests</th></tr>
+    ${o.assignments.map(a => `<tr><td>${esc(a.title)}</td><td>${a.assessed ? "✅" : "—"}</td><td>${a.weight != null ? Math.round(a.weight*100)+"%" : ""}</td><td>${esc(a.what_it_tests)}</td></tr>`).join("")}</table></details>`;
+  r = {dropped: [], searches: [], stats: [], ...r};
+  $("droppedBox").innerHTML = r.dropped?.length ? `<div class="warnbox" style="margin-top:8px"><b>Held back by PHACT's checks:</b> ${r.dropped.map(d => `${esc(d.edit_id)}: ${esc(d.problems.join("; "))}`).join("<br>")}</div>` : "";
+  $("searches").innerHTML = `<table><tr><th>why</th><th>query</th><th>scores</th><th>kept</th></tr>${r.searches.map(s => `<tr><td>${esc(s.why)}</td><td>${esc(s.query)}</td><td>${s.scores.join(", ")}</td><td>${s.kept.join(", ")}</td></tr>`).join("")}</table>`;
+  $("stats").innerHTML = `<table><tr><th>call</th><th>model</th><th>in</th><th>out</th><th>ms</th></tr>${r.stats.map(s => `<tr><td>${s.station}</td><td>${s.model}</td><td>${s.input_tokens}</td><td>${s.output_tokens}</td><td>${s.latency_ms}</td></tr>`).join("")}</table>`;
+}
+
+// KB search
+$("btnSearch").onclick = async () => {
+  const b = $("btnSearch"); b.disabled = true; $("hits").innerHTML = `<p class="spin muted">Searching…</p>`;
+  try {
+    const hits = await post("/api/search", {q: $("q").value, source_type: "any", k: 5});
+    $("hits").innerHTML = hits.map(h => `<div class="src"><b>${h.score.toFixed(2)}</b> · ${esc(h.title)} › ${esc(h.section)} <span class="tag">${h.source_type}</span> ${srcLink(h.uri)}<div class="snip">${esc(md(h.text))}</div></div>`).join("") || "<p class='muted'>No results.</p>";
+  } catch (e) { $("hits").textContent = "Error: " + e.message; }
+  b.disabled = false;
+};
+
+// Export (US-11): accepted edits only. Final = clean syllabus; review = highlighted + sources appendix
+$("btnExport").onclick = () => exportDoc(false);
+$("btnReview").onclick = () => exportDoc(true);
+$("btnToExport").onclick = () => { saveSession(); location.hash = `#/c/${encodeURIComponent(S.course.code)}/export`; };
+function exNote(t){ if (!$("vExport").classList.contains("on")) return botMsg(t); const el = $("ex_st"); if (el) el.textContent = t; }
+async function exportDoc(review){
+  logEvent("export", `${S.active ? S.mat?.title : "syllabus"} · ${review ? "review copy" : "final"}`);
+  const acc = S.edits.filter(e => S.decisions[e.edit_id] === "accepted").map(e => ({...e, status: "accepted"}));
+  if (!acc.length && !Object.keys(S.manual).length && !S.added.length) { exNote("Accept at least one change first: click a highlight in the syllabus, or use “Accept all verified”."); return; }
+  const approvals = Object.fromEntries(acc.map(e => [e.edit_id, {at: (S.decidedAt || {})[e.edit_id] || "", by: "instructor"}]));
+  const r = await fetch("/api/export", {method: "POST", headers: {"Content-Type": "application/json"},
+                                        body: JSON.stringify({outline: S.outline, edits: acc, course: S.course, approvals, doc_id: S.docId, review,
+                                                              manual: S.manual, added: S.added, style: styleForExport()})});
+  if (!r.ok) { exNote("Export failed: " + r.statusText); return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(await r.blob());
+  const base = S.active ? S.mat.title.replace(/[^\w-]+/g, "-").slice(0, 40) : (S.course.code || "syllabus").replace(/\s/g, "");
+  a.download = `${base}-${review ? "review-copy" : S.active ? "revised" : "syllabus"}.docx`; a.click();
+  if (!S.active) { const list = loadCourses(), c = list.find(x => x.code === S.course.code); if (c) { c.exportedAt = Date.now(); saveCourses(list); S.course = c; } }
+  exNote(`Downloaded ${a.download}.`);
+}
+// ---------- Step 5 (Figma "Export and saved course"): what was decided, and the downloads ----------
+function renderExport(c){
+  const enc = encodeURIComponent(c.code), st = e => S.decisions[e.edit_id] || "draft";
+  const acc = S.edits.filter(e => st(e) === "accepted"), rej = S.edits.filter(e => st(e) === "rejected"), open = S.edits.filter(e => st(e) === "draft");
+  const assigned = S.comps.filter(x => x.status !== "not_assigned"), covered = assigned.filter(x => effStatus(x) === "covered").length;
+  const where = e => (S.outline.sections.find(x => x.id === e.section_id) || {}).title || e.section_id;
+  const decisions = [...acc, ...rej].sort((a, b) => String((S.decidedAt || {})[b.edit_id] || "").localeCompare(String((S.decidedAt || {})[a.edit_id] || "")));
+  $("ex_flow").innerHTML = flowHTML(5, c);
+  $("ex_body").innerHTML = `
+    <div class="pagehead"><div><h1>${acc.length ? "Saved. Ready for your next class." : "Almost there."}</h1>
+      <p class="muted">${esc(c.code)} · ${esc(c.name)}. Everything is saved to your account. Download your syllabus when you're ready.</p></div>
+      <a class="btn ghost" href="#/c/${enc}/revise"><i class="ti ti-arrow-left"></i>Back to review</a></div>
+    ${acc.length ? `<div class="savedban"><i class="ti ti-circle-check"></i><div><b>Your revised syllabus is saved</b><div>${acc.length} recommendation${acc.length > 1 ? "s" : ""} accepted${Object.keys(S.manual).length ? ", plus your own edits" : ""}. Last saved ${ago(loadSession(c.code)?.savedAt)}.</div></div></div>`
+      : `<div class="warnpanel"><b>No recommendations accepted yet.</b><p>Your download would match your original syllabus. Go back to the review to accept the changes you want.</p></div>`}
+    <div class="twocol">
+      <div>
+        <section class="panel">
+          <h2><i class="ti ti-book"></i>${esc(c.name)}</h2>
+          <div class="tiles" style="margin:6px 0 0">
+            <div class="tile"><b>${acc.length}</b><span>accepted</span></div><div class="tile"><b>${rej.length}</b><span>rejected</span></div>
+            <div class="tile"><b>${open.length}</b><span>not decided</span></div><div class="tile"><b>${covered}/${assigned.length}</b><span>competencies covered</span></div>
+          </div>
+          <div class="kv" style="margin-top:10px">${esc([c.code, c.term, c.level, FORMAT_LABEL[c.format], c.credits ? c.credits + " credits" : "", c.department].filter(Boolean).join(" · "))}</div>
+        </section>
+        <section class="panel">
+          <div class="ph2"><h2><i class="ti ti-history"></i>Your decisions</h2><span class="muted">${decisions.length} of ${S.edits.length}</span></div>
+          ${decisions.map(e => `<div class="dec"><i class="ti ${st(e) === "accepted" ? "ti-circle-check" : "ti-circle-x"}" style="color:${st(e) === "accepted" ? "var(--covered)" : "var(--muted)"}"></i>
+              <div class="grow"><b>${esc(e.edit_id)} · ${esc(where(e))}</b><div class="muted">${esc((e.proposed || "Remove text").slice(0, 140))}${(e.proposed || "").length > 140 ? "…" : ""}</div></div>
+              <span class="muted">${esc(st(e))}${(S.decidedAt || {})[e.edit_id] ? "<br>" + esc(S.decidedAt[e.edit_id]) : ""}</span></div>`).join("") || `<p class="muted">No decisions yet.</p>`}
+          ${open.length ? `<p class="muted">${open.length} not decided: they stay out of your download. <a href="#/c/${enc}/revise">Review them</a>.</p>` : ""}
+        </section>
+      </div>
+      <div>
+        <section class="panel">
+          <h2><i class="ti ti-package"></i>Export your syllabus</h2>
+          <div class="exopt">
+            <button id="ex_final" onclick="exportDoc(false)"><i class="ti ti-file-download"></i>Final syllabus (.docx) · clean, reads as your own</button>
+            <button class="ghost" onclick="exportDoc(true)"><i class="ti ti-file-search"></i>Review copy (.docx) · highlighted changes and sources</button>
+          </div>
+          <p class="muted" style="margin-bottom:0">Names and emails hidden from the AI are restored in your download. Only accepted changes are included.</p>
+          <div class="status" id="ex_st"></div>
+        </section>
+        <section class="panel">
+          <h2><i class="ti ti-share"></i>Share as an example syllabus</h2>
+          <p class="muted" style="margin-top:0">Send your revised syllabus to ASPPH. Parts staff approve become anonymous peer examples for other faculty.</p>
+          <a class="btn ghost" href="#/c/${enc}" style="width:100%;justify-content:center">Open the course page to share</a>
+        </section>
+        <section class="panel">
+          <h2><i class="ti ti-calendar-plus"></i>Next: your assessments</h2>
+          <p class="muted" style="margin-top:0">Upload homework, exams and projects on the course page: PHACT designs AI integration for each, consistent with this syllabus.</p>
+          <a class="btn" href="#/c/${enc}" style="width:100%;justify-content:center">Go to the course page<i class="ti ti-arrow-right"></i></a>
+        </section>
+      </div>
+    </div>`;
+}
+
+// ---------- Editor: edit the syllabus by hand, alongside PHACT ----------
+const PRESETS = {
+  "AI use policy": "State the course's AI stance, what students may and may not use AI for, and how to disclose it.",
+  "Accessibility & accommodations": "Students who need accommodations should contact the disability resource office and share their accommodation letter with the instructor early in the term.",
+  "Academic integrity": "Describe expectations for original work, citation, and collaboration, and the consequences of violations.",
+  "Wellness & support resources": "List counseling, crisis and basic-needs resources available to students.",
+  "Communication & response times": "Explain how to contact the instructor and the expected response time.",
+  "Blank section": "",
+};
+function openEditor(id){ S.openSec = id; setTab("Editor"); setTimeout(() => document.querySelector(`.sx[data-id="${id}"]`)?.scrollIntoView({behavior:"smooth", block:"start"}), 50); }
+function renderEditor(){
+  if (!S.outline) return;
+  const secs = S.outline.sections.map(sec => {
+    const eds = S.edits.filter(e => e.section_id === sec.id);
+    const mine = S.manual[sec.id] !== undefined;
+    return `<div class="sx ${S.openSec === sec.id ? "open" : ""}" data-id="${esc(sec.id)}">
+      <div class="hd" onclick="toggleSec('${esc(sec.id)}')"><span class="t">${esc(sec.title)}</span>
+        ${eds.length ? `<span class="tag">${eds.length} PHACT edit${eds.length > 1 ? "s" : ""}</span>` : ""}${mine ? `<span class="tag" style="background:#efe9fb;color:#6b4bb8">✎ yours</span>` : ""}<span class="chev">⌄</span></div>
+      <div class="bd">${S.openSec === sec.id ? `
+        <textarea data-sec="${esc(sec.id)}" onchange="saveSec(this)">${esc(sectionText(sec))}</textarea>
+        <div class="row" style="justify-content:space-between"><span class="muted" id="sv-${esc(sec.id)}">${mine ? "Edited by you" : "Original text"}</span>
+          ${mine ? `<button class="ghost" onclick="resetSec('${esc(sec.id)}')">↺ Back to original</button>` : ""}</div>
+        ${eds.map(e => `<div class="mini"><b>${esc(e.edit_id)}</b> <span class="muted">${status(e)}${e.instructor_edited ? " · edited by you" : ""}</span>
+            <textarea onchange="editProposal('${e.edit_id}', this.value)">${esc(e.proposed || "")}</textarea>
+            <div class="row"><button class="soft" onclick="decide('${e.edit_id}','accepted')">✓ Accept</button><button class="soft" onclick="decide('${e.edit_id}','rejected')">✕ Reject</button><button class="ghost" onclick="jump('${e.edit_id}')">Show on page</button></div></div>`).join("")}` : ""}
+      </div></div>`;
+  }).join("");
+  const added = S.added.map((a, i) => `<div class="sx open"><div class="hd"><span class="t">+ ${esc(a.title)}</span><span class="tag" style="background:#efe9fb;color:#6b4bb8">added by you</span></div>
+      <div class="bd"><input type="text" value="${esc(a.title)}" onchange="S.added[${i}].title=this.value;renderDoc()"><textarea style="margin-top:6px" onchange="saveAdded(${i}, this)">${esc(a.text)}</textarea>
+      <button class="ghost" onclick="S.added.splice(${i},1);renderEditor();renderDoc()">Remove section</button></div></div>`).join("");
+  $("edList").innerHTML = secs + added;
+  $("addPreset").innerHTML = Object.keys(PRESETS).map(k => `<option>${esc(k)}</option>`).join("");
+  $("addAfter").innerHTML = S.outline.sections.filter(x => x.kind !== "week").map(x => `<option value="${esc(x.id)}">after: ${esc(x.title)}</option>`).join("");
+}
+window.toggleSec = id => { S.openSec = S.openSec === id ? null : id; renderEditor(); };
+async function scrubbed(text){  // hand-typed text passes the Safety gate before it can ever reach Claude
+  const r = await post("/api/scrub", {text, doc_id: S.docId});
+  if (Object.keys(r.pii_removed || {}).length) botMsg(`I hid ${Object.entries(r.pii_removed).map(([k, v]) => `${v} ${k.toLowerCase()}`).join(", ")} you typed from the AI. It stays in your download.`);
+  return r.text;
+}
+window.saveSec = async el => {
+  const id = el.dataset.sec, sec = S.outline.sections.find(x => x.id === id);
+  $("sv-" + id).textContent = "Saving…";
+  try {
+    const clean = await scrubbed(el.value);
+    if (clean === sec.text) delete S.manual[id]; else S.manual[id] = clean;
+    renderDoc(); renderEditor();
+  } catch (e) { $("sv-" + id).textContent = "Couldn't save: " + e.message; }
+};
+window.resetSec = id => { delete S.manual[id]; renderDoc(); renderEditor(); };
+window.saveAdded = async (i, el) => { S.added[i].text = await scrubbed(el.value); renderDoc(); };
+window.editProposal = async (id, value) => {  // the professor rewrites PHACT's proposed text
+  const e = S.edits.find(x => x.edit_id === id); if (!e) return;
+  e.proposed = await scrubbed(value); e.instructor_edited = true;
+  e.supervisor_note = (e.supervisor_note ? e.supervisor_note + " " : "") + "Text edited by the instructor after PHACT's checks.";
+  S.changed = new Set([id]); renderAll();
+};
+$("btnAddSec").onclick = () => {
+  const name = $("addPreset").value;
+  S.added.push({after: $("addAfter").value, title: name === "Blank section" ? "New section" : name, text: PRESETS[name]});
+  renderEditor(); renderDoc();
+  document.querySelector("#edList .sx:last-child")?.scrollIntoView({behavior:"smooth"});
+};
+$("btnAddAsk").onclick = () => {
+  const name = $("addPreset").value, after = $("addAfter").selectedOptions[0]?.textContent.replace("after: ", "");
+  setTab("Revise");
+  send(`Add a "${name === "Blank section" ? "new" : name}" section after "${after}", written for this course and backed by ASPPH sources.`);
+};
+
+// ---------- Style: syllabus templates and formatting ----------
+const FONTS = {"Georgia": "Georgia, serif", "Garamond": "Garamond, 'EB Garamond', Georgia, serif", "Times New Roman": "'Times New Roman', Times, serif",
+               "Palatino": "'Palatino Linotype', Palatino, serif", "Calibri": "Calibri, Carlito, 'Segoe UI', sans-serif", "Arial": "Arial, Helvetica, sans-serif",
+               "Helvetica": "Helvetica, Arial, sans-serif"};
+const TEMPLATES = {
+  Classic:  {font:"Georgia", hfont:"Georgia", title:22, h:13, body:11, line:1.15, accent:"#1f1f1f", upper:true, table:false, margin:1, gap:4, align:"left", rule:true},
+  Modern:   {font:"Calibri", hfont:"Calibri", title:24, h:14, body:11, line:1.2, accent:"#0d7d6f", upper:false, table:true, margin:1, gap:6, align:"left", rule:false},
+  Compact:  {font:"Arial", hfont:"Arial", title:18, h:11, body:9.5, line:1.05, accent:"#1f3a5f", upper:true, table:true, margin:0.75, gap:2, align:"left", rule:true},
+  Academic: {font:"Garamond", hfont:"Garamond", title:22, h:13, body:11.5, line:1.25, accent:"#1f3a5f", upper:false, table:false, margin:1.25, gap:6, align:"center", rule:true},
+};
+function loadStyle(){ try { return JSON.parse(localStorage.getItem("phact.style")) || null; } catch { return null; } }
+function saveStyle(){ try { localStorage.setItem("phact.style", JSON.stringify(S.style)); } catch {} }
+function pt(n){ return (n * 1.333).toFixed(1) + "px"; }  // Word points → screen pixels
+function applyStyle(){
+  const st = S.style, el = $("paper");
+  el.style.setProperty("--pf", FONTS[st.font] || st.font); el.style.setProperty("--hf", FONTS[st.hfont] || st.hfont);
+  el.style.setProperty("--ps", pt(st.body)); el.style.setProperty("--hs", pt(st.h)); el.style.setProperty("--ts", pt(st.title));
+  el.style.setProperty("--pl", st.line); el.style.setProperty("--pc", st.accent); el.style.setProperty("--pm", (st.margin * 56) + "px");
+  el.style.setProperty("--pg", pt(st.gap)); el.style.setProperty("--pu", st.upper ? "uppercase" : "none");
+  el.style.setProperty("--ta", st.align); el.style.setProperty("--rule", st.rule ? "1px solid currentColor" : "0");
+}
+function renderStyle(){
+  const st = S.style;
+  $("tpls").innerHTML = Object.entries(TEMPLATES).map(([name, t]) => `<button class="tpl ${st.template === name ? "on" : ""}" onclick="useTemplate('${name}')">
+    <div class="pv" style="font-family:${FONTS[t.font]}"><i class="h" style="background:${t.accent};${t.align === "center" ? "margin:0 auto" : ""}"></i><i></i><i style="width:80%"></i><i class="h" style="background:${t.accent}"></i><i></i></div>
+    ${name}<small>${{Classic:"Serif, uppercase rules", Modern:"Sans, teal, schedule table", Compact:"Small type, fits more", Academic:"Garamond, centered title"}[name]}</small></button>`).join("");
+  const opts = (id, list, v) => { $(id).innerHTML = list.map(x => `<option ${x == v ? "selected" : ""}>${x}</option>`).join(""); };
+  opts("st_font", Object.keys(FONTS), st.font); opts("st_hfont", Object.keys(FONTS), st.hfont);
+  opts("st_title", [16, 18, 20, 22, 24, 28], st.title); opts("st_h", [10, 11, 12, 13, 14, 16], st.h);
+  opts("st_body", [9, 9.5, 10, 10.5, 11, 11.5, 12], st.body); opts("st_line", [1, 1.05, 1.15, 1.25, 1.5], st.line);
+  $("st_accent").value = st.accent; $("st_table").checked = st.table; $("st_upper").checked = st.upper;
+  $("st_margin").value = st.margin; $("st_gap").value = st.gap; $("st_apply").checked = !!st.apply;
+}
+window.useTemplate = name => { S.style = {...TEMPLATES[name], template: name, apply: S.style?.apply}; saveStyle(); renderStyle(); applyStyle(); renderDoc(); };
+for (const [id, key, num] of [["st_font","font"],["st_hfont","hfont"],["st_title","title",1],["st_h","h",1],["st_body","body",1],["st_line","line",1],
+                              ["st_accent","accent"],["st_margin","margin",1],["st_gap","gap",1]]) {
+  $(id).oninput = () => { S.style[key] = num ? +$(id).value : $(id).value; S.style.template = null; saveStyle(); renderStyle(); applyStyle(); renderDoc(); };
+}
+$("st_table").onchange = () => { S.style.table = $("st_table").checked; saveStyle(); renderDoc(); };
+$("st_upper").onchange = () => { S.style.upper = $("st_upper").checked; saveStyle(); applyStyle(); };
+$("st_apply").onchange = () => { S.style.apply = $("st_apply").checked; saveStyle(); };
+$("btnResetStyle").onclick = () => useTemplate("Classic");
+function styleForExport(){ const st = S.style; return {font: st.font, hfont: st.hfont, title: st.title, h: st.h, body: st.body, line: st.line,
+  accent: st.accent, margin: st.margin, gap: st.gap, apply_to_original: !!st.apply}; }
+S.style = loadStyle() || {...TEMPLATES[prefs().template] || TEMPLATES.Classic, template: prefs().template || "Classic"};
+renderStyle(); applyStyle();
+
+// Demo: the last saved analysis (playground/.uploads/demo.json) becomes a saved course, to try the UI
+// without a 2-minute run. Open it from Home, or with /?demo.
+async function loadDemo(){
+  const r = await fetch("/api/demo"); if (!r.ok) { alert("No demo saved yet: analyze a syllabus first."); return; }
+  const d = await r.json();
+  saveCourses([...loadCourses().filter(c => c.code !== d.course.code), {...d.course, createdAt: Date.now(), updatedAt: Date.now()}]);
+  S.course = d.course;
+  Object.assign(S, {outline: d.st.outline, comps: d.an.competencies, passages: d.an.passages, edits: d.an.edits, decisions: {}, decidedAt: {},
+                    manual: {}, added: [], history: [], docId: d.doc_id || null, last: d.an, changed: new Set()});
+  S.loadedCode = d.course.code; $("thread").innerHTML = "";
+  saveSession(); S.fresh = true;
+  location.hash = `#/c/${encodeURIComponent(d.course.code)}/revise`;
+}
+window.loadDemo = loadDemo;
+// ---------- start: accounts on → log in and load the account; off → this browser, as before ----------
+function showLogin(msg){
+  $("vLogin").hidden = false; $("shell").hidden = true; $("ws").hidden = true;
+  $("l_st").textContent = msg || ""; setTimeout(() => $("l_email").focus(), 50);
+}
+window.loginMode = m => {
+  ACC.mode = m; $("l_title").textContent = m === "login" ? "A better course starts here." : "Create your PHACT account.";
+  $("l_switch").innerHTML = m === "login" ? `New to PHACT? <a href="#" onclick="event.preventDefault();loginMode('signup')">Create an account</a>`
+                                          : `Already have an account? <a href="#" onclick="event.preventDefault();loginMode('login')">Sign in</a>`;
+  $("l_namewrap").hidden = m === "login"; $("l_hint").hidden = m === "login"; $("l_invitewrap").hidden = m === "login";
+  $("l_golbl").textContent = m === "login" ? "Sign in to PHACT" : "Create account";
+  $("l_pw").autocomplete = m === "login" ? "current-password" : "new-password";
+};
+window.doLogin = async () => {
+  const st = $("l_st"), b = $("l_go");
+  const body = {email: $("l_email").value.trim(), password: $("l_pw").value};
+  if (!body.email || !body.password) { st.textContent = "Enter your email and password."; return; }
+  const as = document.querySelector("[name=l_as]:checked")?.value || "professor";
+  if (ACC.mode === "signup") { body.name = $("l_name").value.trim(); body.invite_code = $("l_invite").value.trim(); }
+  if (ACC.mode === "signup" && as === "admin" && !body.invite_code) { st.textContent = "University admin accounts need the invite code ASPPH gave you."; return; }
+  b.disabled = true; st.innerHTML = `<span class="spin">${ACC.mode === "signup" ? "Creating your account…" : "Logging in…"}</span>`;
+  try {
+    const r = await fetch(ACC.mode === "signup" ? "/api/auth/signup" : "/api/auth/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    const j = await r.json(); if (!r.ok) throw new Error(j.detail || r.statusText);
+    // The choice opens a workspace; the account's ROLE decides access (the server checks it on every call).
+    const isAdmin = ["school-admin", "aspph-admin", "aspph-staff"].includes(j.role);
+    if (as === "admin" && ["aspph-admin", "aspph-staff"].includes(j.role)) { if (j.id_token) PHACT.setToken(j.id_token); location.href = "/admin"; return; }
+    if (as === "admin" && !isAdmin) { await fetch("/api/auth/logout", {method: "POST"}); throw new Error("This account isn't a university admin. Choose Professor, or ask your university for an admin invite."); }
+    if (as === "professor" && j.role === "school-admin") { await fetch("/api/auth/logout", {method: "POST"}); throw new Error("This is a university admin account. Choose University admin to sign in."); }
+    if (j.id_token) PHACT.setToken(j.id_token);  // AWS: API Gateway checks this token on every call
+    if (as === "admin") { location.href = "/university"; return; }
+    const {id_token, expires_in, ...user} = j;
+    $("l_pw").value = ""; await loadAccount(user);
+  } catch (e) { st.textContent = e.message; }
+  finally { b.disabled = false; }
+};
+$("l_pw").addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+async function loadAccount(user){
+  ACC.on = true; ACC.user = user; ACC.cache = {};
+  const [profile, courses] = await Promise.all([api("GET", "/api/data/profile"), api("GET", "/api/data/courses")]);
+  ACC.cache["phact.prefs"] = profile.prefs || {};
+  ACC.cache["phact.courses"] = courses.map(({summary, ...c}) => c);
+  ACC.syncedCourses = courses.map(c => c.code);
+  await loadReferenceData();
+  ACC.uni = await api("GET", "/api/data/university").catch(() => null);
+  await Promise.all(courses.map(async c => { const p = await api("GET", `/api/data/progress/${encodeURIComponent(c.code)}`); if (p && Object.keys(p).length) ACC.cache["phact.session." + c.code] = p; }));
+  $("vLogin").hidden = true; $("shell").hidden = false;
+  renderChrome();
+  setSync("✓ Saved to your account");
+  S.loadedCode = null;
+  route();
+}
+window.logout = async () => {
+  if (ACC.pending.size) await flushSaves();
+  await fetch("/api/auth/logout", {method: "POST"}); PHACT.setToken(null);
+  Object.assign(ACC, {on: true, user: null, cache: {}, pending: new Map(), syncedCourses: []});
+  S.loadedCode = null; S.course = null; location.hash = "#/";
+  $("acct").hidden = true; showLogin("You're signed out.");
+};
+// One-time import: courses made in this browser before accounts existed are copied (never deleted).
+function browserCourses(){ return local.get("phact.courses", []); }
+window.importBrowserCourses = async () => {
+  const mine = new Set(loadCourses().map(c => c.code)), list = browserCourses().filter(c => !mine.has(c.code));
+  for (const c of list) {
+    const sess = local.get("phact.session." + c.code, null);
+    saveCourses([...loadCourses(), c]);
+    if (sess) store.set("phact.session." + c.code, sess);
+  }
+  local.set("phact.imported." + ACC.user.sub, true);
+  await flushSaves(); logEvent("import", `${list.length} courses from this browser`, "");
+  route();
+};
+window.skipImport = () => { local.set("phact.imported." + ACC.user.sub, true); route(); };
+// Reference data the page needs: loaded at start (accounts off) or right after login (accounts on),
+// because with accounts on every /api route needs a session.
+async function loadReferenceData(){
+  const get = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  const [m, c, sm] = await Promise.all([get("/api/models"), get("/api/checklist"), get("/api/samples")]);
+  if (m) { $("models").textContent = `Claude Opus + Haiku on Bedrock`; $("wsModels").textContent = `Opus + Haiku on Bedrock · KB ${m.kb_id}`; $("kbChip").textContent = `ASPPH knowledge base · ${m.kb_id}`; }
+  if (c) S.checklist = c;
+  S.samples = sm || [];
+}
+function renderChrome(){  // sidebar: institution card, signed-in user, admin link
+  const pf = prefs(), u = ACC.user, name = myName();
+  $("instName").textContent = ACC.uni?.name || pf.inst || "Not set";
+  $("instSub").textContent = ACC.uni ? `AI policy: up to ${{ban: "None", restricted: "Guided", open: "Integrated"}[ACC.uni.policy?.max_ai_stance] || "Integrated"}` : pf.dept || (pf.inst ? "" : "Add it in Privacy & data");
+  $("topAvatar").textContent = initials(name || u?.email);
+  $("navAdmin").hidden = !(u && ["aspph-admin", "aspph-staff"].includes(u.role));
+  $("acct").hidden = !u;
+  if (u) $("acct").innerHTML = `<span class="avatar">${esc(initials(name || u.email))}</span><div style="min-width:0"><b>${esc(name || u.email)}</b>
+      <span>${esc({"aspph-admin": "ASPPH admin", "aspph-staff": "ASPPH admin", "school-admin": "School admin", faculty: "Professor"}[u.role] || u.role)}</span></div>
+      <button title="Sign out" onclick="logout()"><i class="ti ti-logout"></i></button>`;
+}
+// Reference library page: search the knowledge base
+$("lib_btn").onclick = async () => {
+  const b = $("lib_btn"); b.disabled = true; $("lib_hits").innerHTML = `<p class="spin muted">Searching…</p>`;
+  try {
+    const hits = await post("/api/search", {q: $("lib_q").value, source_type: "any", k: 6});
+    $("lib_hits").innerHTML = hits.map(h => `<div class="src"><b>${esc(h.title)}</b> › ${esc(h.section)} <span class="tag">${esc(h.source_type)}</span> <span class="muted">match ${h.score.toFixed(2)}</span> ${srcLink(h.uri)}<div class="snip">${esc(md(h.text))}</div></div>`).join("") || "<p class='muted'>No results.</p>";
+  } catch (e) { $("lib_hits").textContent = "Error: " + e.message; }
+  b.disabled = false;
+};
+$("lib_q").onkeydown = e => { if (e.key === "Enter") $("lib_btn").click(); };
+async function boot(){
+  let st = {accounts: false};
+  try { st = await (await fetch("/api/auth/status")).json(); } catch {}
+  if (!st.accounts) { renderChrome(); await loadReferenceData(); if (location.search.includes("demo")) loadDemo(); else route(); return; }
+  ACC.on = true; loginMode("login");
+  if (new URLSearchParams(location.search).get("as") === "admin") document.querySelector("[name=l_as][value=admin]").checked = true;
+  PHACT.jobs = !!st.jobs; PHACT.authMode = st.auth_mode || "cookie";
+  let user = st.user;
+  if (!user && PHACT.authMode === "jwt" && PHACT.hasToken()) {  // the login route is public, so ask an authorized one
+    const r = await fetch("/api/me"); if (r.ok) user = await r.json(); else PHACT.setToken(null);
+  }
+  if (user) await loadAccount(user); else showLogin(PHACT.sessionEnded() ? "You were signed out after 1 hour. Please sign in again." : "");
+}
+boot();
+</script>
+</body>
+</html>

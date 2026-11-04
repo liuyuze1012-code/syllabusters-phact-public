@@ -1,0 +1,19 @@
+{
+  "metadataAttributes": {
+    "doc_id": "environmental-written-multi-tool-tox-briefing-l3",
+    "title": "Expert toxicology briefing with a three-tool AI comparison",
+    "section": "written assignment \u00b7 AIAS level 3",
+    "source_type": "practice",
+    "material_type": "written",
+    "aias_level": 3,
+    "competencies": [
+      "4"
+    ],
+    "area": "environmental",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://ai.ctl.columbia.edu/engage/public-health",
+    "status": "active",
+    "family": "environmental-written-multi-tool-tox-briefing-l3"
+  }
+}

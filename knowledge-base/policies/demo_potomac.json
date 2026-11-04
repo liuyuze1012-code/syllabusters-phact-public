@@ -1,0 +1,11 @@
+{
+  "_comment": "Demo school A (fictional): restricted, disclosure required.",
+  "school_id": "potomac",
+  "label": "Potomac University School of Public Health (demo)",
+  "allowed_range": ["prohibited", "restricted"],
+  "licensed_tools": [],
+  "rules": [
+    { "id": "POT-AI-1", "text": "AI may be used for brainstorming and editing only, never for graded writing." },
+    { "id": "POT-AI-2", "text": "Students disclose any AI use in a note on each submission." }
+  ]
+}

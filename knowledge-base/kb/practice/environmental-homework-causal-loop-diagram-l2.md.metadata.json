@@ -1,0 +1,19 @@
+{
+  "metadataAttributes": {
+    "doc_id": "environmental-homework-causal-loop-diagram-l2",
+    "title": "AI-brainstormed variables, student-built causal loop diagram",
+    "section": "homework \u00b7 AIAS level 2",
+    "source_type": "practice",
+    "material_type": "homework",
+    "aias_level": 2,
+    "competencies": [
+      "22"
+    ],
+    "area": "environmental",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "environmental-homework-causal-loop-diagram-l2"
+  }
+}

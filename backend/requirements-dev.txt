@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8
+httpx>=0.27          # FastAPI TestClient
+moto[dynamodb,s3]>=5 # fake AWS for unit tests
+uvicorn>=0.29        # run the API locally

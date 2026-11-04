@@ -1,0 +1,10 @@
+{
+  "region": "us-west-2",
+  "knowledge_bucket": "phact-knowledge-217416247453-us-west-2",
+  "vector_bucket": "phact-vectors-217416247453",
+  "index_arn": "arn:aws:s3vectors:us-west-2:217416247453:bucket/phact-vectors-217416247453/index/phact-kb-index",
+  "role_arn": "arn:aws:iam::217416247453:role/PhactKnowledgeBaseRole",
+  "kb_id": "C4GJF8AJ7U",
+  "data_source_id": "SWBUTPKJZY",
+  "embedding_model": "amazon.titan-embed-text-v2:0"
+}

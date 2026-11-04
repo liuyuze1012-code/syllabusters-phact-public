@@ -1,0 +1,39 @@
+{
+  "mode": "analyze",
+  "job_id": "mock-job",
+  "syllabus_text": "PHC 6149 Public Health Leadership ... (scrubbed text)",
+  "course": {
+    "code": "PHC6149",
+    "level": "MPH",
+    "format": "online_async",
+    "size": 40
+  },
+  "confirmed_competencies": [
+    10,
+    16,
+    17,
+    21
+  ],
+  "targets": {
+    "ai_level": 2,
+    "assessment_types": [
+      "simulation",
+      "ai_assisted"
+    ]
+  },
+  "context": {
+    "school_rules": [
+      {
+        "id": "DEF-AI-1",
+        "text": "Each course states its AI-use level in the syllabus."
+      },
+      {
+        "id": "DEF-AI-2",
+        "text": "Any permitted AI use must be disclosed by the student."
+      }
+    ],
+    "policy_source": "phact_default",
+    "professor": "Stance restricted. Comfort beginner.",
+    "memory": ""
+  }
+}

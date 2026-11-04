@@ -1,0 +1,6 @@
+{
+  "ok": false,
+  "job_id": "mock-job",
+  "error": "unreadable_syllabus",
+  "message": "We couldn't read text from this file. Try a DOCX, or paste the text."
+}

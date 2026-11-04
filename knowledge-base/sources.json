@@ -1,0 +1,447 @@
+{
+  "_comment": "Every knowledge base document and how it is split into sections. Read by scripts/prepare_kb.py. Pages are 1-based PDF pages. 'start'/'end' are exact heading lines that cut a page that two sections share. Excluded pages (covers, authorship, references) are simply not listed.",
+  "documents": [
+    {
+      "doc_id": "aspph-ai-framework",
+      "title": "ASPPH AI Framework",
+      "source_type": "guidance",
+      "year": 2026,
+      "publisher": "ASPPH",
+      "priority": "must",
+      "pdf": "data/reference/ASPPH Initiatives/ASPPH AI Framework.pdf",
+      "out_dir": "kb/guidance",
+      "sections": [
+        {
+          "id": "message-from-president",
+          "title": "Message from the ASPPH President and CEO",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "id": "message-from-chair",
+          "title": "Message from the Chair",
+          "pages": [
+            3,
+            4
+          ]
+        },
+        {
+          "id": "executive-summary",
+          "title": "Executive Summary",
+          "pages": [
+            5,
+            6
+          ]
+        },
+        {
+          "id": "education",
+          "title": "Education",
+          "pages": [
+            7,
+            7
+          ],
+          "end": "TEACHING AND LEARNING"
+        },
+        {
+          "id": "teaching-and-learning",
+          "title": "Teaching and Learning",
+          "pages": [
+            7,
+            7
+          ],
+          "start": "TEACHING AND LEARNING"
+        },
+        {
+          "id": "practice-and-research",
+          "title": "Practice and Research",
+          "pages": [
+            8,
+            8
+          ],
+          "end": "POLICY, REGULATORY AND ARCHITECTURAL FRAMEWORKS"
+        },
+        {
+          "id": "policy-regulatory-architectural",
+          "title": "Policy, Regulatory and Architectural Frameworks",
+          "pages": [
+            8,
+            8
+          ],
+          "start": "POLICY, REGULATORY AND ARCHITECTURAL FRAMEWORKS"
+        },
+        {
+          "id": "recommendations-education",
+          "title": "Strategic Recommendations: Education",
+          "pages": [
+            9,
+            9
+          ],
+          "end": "TEACHING AND LEARNING"
+        },
+        {
+          "id": "recommendations-teaching-and-learning",
+          "title": "Strategic Recommendations: Teaching and Learning",
+          "pages": [
+            9,
+            9
+          ],
+          "start": "TEACHING AND LEARNING"
+        },
+        {
+          "id": "recommendations-practice-and-research",
+          "title": "Strategic Recommendations: Practice and Research",
+          "pages": [
+            10,
+            10
+          ],
+          "end": "POLICY, REGULATORY AND ARCHITECTURE"
+        },
+        {
+          "id": "recommendations-policy",
+          "title": "Strategic Recommendations: Policy, Regulatory and Architecture",
+          "pages": [
+            10,
+            10
+          ],
+          "start": "POLICY, REGULATORY AND ARCHITECTURE",
+          "end": "READ THE FULL FRAMEWORK REPORT"
+        }
+      ]
+    },
+    {
+      "doc_id": "competency-mapping",
+      "title": "Public Health Leadership Competency Mapping & Workforce Training Agenda",
+      "source_type": "workforce",
+      "year": 2024,
+      "publisher": "ASPPH",
+      "priority": "must",
+      "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Development/Competency Mapping.pdf",
+      "out_dir": "kb/workforce",
+      "sections": [
+        {
+          "id": "executive-summary",
+          "title": "Executive Summary",
+          "pages": [
+            5,
+            6
+          ]
+        },
+        {
+          "id": "introduction",
+          "title": "Introduction",
+          "pages": [
+            7,
+            9
+          ]
+        },
+        {
+          "id": "background",
+          "title": "Background: Leadership Frameworks and Institutes",
+          "pages": [
+            10,
+            16
+          ]
+        },
+        {
+          "id": "4p-framework",
+          "title": "Competency Mapping: The 4P Framework",
+          "pages": [
+            17,
+            20
+          ]
+        },
+        {
+          "id": "problem",
+          "title": "Problem: Leaders Must Understand the Problem",
+          "pages": [
+            21,
+            21
+          ]
+        },
+        {
+          "id": "person",
+          "title": "Person: Leaders Must Understand Their Role and Influence",
+          "pages": [
+            22,
+            22
+          ]
+        },
+        {
+          "id": "pathway",
+          "title": "Pathway: Leaders Must Determine the Pathway to Change",
+          "pages": [
+            23,
+            23
+          ]
+        },
+        {
+          "id": "purpose",
+          "title": "Purpose: Leaders Must Be Grounded in Meaning and Purpose",
+          "pages": [
+            24,
+            24
+          ]
+        },
+        {
+          "id": "training-agenda",
+          "title": "National Public Health Leadership Training Agenda",
+          "pages": [
+            25,
+            27
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "leadership-programs-2025",
+      "title": "Public Health Leadership: Enumeration and Characterization of Degree and Certificate Programs",
+      "source_type": "workforce",
+      "year": 2025,
+      "publisher": "ASPPH",
+      "priority": "should",
+      "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Development/Public+Health+Leadership+Report+2_2025_ASPPH.pdf",
+      "out_dir": "kb/workforce",
+      "sections": [
+        {
+          "id": "executive-summary",
+          "title": "Executive Summary",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "id": "background",
+          "title": "Background and Overview",
+          "pages": [
+            5,
+            8
+          ]
+        },
+        {
+          "id": "methods",
+          "title": "Methods",
+          "pages": [
+            9,
+            10
+          ]
+        },
+        {
+          "id": "results",
+          "title": "Results",
+          "pages": [
+            11,
+            14
+          ]
+        },
+        {
+          "id": "curricula-and-practicum",
+          "title": "Leadership Curricula, Practicum and Integrated Learning",
+          "pages": [
+            15,
+            16
+          ]
+        },
+        {
+          "id": "development-and-mentorship",
+          "title": "Self-Assessment, Coaching and Mentorship",
+          "pages": [
+            17,
+            18
+          ]
+        },
+        {
+          "id": "delivery-and-infrastructure",
+          "title": "Program Delivery, Student Selection and Infrastructure",
+          "pages": [
+            19,
+            21
+          ]
+        },
+        {
+          "id": "conclusion",
+          "title": "Conclusion and Recommendations",
+          "pages": [
+            22,
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "shared-vision-2024",
+      "title": "Shared Vision & Unified Strategy: Enhancing Public Health Infrastructure through Bi-Directional Relationships",
+      "source_type": "guidance",
+      "year": 2024,
+      "publisher": "ASPPH",
+      "priority": "should",
+      "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Partnerships/Shared+Vision+&+Unified+Strategy+2024_ASPPH_PHIG.pdf",
+      "out_dir": "kb/guidance",
+      "sections": [
+        {
+          "id": "executive-summary",
+          "title": "Executive Summary",
+          "pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "id": "introduction",
+          "title": "Introduction",
+          "pages": [
+            6,
+            6
+          ]
+        },
+        {
+          "id": "key-recommendations",
+          "title": "Key Recommendations",
+          "pages": [
+            7,
+            7
+          ]
+        },
+        {
+          "id": "defining",
+          "title": "Defining Bi-Directional Relationships",
+          "pages": [
+            8,
+            10
+          ]
+        },
+        {
+          "id": "characterizing",
+          "title": "Characterizing Bi-Directional Relationships",
+          "pages": [
+            11,
+            14
+          ]
+        },
+        {
+          "id": "activities",
+          "title": "Bi-Directional Relationship Activities",
+          "pages": [
+            15,
+            23
+          ]
+        },
+        {
+          "id": "benefits",
+          "title": "Benefits of Bi-Directional Relationships",
+          "pages": [
+            24,
+            30
+          ]
+        },
+        {
+          "id": "challenges",
+          "title": "Challenges of Bi-Directional Relationships",
+          "pages": [
+            31,
+            39
+          ]
+        },
+        {
+          "id": "opportunities",
+          "title": "Opportunities to Strengthen Bi-Directional Relationships",
+          "pages": [
+            40,
+            41
+          ]
+        }
+      ]
+    },
+    {
+      "doc_id": "applied-learning",
+      "title": "ASPPH Applied Learning and Training",
+      "source_type": "guidance",
+      "year": 2025,
+      "publisher": "ASPPH",
+      "priority": "optional",
+      "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Applied Practice/Applied Learning and Training - Association of Schools and Programs of Public Health (ASPPH).pdf",
+      "out_dir": "kb/guidance",
+      "drop_lines": [
+        "LEARN MORE",
+        "EMAIL US TO LEARN MORE",
+        "EXPLORE CURRENT OPPORTUNITIES",
+        "Become a Host"
+      ],
+      "sections": [
+        {
+          "id": "overview",
+          "title": "Applied Learning and Training Programs",
+          "pages": [
+            1,
+            8
+          ],
+          "end": "ACADEMIC AND PRACTICE PARTNERSHIPS"
+        }
+      ]
+    }
+  ],
+  "not_loaded": [
+    {
+      "file": "data/reference/Other Competencies/CPH exam competencies.pdf",
+      "reason": "Optional, and deferred: its multi-column layout extracts out of order. Needs layout-aware extraction before loading."
+    },
+    {
+      "file": "data/reference/Other Competencies/SOPHE and CHES competencies.pdf",
+      "reason": "No-reproduction notice. Cite by number only."
+    },
+    {
+      "file": "data/reference/CEPH competency guidelines.pdf",
+      "reason": "Not searched: becomes checklist/ceph_competencies.json, loaded whole."
+    },
+    {
+      "file": "data/reference/Other Competencies/LSS program management principles.png",
+      "reason": "Marketing infographic"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Research/DI_JTA_fact_sheet_updated2026.pdf",
+      "reason": "Image only"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Research/GovernmentalPublicHealth-Factsheet.pdf",
+      "reason": "Pitch statistics only"
+    },
+    {
+      "file": "data/reference/Other Competencies/CDI competencies.webp",
+      "reason": "Low relevance, image"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Continuing Education/CDI information.pdf",
+      "reason": "Low relevance"
+    },
+    {
+      "file": "data/reference/Other Competencies/CHW competencies.pdf",
+      "reason": "Low relevance"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Continuing Education/Disease Intervention.pdf",
+      "reason": "Saved web page; low relevance"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Continuing Education/Credentialing and Continuing Education - Association of Schools and Programs of Public Health (ASPPH).pdf",
+      "reason": "Saved web page; repeats other sources"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Partnerships/Academic and Practice Partnerships - Association of Schools and Programs of Public Health (ASPPH).pdf",
+      "reason": "Saved web page; repeats Shared Vision"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Development/Workforce Development - Association of Schools and Programs of Public Health (ASPPH).pdf",
+      "reason": "Saved web page; repeats the reports"
+    },
+    {
+      "file": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Research/Workforce Research - Association of Schools and Programs of Public Health (ASPPH).pdf",
+      "reason": "Saved web page; repeats the reports"
+    },
+    {
+      "file": "data/test-syllabi/",
+      "reason": "Test inputs. Never loaded, or testing proves nothing."
+    }
+  ]
+}

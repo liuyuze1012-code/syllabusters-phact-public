@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "policy-project-advocacy-kit-l4",
+    "title": "Team advocacy campaign kit built with AI throughout",
+    "section": "project \u00b7 AIAS level 4",
+    "source_type": "practice",
+    "material_type": "project",
+    "aias_level": 4,
+    "competencies": [
+      "14",
+      "13"
+    ],
+    "area": "policy",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "policy-project-advocacy-kit-l4"
+  }
+}

@@ -1,0 +1,28 @@
+EPID 601: Applied Epidemiologic Methods
+Problem Set 3: Measures of Association (6% of final grade, 60 points)
+Due: Week 6, Tuesday 11:59 p.m. ET via the LMS
+Fictional sample for testing. Harbor State University is invented.
+
+Purpose
+This problem set builds your ability to calculate and interpret measures of association from cohort and case-control data and to explain what they mean for public health decisions.
+
+Instructions
+Work individually. Show all calculations. You may use R, RStudio or a calculator. Round to two decimal places. Submit one PDF with your answers and your R script.
+
+Question 1 (15 points)
+A cohort study followed 2,000 adults for 5 years. Of 400 smokers, 60 developed chronic bronchitis; of 1,600 non-smokers, 80 did. Calculate the cumulative incidence in each group, the risk ratio, and the risk difference. Interpret each measure in one sentence.
+
+Question 2 (15 points)
+In a case-control study of asthma emergency visits and housing mold exposure, 90 of 150 cases and 60 of 200 controls reported mold exposure. Calculate the odds ratio and its 95% confidence interval. Explain why a risk ratio cannot be calculated from this design.
+
+Question 3 (20 points)
+Using the de-identified county dataset provided in the LMS (county_asthma.csv), estimate the association between neighborhood poverty level and asthma emergency visit rates. Report the rate ratio, describe one possible confounder, and explain how it could bias your estimate.
+
+Question 4 (10 points)
+Write a 150-word summary of your Question 3 findings for a county health board member with no epidemiology training.
+
+Academic integrity
+Your work must be your own. Do not share answers with classmates.
+
+Grading
+Correct calculations: 60%. Correct interpretation: 30%. Clear presentation and code: 10%.

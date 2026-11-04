@@ -1,0 +1,41 @@
+# Secrets: never commit these
+.env
+.env.*
+!.env.example
+.aws/
+*.pem
+*.key
+credentials
+credentials.json
+
+# Node / CDK
+node_modules/
+cdk.out/
+dist/
+build/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Amplify
+amplify/#current-cloud-backend/
+amplify/.config/local-*
+aws-exports.js
+amplifyconfiguration.json
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+*.egg-info/
+
+# Local eval outputs (may contain syllabus text)
+agent/eval/out/
+
+# Playground uploads and PII maps (real syllabi, real names)
+playground/.uploads/

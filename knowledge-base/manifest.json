@@ -1,0 +1,643 @@
+{
+  "aspph-ai-framework": {
+    "title": "ASPPH AI Framework",
+    "source_type": "guidance",
+    "year": 2026,
+    "priority": "must",
+    "pdf": "data/reference/ASPPH Initiatives/ASPPH AI Framework.pdf",
+    "removed_running_lines": [
+      "AI FOR PUBLIC HEALTH"
+    ],
+    "sections": [
+      {
+        "file": "kb/guidance/aspph-ai-framework__message-from-president.md",
+        "pages": [
+          2,
+          2
+        ],
+        "words": 397,
+        "fidelity": true,
+        "metadata_bytes": 296,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "d836f30c404f9fb5",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__message-from-chair.md",
+        "pages": [
+          3,
+          4
+        ],
+        "words": 854,
+        "fidelity": true,
+        "metadata_bytes": 278,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "bc9229f8ed1d0764",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__executive-summary.md",
+        "pages": [
+          5,
+          6
+        ],
+        "words": 467,
+        "fidelity": true,
+        "metadata_bytes": 273,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "ff14a6e8b9e24999",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Lost hyphen restored: SDoH-informed."
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__education.md",
+        "pages": [
+          7,
+          7
+        ],
+        "words": 207,
+        "fidelity": true,
+        "metadata_bytes": 265,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "9f067815f3d06d93",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__teaching-and-learning.md",
+        "pages": [
+          7,
+          7
+        ],
+        "words": 172,
+        "fidelity": true,
+        "metadata_bytes": 277,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "8163cc6b9361a376",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Subtitle split from the first paragraph."
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__practice-and-research.md",
+        "pages": [
+          8,
+          8
+        ],
+        "words": 257,
+        "fidelity": true,
+        "metadata_bytes": 277,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "ed7708e19f9c5667",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__policy-regulatory-architectural.md",
+        "pages": [
+          8,
+          8
+        ],
+        "words": 182,
+        "fidelity": true,
+        "metadata_bytes": 303,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "cb28515c02249431",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__recommendations-education.md",
+        "pages": [
+          9,
+          9
+        ],
+        "words": 240,
+        "fidelity": true,
+        "metadata_bytes": 292,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "5f4ad0a40376729e",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__recommendations-teaching-and-learning.md",
+        "pages": [
+          9,
+          9
+        ],
+        "words": 199,
+        "fidelity": true,
+        "metadata_bytes": 304,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "00e945a657c1cc37",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__recommendations-practice-and-research.md",
+        "pages": [
+          10,
+          10
+        ],
+        "words": 192,
+        "fidelity": true,
+        "metadata_bytes": 305,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "621087ee12db0dd3",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/aspph-ai-framework__recommendations-policy.md",
+        "pages": [
+          10,
+          10
+        ],
+        "words": 257,
+        "fidelity": true,
+        "metadata_bytes": 319,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "a20a4e1fe4032a83",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      }
+    ]
+  },
+  "competency-mapping": {
+    "title": "Public Health Leadership Competency Mapping & Workforce Training Agenda",
+    "source_type": "workforce",
+    "year": 2024,
+    "priority": "must",
+    "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Development/Competency Mapping.pdf",
+    "removed_running_lines": [
+      "Public Health Leadership: Competency Mapping & Workforce Training Agenda"
+    ],
+    "sections": [
+      {
+        "file": "kb/workforce/competency-mapping__executive-summary.md",
+        "pages": [
+          5,
+          6
+        ],
+        "words": 480,
+        "fidelity": true,
+        "metadata_bytes": 327,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "65db8d8bc71f34da",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/competency-mapping__introduction.md",
+        "pages": [
+          7,
+          9
+        ],
+        "words": 903,
+        "fidelity": true,
+        "metadata_bytes": 322,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "2158358d66429b3c",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/competency-mapping__background.md",
+        "pages": [
+          10,
+          16
+        ],
+        "words": 2790,
+        "fidelity": true,
+        "metadata_bytes": 359,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "3dab47682bcce814",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/competency-mapping__4p-framework.md",
+        "pages": [
+          17,
+          20
+        ],
+        "words": 1141,
+        "fidelity": true,
+        "metadata_bytes": 347,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "ad8e3e1958c7ce36",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/competency-mapping__problem.md",
+        "pages": [
+          21,
+          21
+        ],
+        "words": 251,
+        "fidelity": true,
+        "metadata_bytes": 355,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "1729dccca8c31fd7",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Table rebuilt from the page image into skill-area headings; stray '1819' removed."
+      },
+      {
+        "file": "kb/workforce/competency-mapping__person.md",
+        "pages": [
+          22,
+          22
+        ],
+        "words": 97,
+        "fidelity": true,
+        "metadata_bytes": 367,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "6453f2fe984a3165",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Table rebuilt from the page image into skill-area headings; stray '1820' removed."
+      },
+      {
+        "file": "kb/workforce/competency-mapping__pathway.md",
+        "pages": [
+          23,
+          23
+        ],
+        "words": 209,
+        "fidelity": true,
+        "metadata_bytes": 364,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "07ea13a049bceb60",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Table rebuilt from the page image into skill-area headings; stray '1821' removed."
+      },
+      {
+        "file": "kb/workforce/competency-mapping__purpose.md",
+        "pages": [
+          24,
+          24
+        ],
+        "words": 304,
+        "fidelity": true,
+        "metadata_bytes": 367,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "5a1d14ec5b7d4b18",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Paragraph split, competencies made a list, stray '1822' removed."
+      },
+      {
+        "file": "kb/workforce/competency-mapping__training-agenda.md",
+        "pages": [
+          25,
+          27
+        ],
+        "words": 459,
+        "fidelity": true,
+        "metadata_bytes": 360,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "a3b5dfdb8b573ea3",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Training table rebuilt from page images into P / skill-area lists; stray page numbers removed."
+      }
+    ]
+  },
+  "leadership-programs-2025": {
+    "title": "Public Health Leadership: Enumeration and Characterization of Degree and Certificate Programs",
+    "source_type": "workforce",
+    "year": 2025,
+    "priority": "should",
+    "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Workforce Development/Public+Health+Leadership+Report+2_2025_ASPPH.pdf",
+    "removed_running_lines": [
+      "Programs in Schools and Programs of Public Health"
+    ],
+    "sections": [
+      {
+        "file": "kb/workforce/leadership-programs-2025__executive-summary.md",
+        "pages": [
+          4,
+          4
+        ],
+        "words": 398,
+        "fidelity": true,
+        "metadata_bytes": 361,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "6072b2a425ba5a21",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__background.md",
+        "pages": [
+          5,
+          8
+        ],
+        "words": 1293,
+        "fidelity": true,
+        "metadata_bytes": 367,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "6e9c3225c19f8be0",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__methods.md",
+        "pages": [
+          9,
+          10
+        ],
+        "words": 373,
+        "fidelity": true,
+        "metadata_bytes": 351,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "be49218d0fdb1788",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__results.md",
+        "pages": [
+          11,
+          14
+        ],
+        "words": 820,
+        "fidelity": true,
+        "metadata_bytes": 352,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "4908537083962472",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Chart/table residue removed (incl. applicant-demographics numbers that had lost their labels); prose findings kept."
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__curricula-and-practicum.md",
+        "pages": [
+          15,
+          16
+        ],
+        "words": 458,
+        "fidelity": true,
+        "metadata_bytes": 400,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "d84036445520d4e8",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__development-and-mentorship.md",
+        "pages": [
+          17,
+          18
+        ],
+        "words": 423,
+        "fidelity": true,
+        "metadata_bytes": 385,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "020769d30f016ed9",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__delivery-and-infrastructure.md",
+        "pages": [
+          19,
+          21
+        ],
+        "words": 981,
+        "fidelity": true,
+        "metadata_bytes": 399,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "5f6812624c17cf04",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/workforce/leadership-programs-2025__conclusion.md",
+        "pages": [
+          22,
+          24
+        ],
+        "words": 929,
+        "fidelity": true,
+        "metadata_bytes": 375,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "bce76c7a2adc322e",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      }
+    ]
+  },
+  "shared-vision-2024": {
+    "title": "Shared Vision & Unified Strategy: Enhancing Public Health Infrastructure through Bi-Directional Relationships",
+    "source_type": "guidance",
+    "year": 2024,
+    "priority": "should",
+    "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Partnerships/Shared+Vision+&+Unified+Strategy+2024_ASPPH_PHIG.pdf",
+    "removed_running_lines": [
+      "Shared Vision & Unified Strategy: Enhancing public health infrastructure",
+      "through bi-directional relationships in practice and academia"
+    ],
+    "sections": [
+      {
+        "file": "kb/guidance/shared-vision-2024__executive-summary.md",
+        "pages": [
+          4,
+          5
+        ],
+        "words": 438,
+        "fidelity": true,
+        "metadata_bytes": 364,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "84c4e9cc96447ef7",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__introduction.md",
+        "pages": [
+          6,
+          6
+        ],
+        "words": 275,
+        "fidelity": true,
+        "metadata_bytes": 359,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "6d3efe46b5d2c939",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__key-recommendations.md",
+        "pages": [
+          7,
+          7
+        ],
+        "words": 183,
+        "fidelity": true,
+        "metadata_bytes": 366,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "e5fe93b08cee2b06",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)",
+        "fix": "Circular-diagram fragments replaced by the diagram's labels (read from the page image); recommendations made a list."
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__defining.md",
+        "pages": [
+          8,
+          10
+        ],
+        "words": 772,
+        "fidelity": true,
+        "metadata_bytes": 384,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "d0fba007fda1ffd7",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__characterizing.md",
+        "pages": [
+          11,
+          14
+        ],
+        "words": 1020,
+        "fidelity": true,
+        "metadata_bytes": 391,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "497c98ff29f631ab",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__activities.md",
+        "pages": [
+          15,
+          23
+        ],
+        "words": 1639,
+        "fidelity": true,
+        "metadata_bytes": 386,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "578a2d2591ecb9f5",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__benefits.md",
+        "pages": [
+          24,
+          30
+        ],
+        "words": 1414,
+        "fidelity": true,
+        "metadata_bytes": 388,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "7bcbf00120b00250",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__challenges.md",
+        "pages": [
+          31,
+          39
+        ],
+        "words": 2110,
+        "fidelity": true,
+        "metadata_bytes": 390,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "2bc5e167da703b86",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      },
+      {
+        "file": "kb/guidance/shared-vision-2024__opportunities.md",
+        "pages": [
+          40,
+          41
+        ],
+        "words": 630,
+        "fidelity": true,
+        "metadata_bytes": 404,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "acd662e172c21b2a",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      }
+    ]
+  },
+  "applied-learning": {
+    "title": "ASPPH Applied Learning and Training",
+    "source_type": "guidance",
+    "year": 2025,
+    "priority": "optional",
+    "pdf": "data/reference/ASPPH Initiatives/Center for Public Health Workforce Development/Applied Practice/Applied Learning and Training - Association of Schools and Programs of Public Health (ASPPH).pdf",
+    "removed_running_lines": [
+      "(PDF)",
+      "LEARN MORE"
+    ],
+    "sections": [
+      {
+        "file": "kb/guidance/applied-learning__overview.md",
+        "pages": [
+          1,
+          8
+        ],
+        "words": 1194,
+        "fidelity": true,
+        "metadata_bytes": 307,
+        "metadata_ok": true,
+        "review_note": null,
+        "generated_sha": "b313be26e9ccea5e",
+        "reviewed": true,
+        "reviewed_by": "claude (MVP pass: automated checks + page images for fixed files)"
+      }
+    ]
+  }
+}

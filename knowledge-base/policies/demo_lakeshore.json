@@ -1,0 +1,10 @@
+{
+  "_comment": "Demo school B (fictional): open, licensed tool.",
+  "school_id": "lakeshore",
+  "label": "Lakeshore College of Public Health (demo)",
+  "allowed_range": ["prohibited", "restricted", "collaborative"],
+  "licensed_tools": ["Microsoft Copilot (institutional)"],
+  "rules": [
+    { "id": "LAK-AI-1", "text": "Collaborative AI use is allowed when the course says so and use is documented." }
+  ]
+}

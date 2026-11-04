@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "epi-project-ai-bias-simulation-l5",
+    "title": "Co-designed bias simulation with AI-generated synthetic data",
+    "section": "project \u00b7 AIAS level 5",
+    "source_type": "practice",
+    "material_type": "project",
+    "aias_level": 5,
+    "competencies": [
+      "1",
+      "4"
+    ],
+    "area": "epidemiology",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "epi-project-ai-bias-simulation-l5"
+  }
+}

@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHACT Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="/client.js"></script>
+<style>
+/* ASPPH admin console: the knowledge-base source library, example-syllabus reviews, universities and the audit log.
+   Same visual system as the professor app and university portal (team Figma). Every /api/admin route checks the
+   aspph-admin role on the server; hiding a button is not security. */
+:root{--bg:#eef1f5;--panel:#fff;--ink:#1b2a3a;--muted:#5f6f80;--line:#dbe2ea;--accent:#2c5f8a;--accent-ink:#fff;--soft:#e4edf5;
+  --navy:#15314d;--navy-2:#1f4467;--navy-ink:#c9d6e3;--ok:#2e8b57;--warn:#d99a1e;--bad:#c8453a}
+*{box-sizing:border-box} [hidden]{display:none !important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Source Sans 3",-apple-system,"Segoe UI",sans-serif}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-family:inherit;font-weight:600;font-size:14px;line-height:1;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+button:hover:not(:disabled){filter:brightness(1.08)} button.ghost{background:var(--panel);color:var(--accent);border:1px solid var(--line)}
+button.sm{padding:6px 11px;font-size:13px} button.danger{background:var(--bad);color:#fff} button:disabled{opacity:.5;cursor:wait}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);font:inherit}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none}
+a{color:var(--accent)} .muted{color:var(--muted);font-size:13px} .spacer{flex:1}
+#app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--navy);color:var(--navy-ink);padding:20px 14px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:#fff;padding:0 6px}
+.logo{width:34px;height:34px;border-radius:8px;border:1.5px solid rgba(255,255,255,.55);display:grid;place-items:center;font-size:18px;color:#fff}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8ea6bd;padding:10px 8px 0}
+.tabs{display:flex;flex-direction:column;gap:2px}
+.tabs button,.tabs a{background:none;color:var(--navy-ink);justify-content:flex-start;padding:10px 12px;border-radius:8px;font-size:14.5px;text-decoration:none;display:flex;gap:10px;align-items:center;font-weight:600}
+.tabs button:hover,.tabs a:hover{background:rgba(255,255,255,.07);color:#fff;filter:none} .tabs button.on{background:var(--navy-2);color:#fff}
+.tabs .tag{margin-left:auto}
+.railfoot{margin-top:auto} .me{display:flex;gap:10px;align-items:center;padding:10px 8px;border-top:1px solid rgba(255,255,255,.1)}
+.avatar{width:34px;height:34px;border-radius:50%;background:#3d6f99;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.me b{display:block;color:#fff;font-size:13.5px;overflow:hidden;text-overflow:ellipsis} .me span{font-size:12px;color:#8ea6bd} .me button{margin-left:auto;background:none;color:#8ea6bd;padding:6px}
+.top{display:flex;align-items:center;gap:12px;padding:14px 40px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.top b{color:var(--ink);font-weight:600}
+main{padding:28px 40px 60px;max-width:1240px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px;flex-wrap:wrap} .head h1{font-size:30px;margin:0 0 4px;letter-spacing:-.01em}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px} .tile b{display:block;font-size:26px} .tile span{font-size:13px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h2{font-size:17px;margin:0 0 8px;display:flex;gap:8px;align-items:center} .card h2 .ti{color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:14px} th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 8px;font-weight:700}
+td{border-top:1px solid var(--line);padding:12px 8px;text-align:left;vertical-align:top}
+.tag{font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--soft);color:var(--accent);white-space:nowrap}
+.st-active,.st-approved{background:#dff3e8;color:#1d7a52} .st-secondary,.st-pending{background:#fdf0d5;color:#8a5a00} .st-retired,.st-returned,.st-withdrawn{background:#eef1f5;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;font-size:13px;margin-bottom:10px} .grid label{display:flex;flex-direction:column;gap:5px;font-weight:600}
+.sec{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0} .sec textarea{min-height:90px;font-size:13.5px;margin-top:8px}
+.sec .h{display:flex;gap:10px;align-items:center} .sec .h input[type=text],.sec .h input:not([type]){flex:1}
+.drop{display:flex;gap:10px;align-items:center;border:2px dashed #b9cde0;border-radius:12px;padding:16px;background:#f6f9fc}
+.drop .ti{font-size:28px;color:var(--accent)} .drop input[type=file]{border:0;background:none;padding:0;flex:1}
+.status{font-size:13px;color:var(--muted);margin-top:8px;min-height:18px}
+.spin::after{content:"";display:inline-block;width:12px;height:12px;border:2px solid var(--muted);border-top-color:transparent;border-radius:50%;animation:s .8s linear infinite;margin-left:6px;vertical-align:-2px}
+@keyframes s{to{transform:rotate(360deg)}}
+.ok{color:var(--ok);font-weight:700} .bad{color:var(--bad);font-weight:700}
+.snip{white-space:pre-wrap;font-size:13px;background:var(--bg);border-radius:8px;padding:8px 10px;max-height:180px;overflow:auto;margin-top:6px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 6px} .filters input{flex:1;min-width:220px} .filters select{width:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap} .chip{background:var(--panel);color:var(--ink);border:1px solid var(--line);padding:7px 12px;font-size:13px;border-radius:999px}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)} .chip b{font-weight:700;margin-left:4px;opacity:.75}
+.grp{margin-top:18px} .grp>h3{font-size:14px;margin:0 0 4px;display:flex;gap:8px;align-items:center;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.grp>h3 .n{background:var(--soft);color:var(--accent);border-radius:6px;padding:1px 7px;font-size:12px;letter-spacing:0}
+.grp>p{margin:0 0 6px;font-size:13px;color:var(--muted)}
+.doc{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:start;padding:12px 4px;border-top:1px solid var(--line)}
+.doc .t{font-weight:600} .doc .m{font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.doc details summary{font-size:12.5px;color:var(--accent);cursor:pointer;margin-top:4px} .doc details ul{margin:4px 0 0;padding-left:18px;font-size:13px;color:var(--muted)}
+.doc .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end} .doc.old{padding-left:28px;background:#fafbfd}
+.mini{font-size:11.5px;font-weight:600;padding:2px 7px;border-radius:5px;background:#eef1f5;color:var(--muted)}
+table.unis{table-layout:fixed} .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px} .mgrid>.card{min-width:0}
+.chartbox svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:fixed;z-index:30;background:var(--navy);color:#fff;font-size:12.5px;padding:7px 10px;border-radius:7px;pointer-events:none;max-width:260px;line-height:1.4}
+.pill{display:inline-flex;gap:4px;align-items:center;font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px}
+.pill.ok{background:#dff3e8;color:#1d7a52} .pill.bad{background:#fbe3e1;color:#a33a30}
+.tile small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.bar{height:8px;border-radius:4px;background:var(--accent);min-width:2px}
+tr.detail td{background:#f6f8fb;font-size:13px}
+@media (max-width:1000px){.mgrid{grid-template-columns:1fr}}
+tr.click{cursor:pointer} tr.click:hover td{background:#f6f8fb}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:2px 0 12px} .legend span{display:flex;gap:6px;align-items:center}
+/* sign-in: navy story panel + form, like the professor app */
+#login,#denied{min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr)}
+.story{background:var(--navy);color:var(--navy-ink);padding:40px 44px;display:flex;flex-direction:column;gap:18px}
+.story h2{color:#fff;font-size:28px;line-height:1.2;margin:auto 0 0} .story p{margin:0 0 auto}
+.box{width:min(420px,100%);margin:auto;display:flex;flex-direction:column;gap:12px}
+.box .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)} .box h1{font-size:28px;margin:0 0 6px}
+.box label{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:600} .box button{width:100%;justify-content:center;padding:13px}
+@media (max-width:900px){#app,#login,#denied{grid-template-columns:1fr}.rail{position:static;height:auto}main,.top{padding:18px 16px}.tiles{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="login" hidden>
+  <aside class="story"><div class="brand"><span class="logo"><i class="ti ti-shield-lock"></i></span>PHACT Admin</div>
+    <h2>The ASPPH sources behind every PHACT suggestion.</h2>
+    <p>Publish and retire knowledge-base documents, review example syllabi shared by faculty, and manage universities.</p></aside>
+  <section class="box">
+    <div class="eyebrow">ASPPH staff only</div><h1>Sign in to the admin console.</h1>
+    <label>Email<input id="e" autocomplete="username" placeholder="you@aspph.org"></label>
+    <label>Password<input id="p" type="password" autocomplete="current-password"></label>
+    <button id="go" onclick="login()"><i class="ti ti-arrow-right"></i>Sign in</button>
+    <div class="status" id="lst" style="text-align:center"></div>
+
+  </section>
+</div>
+<div id="denied" hidden>
+  <aside class="story"><div class="brand"><span class="logo"><i class="ti ti-shield-lock"></i></span>PHACT Admin</div><h2>ASPPH staff only.</h2><p></p></aside>
+  <section class="box"><h1>No access</h1><p class="muted">This console is for ASPPH staff. Your account is a <b id="role"></b> account.</p>
+    <a href="/"><button>Go to the PHACT app</button></a><button class="ghost" onclick="logout()">Sign out</button></section>
+</div>
+
+<div id="app" hidden>
+  <aside class="rail">
+    <div class="brand"><span class="logo"><i class="ti ti-shield-lock"></i></span>PHACT</div>
+    <div class="lbl">ASPPH admin</div>
+    <nav class="tabs">
+      <button class="on" data-t="sources"><i class="ti ti-books"></i>Knowledge base</button>
+      <button data-t="unis"><i class="ti ti-building-community"></i>Universities</button>
+      <button data-t="mon"><i class="ti ti-activity-heartbeat"></i>Agent monitor</button>
+      <button data-t="subs"><i class="ti ti-file-like"></i>Example syllabi <span id="pendingN"></span></button>
+      <button data-t="audit"><i class="ti ti-history"></i>Audit log</button>
+    </nav>
+    <div class="railfoot"><div class="me"><span class="avatar" id="av">A</span><div style="min-width:0"><b id="who"></b><span>ASPPH admin</span></div>
+      <button title="Sign out" onclick="logout()"><i class="ti ti-logout"></i></button></div></div>
+  </aside>
+  <div>
+    <header class="top"><span id="crumb"><b>Knowledge base</b></span><span class="spacer"></span><span><i class="ti ti-shield-check"></i> Changes reach every professor within about 15 seconds</span></header>
+  <main>
+    <section id="t-sources">
+      <div class="head"><div><h1>Knowledge base</h1><p class="muted" style="margin:0">The ASPPH documents PHACT searches and cites. Every change is audited.</p></div></div>
+      <div class="tiles" id="kbTiles"></div>
+      <div class="card">
+        <h2><i class="ti ti-upload"></i>Add a document</h2>
+        <p class="muted" style="margin-top:0">Upload a PDF, Word or markdown file. PHACT reads it (Amazon Textract for PDFs) and splits it into sections; review them, then publish. Publishing re-syncs the knowledge base and runs a live search test before it counts as done.</p>
+        <div class="drop"><i class="ti ti-cloud-upload"></i><input type="file" id="f" accept=".pdf,.docx,.txt,.md"><button id="pv" onclick="preview()">Read and preview</button></div>
+        <div class="status" id="ust"></div>
+        <div id="pub"></div>
+      </div>
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><h2 style="margin:0"><i class="ti ti-library"></i>Library</h2>
+          <div class="legend" style="margin:0"><span><span class="tag st-active">active</span> searched and cited</span><span><span class="tag st-secondary">secondary</span> older edition, fallback only</span><span><span class="tag st-retired">retired</span> never searched</span></div></div>
+        <div class="filters">
+          <input id="lq" placeholder="Search titles and sections…" oninput="renderLib()">
+          <div class="chips" id="ltype"></div>
+          <select id="lstatus" onchange="renderLib()"><option value="">Any status</option><option value="active">Active</option><option value="secondary">Secondary</option><option value="retired">Retired</option></select>
+          <select id="larea" onchange="renderLib()"></select>
+          <select id="lmat" onchange="renderLib()"></select>
+          <label class="muted">Group by <select id="lgroup" onchange="renderLib()"><option value="type">Content type</option><option value="area">Public health area</option><option value="status">Status</option><option value="year">Year</option></select></label>
+        </div>
+        <div class="status" id="lstat"></div>
+        <div id="lib"></div>
+      </div>
+    </section>
+
+    <section id="t-unis" hidden>
+      <div class="head"><div><h1>Universities</h1><p class="muted" style="margin:0">Every ASPPH member school using PHACT, by region and state. Each university's own admin manages its professors.</p></div>
+        <button onclick="$('uniForm').hidden=!$('uniForm').hidden"><i class="ti ti-plus"></i>Add university</button></div>
+      <div class="card" id="uniForm" hidden><h2><i class="ti ti-building-plus"></i>Add a university</h2>
+        <div class="grid"><label>Name<input id="nu_name" placeholder="e.g. Lakeshore University School of Public Health"></label>
+          <label>City<input id="nu_city" placeholder="e.g. Chicago"></label><label>State<select id="nu_state"></select></label></div>
+        <div class="row"><button onclick="addUni(this)">Add and create an admin invite</button><span class="status" id="nu_st"></span></div></div>
+      <div class="tiles" id="uniTiles"></div>
+      <div class="card">
+        <div class="filters">
+          <input id="uq" placeholder="Search universities or cities…" oninput="renderUnis()">
+          <select id="ureg" onchange="renderUnis()"></select><select id="ustate" onchange="renderUnis()"></select>
+          <label class="muted">Group by <select id="ugroup" onchange="renderUnis()"><option value="region">Region</option><option value="state">State</option><option value="none">No grouping</option></select></label>
+          <label class="muted">Sort <select id="usort" onchange="renderUnis()"><option value="name">Name</option><option value="professors">Most professors</option><option value="courses">Most courses</option><option value="activity">Recent activity</option></select></label>
+        </div>
+        <div id="uniList"></div>
+      </div>
+      <div id="uniDetail"></div>
+    </section>
+
+    <section id="t-mon" hidden>
+      <div class="head"><div><h1>Agent monitor</h1><p class="muted" style="margin:0">Every AI run across all universities: health, time, tokens and cost, and suggestion quality. Counts and times only: no syllabus text or names are stored.</p></div>
+        <div class="chips" id="monRange"><button class="chip" data-d="1">24 hours</button><button class="chip on" data-d="7">7 days</button><button class="chip" data-d="30">30 days</button></div></div>
+      <div class="tiles" id="monTiles"></div>
+      <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0"><i class="ti ti-server-bolt"></i>Agent runtime (AgentCore + Guardrail, from CloudWatch)</h2><span class="muted" id="monRtNote"></span></div>
+        <div class="tiles" id="monRuntime" style="margin:12px 0 0"></div></div>
+      <div class="mgrid">
+        <div class="card"><h2><i class="ti ti-chart-bar"></i>Runs per day</h2><div id="monDaily" class="chartbox"></div></div>
+        <div class="card"><h2><i class="ti ti-clock-hour-4"></i>Where an analysis spends its time</h2><div id="monStages" class="chartbox"></div></div>
+      </div>
+      <div class="mgrid">
+        <div class="card"><h2><i class="ti ti-coin"></i>Tokens and estimated cost by model</h2><div id="monModels"></div><p class="muted" id="monPrice" style="margin:8px 0 0"></p></div>
+        <div class="card"><h2><i class="ti ti-shield-check"></i>Suggestion quality</h2><div class="tiles" id="monQuality" style="grid-template-columns:repeat(2,1fr);margin:0"></div></div>
+      </div>
+      <div class="card"><h2><i class="ti ti-list-details"></i>By operation</h2><div id="monOps"></div></div>
+      <div class="card"><h2><i class="ti ti-building-community"></i>By university</h2><div id="monUnis"></div></div>
+      <div class="card"><h2><i class="ti ti-history"></i>Recent runs</h2><div id="monRecent"></div></div>
+      <div id="monTip" class="tip" hidden></div>
+    </section>
+
+    <section id="t-subs" hidden>
+      <div class="head"><div><h1>Example syllabi</h1><p class="muted" style="margin:0">Shared by professors with consent. Approved parts become anonymous peer examples that inspire suggestions. They're never cited as evidence.</p></div>
+        <label class="muted">Show <select id="sf" style="width:auto" onchange="loadSubs()"><option value="pending">Pending</option><option value="">All</option></select></label></div>
+      <div class="card"><table id="subs"></table></div>
+      <div id="subDetail"></div>
+    </section>
+
+    <section id="t-audit" hidden>
+      <div class="head"><div><h1>Audit log</h1><p class="muted" style="margin:0">Every publish, status change and review, with who did it and when.</p></div></div>
+      <div class="card"><table id="audit"></table></div>
+    </section>
+  </main>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const A = {sources: [], preview: null};
+async function api(method, path, body, form){
+  if (PHACT.jobs && PHACT.isLong(path)) {  // on AWS: long admin actions run as async jobs
+    let file = null;
+    if (form) { const f = form.get("file"); file = {name: f.name, b64: await PHACT.fileToB64(f)}; body = null; }
+    return PHACT.runJob(path, body, file, method);
+  }
+  const r = await fetch(path, {method, body: form || (body ? JSON.stringify(body) : undefined), headers: body && !form ? {"Content-Type": "application/json"} : {}});
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401) { show("login"); throw new Error("Please log in."); }
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+function show(which){ ["login", "denied", "app"].forEach(x => $(x).hidden = x !== which); }
+
+async function boot(){
+  const st = await (await fetch("/api/auth/status")).json();
+  PHACT.jobs = !!st.jobs; PHACT.authMode = st.auth_mode || "cookie";
+  let user = st.user;
+  if (st.accounts && !user && PHACT.authMode === "jwt" && PHACT.hasToken()) {
+    const r = await fetch("/api/me"); if (r.ok) user = await r.json(); else PHACT.setToken(null);
+  }
+  if (st.accounts && !user) return show("login");
+  enter(user);
+}
+function enter(user){
+  if (!["aspph-admin", "aspph-staff"].includes(user.role)) { $("role").textContent = user.role; return show("denied"); }
+  $("who").textContent = user.name || user.email; $("av").textContent = (user.name || user.email || "A").replace(/^(dr|prof)\.?\s+/i, "").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+  show("app"); loadSources(); loadSubs();
+}
+window.login = async () => {
+  $("go").disabled = true; $("lst").innerHTML = `<span class="spin">Logging in…</span>`;
+  try {
+    const r = await fetch("/api/auth/login", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({email: $("e").value, password: $("p").value})});
+    const j = await r.json(); if (!r.ok) throw new Error(j.detail); $("p").value = "";
+    if (j.id_token) PHACT.setToken(j.id_token);
+    const {id_token, expires_in, ...user} = j; enter(user);
+  } catch (e) { $("lst").textContent = e.message; } finally { $("go").disabled = false; }
+};
+$("p").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+window.logout = async () => { await fetch("/api/auth/logout", {method: "POST"}); PHACT.setToken(null); show("login"); };
+document.querySelectorAll(".tabs button[data-t]").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button[data-t]").forEach(x => x.classList.toggle("on", x === b));
+  ["sources", "unis", "mon", "subs", "audit"].forEach(t => $("t-" + t).hidden = t !== b.dataset.t);
+  $("crumb").innerHTML = `<b>${{sources: "Knowledge base", unis: "Universities", mon: "Agent monitor", subs: "Example syllabi", audit: "Audit log"}[b.dataset.t]}</b>`;
+  if (b.dataset.t === "mon") loadMon();
+  if (b.dataset.t === "audit") loadAudit();
+  if (b.dataset.t === "unis") loadUnis();
+});
+
+// ---------- library: filter, search and group by content type, public health area, status or year ----------
+const TYPES = {guidance: ["ASPPH guidance", "ti-file-certificate", "ASPPH's own reports and frameworks: the main evidence PHACT cites."],
+               workforce: ["Workforce reports", "ti-users-group", "What public health employers need: used to justify competency gaps."],
+               practice: ["AI pattern cards", "ti-puzzle", "PHACT's AI-integration designs for assessments, filtered by type and AI level."],
+               exemplar: ["Peer examples", "ti-file-like", "Approved syllabi shared by faculty: inspiration only, never cited as evidence."]};
+const AREA = a => a ? a[0].toUpperCase() + a.slice(1) : "No area";
+const MAT = {homework: "Homework", exam: "Exam", project: "Project", written: "Written", reference: "Reference"};
+A.ltype = "";
+function libFilters(){
+  const count = t => A.sources.filter(d => !t || d.source_type === t).length;
+  $("ltype").innerHTML = [["", "All"], ...Object.entries(TYPES).map(([k, v]) => [k, v[0]])].filter(([k]) => !k || count(k))
+    .map(([k, l]) => `<button class="chip ${A.ltype === k ? "on" : ""}" onclick="A.ltype='${k}';libFilters();renderLib()">${esc(l)}<b>${count(k)}</b></button>`).join("");
+  const opts = (id, label, vals, name) => { const cur = $(id).value; $(id).innerHTML = `<option value="">${label}</option>` + [...new Set(vals)].filter(Boolean).sort().map(v => `<option value="${esc(v)}">${esc(name(v))}</option>`).join(""); $(id).value = cur; };
+  opts("larea", "Any area", A.sources.map(d => d.area), AREA);
+  opts("lmat", "Any assessment type", A.sources.map(d => d.material_type), v => MAT[v] || v);
+}
+function docRow(d, old){
+  const acts = ["active", "secondary", "retired"].filter(x => x !== d.status)
+    .map(x => `<button class="ghost sm" onclick="setStatus('${esc(d.doc_id)}','${x}', this)">${{active: "Activate", secondary: "Make secondary", retired: "Retire"}[x]}</button>`).join("");
+  const link = d.original ? (d.original.startsWith("http") ? `<a href="${esc(d.original)}" target="_blank">source ↗</a>` : `<span>PDF in S3</span>`) : "";
+  return `<div class="doc ${old ? "old" : ""}"><div><div class="t">${old ? `<i class="ti ti-corner-down-right"></i> ` : ""}${esc(d.title)}</div>
+      <div class="m">${esc(d.publisher || "")}${d.year ? " · " + d.year : ""}${d.area ? ` <span class="mini">${esc(AREA(d.area))}</span>` : ""}${d.material_type ? ` <span class="mini">${esc(MAT[d.material_type] || d.material_type)}</span>` : ""}${d.aias_level ? ` <span class="mini">AIAS ${d.aias_level}</span>` : ""}${old ? ` <span class="mini">older edition</span>` : ""} ${link}</div>
+      ${(d.section_titles || []).length > 1 ? `<details><summary>${d.sections} sections</summary><ul>${d.section_titles.map(t => `<li>${esc(t)}</li>`).join("")}</ul></details>` : ""}</div>
+    <span class="tag st-${d.status}">${d.status}</span><div class="acts">${acts}</div></div>`;
+}
+window.renderLib = () => {
+  const q = $("lq").value.trim().toLowerCase(), st = $("lstatus").value, ar = $("larea").value, mt = $("lmat").value, by = $("lgroup").value;
+  const hit = d => (!A.ltype || d.source_type === A.ltype) && (!st || d.status === st) && (!ar || d.area === ar) && (!mt || d.material_type === mt)
+    && (!q || (d.title + " " + (d.section_titles || []).join(" ")).toLowerCase().includes(q));
+  const shown = A.sources.filter(hit);
+  // editions: the current document first, its older editions (same family) nested under it
+  const current = shown.filter(d => d.status === "active" || !shown.some(x => x.family === d.family && x !== d && x.status === "active"));
+  const olderOf = d => shown.filter(x => x.family === d.family && x !== d && !current.includes(x));
+  const key = {type: d => d.source_type, area: d => d.area || "", status: d => d.status, year: d => String(d.year || "")}[by];
+  const label = {type: k => (TYPES[k] || [k])[0], area: AREA, status: k => k[0].toUpperCase() + k.slice(1), year: k => k || "No year"}[by];
+  const order = by === "type" ? Object.keys(TYPES) : by === "status" ? ["active", "secondary", "retired"] : [...new Set(current.map(key))].sort().reverse();
+  const groups = order.map(k => [k, current.filter(d => key(d) === k)]).filter(([, l]) => l.length);
+  $("lib").innerHTML = groups.map(([k, list]) => `<div class="grp"><h3>${by === "type" ? `<i class="ti ${TYPES[k]?.[1] || "ti-file"}"></i>` : ""}${esc(label(k))} <span class="n">${list.length}</span></h3>
+      ${by === "type" && TYPES[k] ? `<p>${esc(TYPES[k][2])}</p>` : ""}
+      ${list.sort((a, b) => a.title.localeCompare(b.title)).map(d => docRow(d) + olderOf(d).map(o => docRow(o, true)).join("")).join("")}</div>`).join("")
+    || `<p class="muted">No documents match these filters.</p>`;
+  $("lstat").textContent = shown.length === A.sources.length ? "" : `Showing ${shown.length} of ${A.sources.length} documents`;
+};
+async function loadSources(){
+  $("lstat").innerHTML = `<span class="spin">Loading…</span>`;
+  try {
+    A.sources = await api("GET", "/api/admin/sources");
+    const n = k => A.sources.filter(d => d.status === k).length;
+    $("kbTiles").innerHTML = [[A.sources.length, "documents"], [n("active"), "active"], [n("secondary") + n("retired"), "secondary or retired"], [A.sources.reduce((t, d) => t + (+d.sections || 0), 0), "sections searched"]]
+      .map(([v, l]) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`).join("");
+    libFilters(); renderLib();
+  } catch (e) { $("lstat").textContent = "Error: " + e.message; }
+}
+
+// ---------- universities: the whole organization, by region and state ----------
+const STATES = {Northeast: ["CT","ME","MA","NH","RI","VT","NJ","NY","PA"], Midwest: ["IL","IN","MI","OH","WI","IA","KS","MN","MO","NE","ND","SD"],
+  South: ["DE","DC","FL","GA","MD","NC","SC","VA","WV","AL","KY","MS","TN","AR","LA","OK","TX","PR"], West: ["AZ","CO","ID","MT","NV","NM","UT","WY","AK","CA","HI","OR","WA"]};
+const LEVEL = {ban: "None", restricted: "Guided", open: "Integrated"};
+const agoT = t => { if (!t) return "—"; const m = (Date.now() - new Date(t)) / 60000; return m < 60 ? `${Math.max(1, Math.round(m))} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(t).toLocaleDateString(); };
+async function loadUnis(){
+  $("uniList").innerHTML = `<p class="spin muted">Loading…</p>`;
+  if (!$("nu_state").options.length) $("nu_state").innerHTML = `<option value="">State</option>` + Object.entries(STATES).map(([r, l]) => `<optgroup label="${r}">${l.map(s => `<option>${s}</option>`).join("")}</optgroup>`).join("");
+  try { A.unis = await api("GET", "/api/admin/universities"); } catch (e) { $("uniList").textContent = "Error: " + e.message; return; }
+  const sum = k => A.unis.reduce((t, u) => t + (u[k] || 0), 0);
+  $("uniTiles").innerHTML = [[A.unis.length, "universities"], [new Set(A.unis.map(u => u.state).filter(Boolean)).size, "states"], [sum("professors"), "professors"], [`${sum("analyzed")}/${sum("courses")}`, "courses analyzed"]]
+    .map(([v, l]) => `<div class="tile"><b>${v}</b><span>${l}</span></div>`).join("");
+  const keep = (id, label, vals) => { const cur = $(id).value; $(id).innerHTML = `<option value="">${label}</option>` + [...new Set(vals)].filter(Boolean).sort().map(v => `<option>${esc(v)}</option>`).join(""); $(id).value = cur; };
+  keep("ureg", "All regions", A.unis.map(u => u.region)); keep("ustate", "All states", A.unis.map(u => u.state));
+  renderUnis();
+}
+window.renderUnis = () => {
+  const q = $("uq").value.trim().toLowerCase(), rg = $("ureg").value, st = $("ustate").value, by = $("ugroup").value, so = $("usort").value;
+  const list = A.unis.filter(u => (!rg || u.region === rg) && (!st || u.state === st) && (!q || `${u.name} ${u.city} ${u.state}`.toLowerCase().includes(q)))
+    .sort({name: (a, b) => a.name.localeCompare(b.name), professors: (a, b) => b.professors - a.professors, courses: (a, b) => b.courses - a.courses,
+           activity: (a, b) => (b.last_activity || "").localeCompare(a.last_activity || "")}[so]);
+  const key = by === "region" ? u => u.region || "Not set" : by === "state" ? u => u.state || "No state" : () => "All universities";
+  const order = by === "region" ? ["Northeast", "Midwest", "South", "West", "Outside the US", "Not set"] : [...new Set(list.map(key))].sort();
+  const table = l => `<table class="unis"><colgroup><col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:9%"><col style="width:16%"><col style="width:10%"><col style="width:3%"></colgroup><tr><th>University</th><th>Location</th><th>AI policy</th><th>Professors</th><th>Courses</th><th>Last activity</th><th></th></tr>${l.map(u => `
+    <tr class="click" onclick="openUni('${esc(u.id)}')"><td><b>${esc(u.name)}</b>${u.admins ? "" : ` <span class="tag st-pending">no admin yet</span>`}</td>
+      <td class="muted">${esc([u.city, u.state].filter(Boolean).join(", ") || "—")}</td><td>${LEVEL[u.max_ai_stance] || "—"}${u.rules ? ` <span class="muted">· ${u.rules} rule${u.rules > 1 ? "s" : ""}</span>` : ""}</td>
+      <td>${u.professors}</td><td>${u.courses ? `${u.analyzed} analyzed · ${u.exported} exported` : `<span class="muted">none yet</span>`}</td><td class="muted">${agoT(u.last_activity)}</td><td><i class="ti ti-chevron-right muted"></i></td></tr>`).join("")}</table>`;
+  const groups = order.map(k => [k, list.filter(u => key(u) === k)]).filter(([, l]) => l.length);
+  $("uniList").innerHTML = groups.map(([k, l]) => by === "none" ? table(l) : `<div class="grp"><h3><i class="ti ti-map-pin"></i>${esc(k)} <span class="n">${l.length}</span></h3>${table(l)}</div>`).join("")
+    || `<p class="muted">No universities match.</p>`;
+};
+window.addUni = async b => {
+  const name = $("nu_name").value.trim(); if (name.length < 3) { $("nu_st").textContent = "Give the university a name."; return; }
+  b.disabled = true;
+  try {
+    const u = await api("POST", "/api/admin/universities", {name, city: $("nu_city").value.trim(), state: $("nu_state").value});
+    const inv = await api("POST", `/api/admin/universities/${u.id}/invites`, {role: "school-admin", days: 30, max_uses: 3});
+    $("nu_st").innerHTML = `Added. Send this to the university's admin: invite code <b>${esc(inv.code)}</b> (valid 30 days, up to 3 admins).`;
+    ["nu_name", "nu_city"].forEach(i => $(i).value = ""); await loadUnis();
+  } catch (e) { $("nu_st").textContent = "Error: " + e.message; } finally { b.disabled = false; }
+};
+window.openUni = async id => {
+  $("uniDetail").innerHTML = `<p class="spin muted">Loading…</p>`; $("uniDetail").scrollIntoView({behavior: "smooth"});
+  const u = await api("GET", `/api/admin/universities/${id}`), pol = u.policy || {};
+  const admins = u.members.filter(m => m.role === "school-admin"), profs = u.members.filter(m => m.role !== "school-admin");
+  $("uniDetail").innerHTML = `<div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0"><i class="ti ti-building"></i>${esc(u.name)}</h2>
+      <button class="ghost sm" onclick="$('uniDetail').innerHTML=''"><i class="ti ti-x"></i>Close</button></div>
+    <p class="muted">${esc([u.city, u.state, u.region].filter(Boolean).join(" · "))} · joined ${new Date(u.created_at).toLocaleDateString()}</p>
+    <div class="tiles"><div class="tile"><b>${admins.length}</b><span>university admins</span></div><div class="tile"><b>${profs.length}</b><span>professors</span></div>
+      <div class="tile"><b>${u.courses.length}</b><span>courses</span></div><div class="tile"><b>${LEVEL[pol.max_ai_stance] || "Integrated"}</b><span>highest AI level allowed</span></div></div>
+    <h3 style="font-size:15px">AI policy <span class="muted" style="font-weight:400">· set by the university's admin</span></h3>
+    ${(pol.rules || []).map(r => `<div style="margin:4px 0"><span class="tag">${esc(r.id)}</span> ${esc(r.text)}</div>`).join("") || `<p class="muted">PHACT's default rules (the university hasn't set its own).</p>`}
+    <h3 style="font-size:15px;margin-top:16px">People</h3>
+    <table><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr>${u.members.map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.email)}</td><td>${m.role === "school-admin" ? "University admin" : "Professor"}</td><td class="muted">${agoT(m.joined_at)}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">Nobody has joined yet.</td></tr>`}</table>
+    <h3 style="font-size:15px;margin-top:16px">Courses</h3>
+    <table><tr><th>Course</th><th>Professor</th><th>Progress</th><th>Updated</th></tr>${u.courses.map(c => `<tr><td>${esc(c.course?.code)} · ${esc(c.course?.name || "")}</td><td>${esc(c.professor)}</td>
+      <td>${c.course?.exportedAt ? "Exported" : (c.summary || {}).changes ? `${c.summary.accepted || 0}/${c.summary.changes} accepted` : "Setting up"}</td><td class="muted">${agoT(c.updated_at)}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">No courses yet.</td></tr>`}</table>
+    <h3 style="font-size:15px;margin-top:16px">Admin invites</h3>
+    <div class="row"><button class="sm" onclick="inviteAdmin('${esc(u.id)}', this)"><i class="ti ti-user-plus"></i>New university-admin invite</button><span class="status" id="ia_st"></span></div>
+    ${u.invites.filter(i => i.role === "school-admin").map(i => `<div class="muted" style="margin-top:6px"><b>${esc(i.code)}</b> · ${i.uses}/${i.max_uses} used · ${i.revoked ? "revoked" : "expires " + new Date(i.expires_at * 1000).toLocaleDateString()}</div>`).join("")}
+  </div>`;
+};
+// ---------- Agent monitor ----------
+const sec = ms => ms == null ? "—" : ms < 1000 ? `${ms} ms` : ms < 60000 ? `${(ms / 1000).toFixed(ms < 10000 ? 1 : 0)} s` : `${Math.floor(ms / 60000)} min ${Math.round(ms % 60000 / 1000)} s`;
+const usd = v => v == null ? "—" : v < 0.01 && v > 0 ? "<$0.01" : "$" + v.toFixed(2);
+const num = v => v == null ? "—" : v >= 1e6 ? (v / 1e6).toFixed(1) + "M" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : String(v);
+const STAGE = {map_ceph: "Map to CEPH", retrieve: "Find sources", propose: "Write suggestions", supervise: "Supervisor check", source_finder: "Source finder"};
+A.monDays = 7;
+document.querySelectorAll("#monRange .chip").forEach(b => b.onclick = () => { A.monDays = +b.dataset.d; document.querySelectorAll("#monRange .chip").forEach(x => x.classList.toggle("on", x === b)); loadMon(); });
+function tipOn(ev, html){ const t = $("monTip"); t.innerHTML = html; t.hidden = false; t.style.left = Math.min(ev.clientX + 14, innerWidth - 280) + "px"; t.style.top = (ev.clientY + 14) + "px"; }
+window.tipOff = () => { $("monTip").hidden = true; };
+async function loadMon(){
+  $("monTiles").innerHTML = `<p class="spin muted">Loading…</p>`;
+  let m; try { m = await api("GET", `/api/admin/monitor?days=${A.monDays}`); } catch (e) { $("monTiles").textContent = "Error: " + e.message; return; }
+  A.mon = m; const t = m.totals, q = m.quality;
+  const tile = (v, l, s2) => `<div class="tile"><b>${v}</b><span>${l}</span>${s2 ? `<small>${s2}</small>` : ""}</div>`;
+  $("monTiles").innerHTML = tile(t.runs, "AI runs", `${t.analyses} full analyses`) +
+    tile(`${(t.error_rate * 100).toFixed(1)}%`, "failed", `${t.errors} of ${t.runs} runs`) +
+    tile(sec(t.analysis_p50_ms), "typical analysis", `slowest 10%: ${sec(t.analysis_p90_ms)}+`) +
+    tile(usd(t.cost), "estimated model cost", `${num(t.tokens)} tokens · ${t.universities} universities · ${t.professors} people`);
+  const r = m.runtime || {};
+  $("monRtNote").textContent = r.error ? "CloudWatch couldn't be read: " + r.error : "";
+  $("monRuntime").innerHTML = r.error ? "" : tile(r.invocations ?? "—", "agent invocations", `${r.sessions ?? 0} sessions`) +
+    tile(r.errors ?? "—", "agent errors", `${r.system_errors ?? 0} system · ${r.user_errors ?? 0} user · ${r.throttles ?? 0} throttled`) +
+    tile(sec(r.latency_avg), "average agent call", `90th percentile ${sec(r.latency_p90)}`) +
+    tile(r.guard_blocked ?? "—", "chat messages blocked", `of ${r.guard_checks ?? 0} Guardrail checks`);
+  // runs per day: one series, bars from the baseline, hover for the detail
+  const D = m.daily, W = 560, H = 190, padL = 30, padB = 26, max = Math.max(1, ...D.map(d => d.runs)), bw = (W - padL) / D.length;
+  const y = v => H - padB - (v / max) * (H - padB - 14);
+  const ticks = [0, Math.ceil(max / 2), max];
+  $("monDaily").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="AI runs per day over the last ${m.days} days">
+    ${ticks.map(v => `<line x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="#e3e8ee"/><text x="${padL - 6}" y="${y(v) + 4}" font-size="11" text-anchor="end" fill="#5f6f80">${v}</text>`).join("")}
+    ${D.map((d, i) => { const x = padL + i * bw + bw * 0.18, w = Math.max(3, bw * 0.64), top = y(d.runs);
+      return `<g onmousemove="tipOn(event, '<b>${d.date}</b><br>${d.runs} runs · ${d.analyses} analyses<br>${d.errors} failed · ${usd(d.cost)}')" onmouseleave="tipOff()">
+        <rect x="${x - 4}" y="14" width="${w + 8}" height="${H - padB - 14}" fill="transparent"/>
+        ${d.runs ? `<path d="M${x},${H - padB} V${top + 4} Q${x},${top} ${x + 4},${top} H${x + w - 4} Q${x + w},${top} ${x + w},${top + 4} V${H - padB} Z" fill="#2c5f8a"/>` : ""}
+        ${d.errors ? `<circle cx="${x + w / 2}" cy="${top - 8}" r="4" fill="#c8453a"/>` : ""}
+        ${(D.length <= 8 || i % Math.ceil(D.length / 8) === 0) ? `<text x="${x + w / 2}" y="${H - 8}" font-size="11" text-anchor="middle" fill="#5f6f80">${m.days === 1 ? d.date.slice(5) : d.date.slice(5)}</text>` : ""}</g>`; }).join("")}
+    <line x1="${padL}" x2="${W}" y1="${H - padB}" y2="${H - padB}" stroke="#b9c4d0"/></svg>
+    <p class="muted" style="margin:6px 0 0"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#c8453a"></span> a day with failed runs (hover a bar for details)</p>`;
+  // time per stage: horizontal bars, average with a 90th-percentile tick
+  const S = m.stages, smax = Math.max(1, ...S.map(s => s.p90_ms || s.avg_ms)), SW = 560, rowH = 34;
+  $("monStages").innerHTML = S.length ? `<svg viewBox="0 0 ${SW} ${S.length * rowH + 22}" role="img" aria-label="Average time per stage of a full analysis">
+    ${S.map((s, i) => { const yy = i * rowH + 6, x0 = 140, w = (s.avg_ms / smax) * (SW - x0 - 70), p = (s.p90_ms / smax) * (SW - x0 - 70);
+      return `<g onmousemove="tipOn(event, '<b>${STAGE[s.stage] || s.stage}</b><br>average ${sec(s.avg_ms)} · 90th percentile ${sec(s.p90_ms)}<br>${s.runs} runs')" onmouseleave="tipOff()">
+        <rect x="0" y="${yy - 4}" width="${SW}" height="${rowH}" fill="transparent"/>
+        <text x="${x0 - 10}" y="${yy + 15}" font-size="12.5" text-anchor="end" fill="#1b2a3a">${STAGE[s.stage] || s.stage}</text>
+        <rect x="${x0}" y="${yy + 4}" width="${Math.max(3, w)}" height="16" rx="4" fill="#2c5f8a"/>
+        <line x1="${x0 + p}" x2="${x0 + p}" y1="${yy + 1}" y2="${yy + 23}" stroke="#15314d" stroke-width="2"/>
+        <text x="${x0 + Math.max(w, p) + 8}" y="${yy + 16}" font-size="12" fill="#5f6f80">${sec(s.avg_ms)}</text></g>`; }).join("")}
+    <text x="140" y="${S.length * rowH + 18}" font-size="11" fill="#5f6f80">bar = average · tick = 90th percentile (full analyses that finished)</text></svg>`
+    : `<p class="muted">No full analyses in this window.</p>`;
+  $("monModels").innerHTML = m.models.length ? `<table><tr><th>Model</th><th>Calls</th><th>Tokens in</th><th>Tokens out</th><th>Model time</th><th>Est. cost</th></tr>
+    ${m.models.map(x => `<tr><td><b>${esc(x.family === "opus" ? "Claude Opus 5.5" : x.family === "haiku" ? "Claude Haiku 5.5" : x.model)}</b><div class="muted">${esc(x.model)}</div></td>
+      <td>${x.calls}</td><td>${num(x.in)}</td><td>${num(x.out)}</td><td>${sec(x.ms)}</td><td><b>${usd(x.cost)}</b></td></tr>`).join("")}</table>` : `<p class="muted">No model calls in this window.</p>`;
+  $("monPrice").textContent = m.price_note;
+  $("monQuality").innerHTML = tile(q.per_analysis, "suggestions per analysis", `${q.suggestions} in total`) +
+    tile(`${(q.flag_rate * 100).toFixed(0)}%`, "still flagged for weak sources", `${q.flagged_after} of ${q.suggestions}`) +
+    tile(`${q.finder_verified}/${q.flagged_before_finder}`, "weak sources fixed by the source finder", "flagged before it ran → verified after") +
+    tile(t.analyses ? `${Math.round(100 * q.finished / t.analyses)}%` : "—", "analyses that finished", `${q.finished} of ${t.analyses}; the rest failed and were reported`);
+  $("monOps").innerHTML = `<table><tr><th>Operation</th><th>Runs</th><th>Failed</th><th>Typical time</th><th>Slowest 10%</th></tr>${m.by_op.map(o => `<tr><td>${esc(o.label)}</td><td>${o.runs}</td>
+    <td>${o.errors ? `<span class="pill bad"><i class="ti ti-alert-triangle"></i>${o.errors}</span>` : "0"}</td><td>${sec(o.p50_ms)}</td><td>${sec(o.p90_ms)}</td></tr>`).join("")}</table>`;
+  const umax = Math.max(1, ...m.universities.map(u => u.runs));
+  $("monUnis").innerHTML = `<table><tr><th>University</th><th style="width:30%">Runs</th><th>Analyses</th><th>Tokens</th><th>Est. cost</th><th>Failed</th><th>Last run</th></tr>${m.universities.map(u => `<tr>
+    <td><b>${esc(u.name)}</b></td><td><div class="row" style="flex-wrap:nowrap"><div class="bar" style="width:${Math.round(100 * u.runs / umax)}%"></div><span>${u.runs}</span></div></td>
+    <td>${u.analyses}</td><td>${num(u.tokens)}</td><td>${usd(u.cost)}</td><td>${u.errors || 0}</td><td class="muted">${agoT(u.last)}</td></tr>`).join("")}</table>`;
+  $("monRecent").innerHTML = `<table><tr><th>When</th><th>Operation</th><th>University</th><th>Status</th><th>Duration</th><th>Tokens</th><th>Est. cost</th><th>Suggestions</th></tr>${m.recent.map((x, i) => `<tr class="click" onclick="monRow(${i}, this)">
+    <td class="muted">${new Date(x.at).toLocaleString()}</td><td>${esc(x.label)}${x.doc_type ? ` <span class="muted">· ${esc(x.doc_type)}</span>` : ""}</td><td>${esc(x.university)}</td>
+    <td>${x.status === "DONE" ? `<span class="pill ok"><i class="ti ti-check"></i>Done</span>` : `<span class="pill bad"><i class="ti ti-alert-triangle"></i>Failed</span>`}</td>
+    <td>${sec(x.wall_ms)}</td><td>${num(x.tokens)}</td><td>${usd(x.cost)}</td><td>${x.suggestions ? `${x.suggestions}${x.flagged ? ` <span class="muted">· ${x.flagged} flagged</span>` : ""}` : "—"}</td></tr>`).join("")}</table>`;
+}
+window.monRow = (i, tr) => {
+  const next = tr.nextElementSibling; if (next?.classList.contains("detail")) { next.remove(); return; }
+  const x = A.mon.recent[i], st = Object.entries(x.stages || {});
+  const d = document.createElement("tr"); d.className = "detail";
+  d.innerHTML = `<td colspan="8">${st.length ? st.map(([k, v]) => `<b>${esc(STAGE[k] || k)}</b> ${sec(v)}`).join(" · ") : "No stage breakdown for this operation."}
+    ${x.finder_verified ? ` · source finder verified ${x.finder_verified}` : ""}${x.error ? `<div style="color:#a33a30;margin-top:4px">${esc(x.error)}</div>` : ""}<div class="muted">job ${esc(x.job_id)}</div></td>`;
+  tr.after(d);
+};
+window.inviteAdmin = async (id, b) => {
+  b.disabled = true;
+  try { const i = await api("POST", `/api/admin/universities/${id}/invites`, {role: "school-admin", days: 30, max_uses: 3}); await openUni(id); $("ia_st").innerHTML = `New code <b>${esc(i.code)}</b>: send it to the university's admin.`; }
+  catch (e) { $("ia_st").textContent = "Error: " + e.message; b.disabled = false; }
+};
+window.setStatus = async (id, status, btn) => {
+  if (status === "retired" && !confirm(`Retire ${id}? PHACT will stop citing it for every professor.`)) return;
+  btn.disabled = true; $("lstat").innerHTML = `<span class="spin">Updating ${esc(id)} and re-syncing the knowledge base… (~15 s)</span>`;
+  try { await api("PUT", `/api/admin/sources/${encodeURIComponent(id)}/status`, {status}); await loadSources(); }
+  catch (e) { $("lstat").textContent = "Error: " + e.message; btn.disabled = false; }
+};
+
+// ---------- add a document ----------
+window.preview = async () => {
+  const f = $("f").files[0]; if (!f) { $("ust").textContent = "Choose a file first."; return; }
+  $("pv").disabled = true; $("ust").innerHTML = `<span class="spin">Reading ${esc(f.name)}…</span>`;
+  try {
+    const fd = new FormData(); fd.append("file", f);
+    A.preview = await api("POST", "/api/admin/sources/preview", null, fd);
+    $("ust").textContent = `${A.preview.words} words, ${A.preview.sections.length} sections. Review them, fill in the details, then publish.`;
+    const actives = A.sources.filter(d => d.status === "active");
+    $("pub").innerHTML = `<div class="grid">
+        <label>Title<input id="m_title" value="${esc(A.preview.title)}"></label>
+        <label>Type<select id="m_type"><option value="guidance">ASPPH guidance</option><option value="workforce">Workforce report</option><option value="practice">Pattern card</option></select></label>
+        <label>Year<input id="m_year" value="${new Date().getFullYear()}"></label>
+        <label>Publisher<input id="m_pub" value="ASPPH"></label>
+        <label>Replaces an older edition?<select id="m_rep"><option value="">No, it's a new document</option>${actives.map(d => `<option value="${esc(d.doc_id)}">${esc(d.title)} (${esc(d.year || "")})</option>`).join("")}</select></label>
+        <label>Old edition becomes<select id="m_old"><option value="secondary">Secondary (fallback)</option><option value="retired">Retired</option></select></label>
+      </div>
+      <div id="secs">${A.preview.sections.map((s, i) => `<div class="sec"><div class="h"><input type="checkbox" checked data-i="${i}"><input value="${esc(s.title)}" data-t="${i}"></div><textarea data-x="${i}">${esc(s.text)}</textarea></div>`).join("")}</div>
+      <div class="row"><button id="pb" onclick="publish()"><i class="ti ti-send"></i>Publish to the knowledge base</button><span class="status" id="pst"></span></div>`;
+  } catch (e) { $("ust").textContent = "Error: " + e.message; } finally { $("pv").disabled = false; }
+};
+window.publish = async () => {
+  const sections = [...document.querySelectorAll("#secs .sec")].filter(el => el.querySelector("[data-i]").checked)
+    .map(el => ({title: el.querySelector("[data-t]").value, text: el.querySelector("[data-x]").value}));
+  const body = {preview_id: A.preview.preview_id, sections, replaces: $("m_rep").value || null, old_status: $("m_old").value,
+                meta: {title: $("m_title").value, source_type: $("m_type").value, year: +$("m_year").value || null, publisher: $("m_pub").value}};
+  if (!body.meta.title || !sections.length) { $("pst").textContent = "Give it a title and keep at least one section."; return; }
+  $("pb").disabled = true; $("pst").innerHTML = `<span class="spin">Publishing, re-syncing and running a search test… (~30 s)</span>`;
+  try {
+    const r = await api("POST", "/api/admin/sources/publish", body);
+    $("pst").innerHTML = r.search_test_passed ? `<span class="ok">✓ Published as ${esc(r.doc_id)} and found by a live search.</span>${r.demoted ? ` ${esc(r.demoted.doc_id)} is now ${esc(r.demoted.status)}.` : ""}`
+      : `<span class="bad">⚠ Saved, but the search test didn't find it.</span> ${esc(JSON.stringify(r.sync.failures || r.sync.hint || ""))}`;
+    A.preview = null; await loadSources();
+  } catch (e) { $("pst").textContent = "Error: " + e.message; $("pb").disabled = false; }
+};
+
+// ---------- example syllabi ----------
+async function loadSubs(){
+  try {
+    const list = await api("GET", "/api/admin/submissions" + ($("sf").value ? "?status=" + $("sf").value : ""));
+    const pending = $("sf").value === "pending" ? list.length : list.filter(s => s.status === "pending").length;
+    $("pendingN").innerHTML = pending ? `<span class="tag st-pending">${pending}</span>` : "";
+    $("subs").innerHTML = list.length ? `<tr><th>Course</th><th>Shared by</th><th>When</th><th>PHACT summary</th><th>Status</th><th></th></tr>` + list.map(s => `<tr>
+      <td><b>${esc(s.title || s.course_code)}</b><div class="muted">${esc(s.course_code)}</div></td><td>${esc(s.owner_email)}</td>
+      <td class="muted">${new Date(s.consent_at).toLocaleString()}</td>
+      <td class="muted">${esc(Object.entries(s.summary || {}).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join(" · "))}</td>
+      <td><span class="tag st-${s.status}">${s.status}</span></td><td><button class="ghost sm" onclick="openSub('${s.id}')">Review</button></td></tr>`).join("")
+      : `<tr><td class="muted">Nothing waiting for review.</td></tr>`;
+  } catch (e) { $("subs").innerHTML = `<tr><td>${esc(e.message)}</td></tr>`; }
+}
+window.openSub = async id => {
+  const s = await api("GET", `/api/admin/submissions/${id}`), c = s.content;
+  $("subDetail").innerHTML = `<div class="card"><h2>${esc(s.title || s.course_code)}</h2>
+    <p class="muted" style="margin-top:0">${esc(c.course?.code || "")} ${esc(c.course?.name || "")} · ${esc(c.course?.level || "")} · shared by ${esc(s.owner_email)} with consent on ${new Date(s.consent_at).toLocaleString()}.
+      Names were removed before sharing; published text shows them as [instructor].</p>
+    ${s.review_note ? `<p><b>Earlier note:</b> ${esc(s.review_note)}</p>` : ""}
+    <div class="grid"><label>Published title<input id="a_title" value="Example syllabus: ${esc(c.course?.name || s.course_code)}"></label>
+      <label>Area<input id="a_area" placeholder="e.g. epidemiology"></label>
+      <label>Competencies (numbers)<input id="a_comps" value="${esc((s.summary?.competencies || []).join(", "))}"></label></div>
+    <p class="muted">Tick the sections worth publishing (often the AI policy and one or two strong assignments, not the whole syllabus).</p>
+    ${(c.sections || []).map(x => `<div class="sec"><div class="h"><input type="checkbox" data-s="${esc(x.id)}" ${x.suggested ? "checked" : ""}><b>${esc(x.title)}</b>${x.suggested ? ` <span class="tag">changed with PHACT</span>` : ""}</div><div class="snip">${esc(x.text)}</div></div>`).join("")}
+    ${s.status === "pending" || s.status === "returned" ? `<div class="row"><button id="ap" onclick="approve('${id}')">Approve and publish the ticked sections</button>
+      <input id="note" placeholder="Note to the professor (for Return)" style="flex:1;min-width:200px"><button class="ghost" onclick="returnSub('${id}')">Return with note</button></div>` : `<p class="muted">This submission is ${esc(s.status)}.</p>`}
+    <div class="status" id="ast"></div></div>`;
+  $("subDetail").scrollIntoView({behavior: "smooth"});
+};
+window.approve = async id => {
+  const ids = [...document.querySelectorAll("[data-s]:checked")].map(x => x.dataset.s);
+  if (!ids.length) { $("ast").textContent = "Tick at least one section."; return; }
+  $("ap").disabled = true; $("ast").innerHTML = `<span class="spin">Publishing as a peer example… (~30 s)</span>`;
+  try {
+    const r = await api("POST", `/api/admin/submissions/${id}/approve`, {section_ids: ids, tags: {title: $("a_title").value, area: $("a_area").value,
+      competencies: $("a_comps").value.split(/[ ,]+/).filter(Boolean)}});
+    $("ast").innerHTML = r.search_test_passed ? `<span class="ok">✓ Published as ${esc(r.doc_id)}.</span>` : `<span class="bad">⚠ Saved, but the search test didn't find it.</span>`;
+    loadSubs(); loadSources();
+  } catch (e) { $("ast").textContent = "Error: " + e.message; $("ap").disabled = false; }
+};
+window.returnSub = async id => {
+  const note = $("note").value.trim(); if (!note) { $("ast").textContent = "Write a short note for the professor first."; return; }
+  await api("POST", `/api/admin/submissions/${id}/return`, {note}); $("ast").textContent = "Returned."; loadSubs();
+};
+async function loadAudit(){
+  const ev = await api("GET", "/api/admin/audit");
+  $("audit").innerHTML = `<tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Detail</th></tr>` + ev.map(e => `<tr><td class="muted">${new Date(e.at).toLocaleString()}</td><td>${esc(e.by)}</td><td>${esc(e.action)}</td><td>${esc(e.target)}</td><td class="muted">${esc(e.detail)}</td></tr>`).join("");
+}
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "phact-infra",
+  "version": "0.1.0",
+  "private": true,
+  "bin": { "phact": "bin/phact.js" },
+  "scripts": {
+    "build": "tsc",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all",
+    "diff": "cdk diff"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "aws-cdk": "^2",
+    "ts-node": "^10",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2",
+    "constructs": "^10"
+  }
+}

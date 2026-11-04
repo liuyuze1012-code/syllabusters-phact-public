@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "communication-project-community-health-chatbot-l5",
+    "title": "Build and red-team a community health information assistant",
+    "section": "project \u00b7 AIAS level 5",
+    "source_type": "practice",
+    "material_type": "project",
+    "aias_level": 5,
+    "competencies": [
+      "18",
+      "20"
+    ],
+    "area": "communication",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://www.paho.org/en/news/20-10-2025-paho-publishes-guide-designing-artificial-intelligence-instructions-public-health",
+    "status": "active",
+    "family": "communication-project-community-health-chatbot-l5"
+  }
+}

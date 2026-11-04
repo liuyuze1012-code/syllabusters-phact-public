@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "epi-homework-ai-study-critique-audit-l3",
+    "title": "Audit an AI critique of two published studies",
+    "section": "homework \u00b7 AIAS level 3",
+    "source_type": "practice",
+    "material_type": "homework",
+    "aias_level": 3,
+    "competencies": [
+      "1",
+      "4"
+    ],
+    "area": "epidemiology",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://searle.northwestern.edu/docs/20230313-designing-learning-experiences_with_generaive_ai_heuristic.pdf",
+    "status": "active",
+    "family": "epi-homework-ai-study-critique-audit-l3"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "app": "npx ts-node --prefer-ts-exts bin/phact.ts",
+  "context": {
+    "phact:stage": "dev",
+    "phact:budgetUsd": 350
+  }
+}

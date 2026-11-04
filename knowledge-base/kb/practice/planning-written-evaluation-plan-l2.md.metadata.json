@@ -1,0 +1,19 @@
+{
+  "metadataAttributes": {
+    "doc_id": "planning-written-evaluation-plan-l2",
+    "title": "AI-generated evaluation options, student-selected evaluation plan",
+    "section": "written assignment \u00b7 AIAS level 2",
+    "source_type": "practice",
+    "material_type": "written",
+    "aias_level": 2,
+    "competencies": [
+      "11"
+    ],
+    "area": "planning",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "planning-written-evaluation-plan-l2"
+  }
+}

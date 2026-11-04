@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "job_id": "mock-revise-question",
+  "kind": "question",
+  "edits": [],
+  "new_passages": [],
+  "removed_edit_ids": [],
+  "reply": "I suggested E2 because the week 6 role-play is ungraded, and CEPH doesn't count a role-play alone as evidence for competency 21. Making it a graded simulation fixes that; the source is passage P2.",
+  "meta": {
+    "timings_ms": {
+      "total": 400
+    },
+    "models": {
+      "fast": "mock",
+      "strong": "mock"
+    },
+    "tokens": {},
+    "mock": true
+  }
+}

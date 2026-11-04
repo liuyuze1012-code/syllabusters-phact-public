@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220">
+  <!-- Syllabusters: a syllabus page under a magnifying lens; the lens finds the gap and checks it -->
+  <rect width="720" height="220" fill="#FFFFFF"/>
+
+  <!-- Icon -->
+  <g transform="translate(40 30)">
+    <!-- page -->
+    <path d="M14 0 H96 L128 32 V146 a14 14 0 0 1 -14 14 H14 a14 14 0 0 1 -14 -14 V14 a14 14 0 0 1 14 -14 Z" fill="#14233F"/>
+    <path d="M96 0 V24 a8 8 0 0 0 8 8 H128 Z" fill="#3A5585"/>
+    <!-- syllabus lines -->
+    <rect x="20" y="30" width="58" height="9" rx="4.5" fill="#FFFFFF" opacity="0.92"/>
+    <rect x="20" y="54" width="86" height="9" rx="4.5" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="20" y="78" width="44" height="9" rx="4.5" fill="#FF5A36"/>
+    <rect x="20" y="102" width="70" height="9" rx="4.5" fill="#FFFFFF" opacity="0.55"/>
+    <!-- lens -->
+    <line x1="132" y1="140" x2="160" y2="168" stroke="#FF5A36" stroke-width="16" stroke-linecap="round"/>
+    <circle cx="108" cy="116" r="34" fill="#FFFFFF" stroke="#FF5A36" stroke-width="10"/>
+    <!-- check inside lens -->
+    <path d="M92 117 L104 129 L126 104" fill="none" stroke="#14233F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="232" y="116" font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="52" letter-spacing="-1.5">
+    <tspan fill="#14233F">SYLLA</tspan><tspan fill="#FF5A36">BUSTERS</tspan>
+  </text>
+  <text x="235" y="152" font-family="'Helvetica Neue', Arial, sans-serif" font-weight="600" font-size="17" letter-spacing="3.2" fill="#5B6578">EVERY COMPETENCY, ACCOUNTED FOR</text>
+</svg>

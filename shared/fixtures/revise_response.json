@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "job_id": "mock-revise-job",
+  "kind": "change",
+  "edits": [
+    {
+      "edit_id": "E2",
+      "section_id": "week-6",
+      "op": "replace",
+      "original": "Negotiation role-play with a partner from another discipline (ungraded).",
+      "proposed": "Graded interprofessional negotiation simulation (10%): teams negotiate a shared response plan. Submit the plan plus a half-page reflection on one thing the AI-generated brief got wrong.",
+      "rationale": "Simplified per your comment: shorter reflection, same assessed evidence for competency 21.",
+      "evidence": [
+        {
+          "id": "P2",
+          "title": "ASPPH AI Framework",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Framework passage about AI-powered simulations.",
+          "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=4"
+        },
+        {
+          "id": "P3",
+          "title": "Competency Mapping",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Competency Mapping passage about cross-sector collaboration skills.",
+          "uri": "s3://phact-knowledge/originals/competency-mapping.pdf#page=7"
+        }
+      ],
+      "school_rule": "DEF-AI-2",
+      "ceph": [
+        21
+      ],
+      "reflection_activity": "1-page reflection on errors or gaps in the AI-generated brief",
+      "supervisor": "pass",
+      "version": 2
+    }
+  ],
+  "new_passages": [],
+  "removed_edit_ids": [],
+  "reply": "I shortened the reflection to half a page and kept the simulation graded so it still counts for competency 21.",
+  "meta": {
+    "timings_ms": {
+      "total": 600
+    },
+    "models": {
+      "strong": "mock"
+    },
+    "tokens": {},
+    "mock": true
+  }
+}

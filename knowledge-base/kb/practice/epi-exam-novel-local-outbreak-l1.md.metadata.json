@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "epi-exam-novel-local-outbreak-l1",
+    "title": "In-class analysis of a novel local outbreak dataset",
+    "section": "exam \u00b7 AIAS level 1",
+    "source_type": "practice",
+    "material_type": "exam",
+    "aias_level": 1,
+    "competencies": [
+      "1",
+      "4"
+    ],
+    "area": "epidemiology",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://uwaterloo.ca/centre-for-teaching-excellence/catalogs/tip-sheets/redesigning-unsupervised-assessments-genai-era",
+    "status": "active",
+    "family": "epi-exam-novel-local-outbreak-l1"
+  }
+}

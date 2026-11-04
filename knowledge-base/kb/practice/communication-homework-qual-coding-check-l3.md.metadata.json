@@ -1,0 +1,19 @@
+{
+  "metadataAttributes": {
+    "doc_id": "communication-homework-qual-coding-check-l3",
+    "title": "AI-suggested codes checked against hand coding, plus survey tabulation",
+    "section": "homework \u00b7 AIAS level 3",
+    "source_type": "practice",
+    "material_type": "homework",
+    "aias_level": 3,
+    "competencies": [
+      "3"
+    ],
+    "area": "communication",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://arxiv.org/abs/2412.09029",
+    "status": "active",
+    "family": "communication-homework-qual-coding-check-l3"
+  }
+}

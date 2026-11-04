@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "policy-written-brief-oral-defense-l1",
+    "title": "Policy brief plus a 10-minute oral defense",
+    "section": "written assignment \u00b7 AIAS level 1",
+    "source_type": "practice",
+    "material_type": "written",
+    "aias_level": 1,
+    "competencies": [
+      "15",
+      "12"
+    ],
+    "area": "policy",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://uwaterloo.ca/centre-for-teaching-excellence/catalogs/tip-sheets/redesigning-unsupervised-assessments-genai-era",
+    "status": "active",
+    "family": "policy-written-brief-oral-defense-l1"
+  }
+}

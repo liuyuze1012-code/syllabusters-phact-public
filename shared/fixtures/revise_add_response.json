@@ -1,0 +1,52 @@
+{
+  "ok": true,
+  "job_id": "mock-revise-add",
+  "kind": "add",
+  "edits": [
+    {
+      "edit_id": "E4",
+      "version": 1,
+      "section_id": "week-9",
+      "op": "insert_after",
+      "original": null,
+      "proposed": "Week 10: Data ethics in public health leadership. Short case discussion on consent and transparency when a health department adopts an AI tool, with a graded 1-page position memo (5%).",
+      "rationale": "Adds the data-ethics topic you asked for as an assessed task, placed after the reflection paper.",
+      "evidence": [
+        {
+          "id": "P4",
+          "title": "ASPPH AI Framework",
+          "snippet": "[MOCK SNIPPET] Placeholder for a real Framework passage about transparency and community trust in AI use.",
+          "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=5"
+        }
+      ],
+      "school_rule": null,
+      "ceph": [],
+      "reflection_activity": null,
+      "supervisor": "pass",
+      "status": "draft"
+    }
+  ],
+  "new_passages": [
+    {
+      "id": "P4",
+      "title": "ASPPH AI Framework",
+      "section": "Practice and Research",
+      "snippet": "[MOCK SNIPPET] Placeholder for a real Framework passage about transparency and community trust in AI use.",
+      "uri": "s3://phact-knowledge/originals/aspph-ai-framework.pdf#page=5",
+      "source_type": "guidance"
+    }
+  ],
+  "removed_edit_ids": [],
+  "reply": "I added a week 10 on data ethics with a short graded memo, based on a new ASPPH AI Framework passage (P4).",
+  "meta": {
+    "timings_ms": {
+      "total": 700
+    },
+    "models": {
+      "strong": "mock",
+      "fast": "mock"
+    },
+    "tokens": {},
+    "mock": true
+  }
+}

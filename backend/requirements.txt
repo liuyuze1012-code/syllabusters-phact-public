@@ -1,0 +1,8 @@
+# Backend runtime deps (Lambda, Python 3.12)
+fastapi>=0.110
+mangum>=0.17
+pydantic>=2.7
+boto3>=1.39          # 1.39+ is required for the bedrock-agentcore client
+pypdf>=4.0           # PDF text extraction
+python-docx>=1.1     # DOCX extraction and export
+-e ../shared         # phact_contracts: the agent contract

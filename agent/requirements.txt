@@ -1,0 +1,7 @@
+# Agent runtime deps (Python 3.12 on AgentCore)
+bedrock-agentcore
+anthropic[bedrock]>=2.4   # llm.py: Claude on Bedrock (structured output, effort)
+strands-agents            # only if ASPPH requires Strands (see HARNESS.md 3b, Client)
+boto3>=1.39
+pydantic>=2.7
+-e ../shared         # phact_contracts: the contract this agent must return

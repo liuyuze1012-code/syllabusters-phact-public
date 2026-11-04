@@ -1,0 +1,7 @@
+{
+  "region": "us-west-2",
+  "user_pool_id": "us-west-2_30rtK08T1",
+  "client_id": "4o75e9kg2h8do4aaj4o5oibckv",
+  "table": "phact-app",
+  "bucket": "phact-userdata-217416247453-us-west-2"
+}

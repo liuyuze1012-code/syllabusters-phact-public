@@ -1,0 +1,332 @@
+{
+  "_status": "MVP-reviewed by Claude: every word traced to the PDF (scripts/check_ceph.py passes); interpretation pairing checked against the PDF's layout view, including #10, #12, #13, #18, #19. A human spot-check is still welcome.",
+  "source": "CEPH, MPH Foundational Competencies with Competency Interpretation",
+  "source_file": "data/reference/CEPH competency guidelines.pdf",
+  "fields": {
+    "statement": "The competency, word for word",
+    "interpretation": "CEPH's interpretation, word for word, one sentence or clause per item",
+    "does_not_count": "The interpretation items that say what is NOT sufficient (copied from 'interpretation', not new text)",
+    "domain_note": "Text CEPH gives for the whole domain"
+  },
+  "domains": [
+    {
+      "name": "Evidence-based Approaches to Public Health",
+      "ids": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "name": "Public Health & Health Care Systems",
+      "ids": [
+        5,
+        6
+      ]
+    },
+    {
+      "name": "Planning & Management to Promote Health",
+      "ids": [
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "name": "Policy in Public Health",
+      "ids": [
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "name": "Leadership",
+      "ids": [
+        16,
+        17
+      ]
+    },
+    {
+      "name": "Communication",
+      "ids": [
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "name": "Interprofessional and/or Intersectoral Practice",
+      "ids": [
+        21
+      ],
+      "domain_note": "Other sectors and/or professions may include physicians, nurses, pharmacists, and physical therapists, and can extend past the health sciences into education, urban planning, public administration, engineering, housing authorities, the legal system, police departments, and beyond."
+    },
+    {
+      "name": "Systems Thinking",
+      "ids": [
+        22
+      ]
+    }
+  ],
+  "competencies": [
+    {
+      "id": 1,
+      "domain": "Evidence-based Approaches to Public Health",
+      "statement": "Apply epidemiological methods to settings and situations in public health practice",
+      "interpretation": [
+        "Assessment must include the application of various epidemiological study designs (e.g., cohort study) and principles (e.g., sample size, incidence, prevalence, morbidity, etc.).",
+        "A single setting/situation is insufficient."
+      ],
+      "does_not_count": [
+        "A single setting/situation is insufficient."
+      ]
+    },
+    {
+      "id": 2,
+      "domain": "Evidence-based Approaches to Public Health",
+      "statement": "Select quantitative and qualitative data collection methods appropriate for a given public health context",
+      "interpretation": [
+        "\"Select\" = choose among methods. Students must be exposed to various methods so that they can distinguish between them.",
+        "Must see that students can select among both quantitative and qualitative (e.g., focus groups, key informant interviews) data collection methods."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 3,
+      "domain": "Evidence-based Approaches to Public Health",
+      "statement": "Analyze quantitative and qualitative data using biostatistics, informatics, computer-based programming and software, as appropriate",
+      "interpretation": [
+        "Assessment must address both parts of the competency statement: 1) qualitative (i.e., non-numerical) and 2) quantitative.",
+        "Must see that students can analyze both types of data using the appropriate software.",
+        "Appropriate software may be general (e.g., Excel or Word) or specific (e.g., NVivo or SPSS)."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 4,
+      "domain": "Evidence-based Approaches to Public Health",
+      "statement": "Interpret results of data analysis for public health research, policy or practice",
+      "interpretation": [
+        "Students should understand and apply findings from data analysis for public health research, policy or practice.",
+        "Students should have an understanding of the data findings and be able to draw linkages to how the results may influence decisions."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 5,
+      "domain": "Public Health & Health Care Systems",
+      "statement": "Compare the organization, structure and function of health care, public health, and regulatory systems across national and international settings",
+      "interpretation": [
+        "International health systems must be apparent for comparison to be possible."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 6,
+      "domain": "Public Health & Health Care Systems",
+      "statement": "Discuss the means by which structural bias, social inequities and racism undermine health and create challenges to achieving health equity at organizational, community, and systemic levels",
+      "interpretation": [
+        "Students should be able to discuss factors (including racism, specifically) that impact health equity at multiple levels for a particular health problem.",
+        "Students should be able to discuss health disparities and differences among groups, as well as the ways in which organizations, systems, and structures operate that may have inequitable influences on certain groups."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 7,
+      "domain": "Planning & Management to Promote Health",
+      "statement": "Assess population needs, assets and capacities that affect communities’ health",
+      "interpretation": [
+        "Very concrete skill. Assess a specific community’s strengths, challenges, and the desired outcomes that are necessary for community well-being."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 8,
+      "domain": "Planning & Management to Promote Health",
+      "statement": "Apply awareness of cultural values and practices to the design, implementation, or critique of public health policies or programs",
+      "interpretation": [
+        "A standard program planning assignment in the traditional social & behavioral class is not sufficient without specific attention to cultural considerations.",
+        "Must see preparation and assessment of students in connecting concepts of culture to the assignment (e.g., cultural adaptation/ tailoring, community involvement in planning, cultural humility)."
+      ],
+      "does_not_count": [
+        "A standard program planning assignment in the traditional social & behavioral class is not sufficient without specific attention to cultural considerations."
+      ]
+    },
+    {
+      "id": 9,
+      "domain": "Planning & Management to Promote Health",
+      "statement": "Design a population-based policy, program, project or intervention",
+      "interpretation": [
+        "Very concrete skill. Product could be a research project, plan for a program, policy statement, etc."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 10,
+      "domain": "Planning & Management to Promote Health",
+      "statement": "Explain basic principles and tools of budget and resource management",
+      "interpretation": [
+        "“Resource management” refers to stewardship (planning, monitoring, etc.) of resources throughout a project, not simply preparing a budget statement that projects what resources will be required.",
+        "Writing a supplemental description to individual line items in a projected budget is often insufficient unless there are other parameters around the task or assignment related to managing budgets and resources (e.g., staffing, space, multiple programs).",
+        "The didactic preparation and assessment should address steps involved in managing budgets or other resources AFTER a project begins."
+      ],
+      "does_not_count": [
+        "“Resource management” refers to stewardship (planning, monitoring, etc.) of resources throughout a project, not simply preparing a budget statement that projects what resources will be required.",
+        "Writing a supplemental description to individual line items in a projected budget is often insufficient unless there are other parameters around the task or assignment related to managing budgets and resources (e.g., staffing, space, multiple programs)."
+      ]
+    },
+    {
+      "id": 11,
+      "domain": "Planning & Management to Promote Health",
+      "statement": "Select methods to evaluate public health programs",
+      "interpretation": [
+        "“Select” = choose among methods. Students should be able to consider a public health program and choose the appropriate evaluation method for the program.",
+        "Types of evaluations may include formative evaluation (feasibility, appropriateness, acceptability), process/implementation evaluation (have activities been implemented as intended), outcome/effectiveness evaluation (effect in the target population), and impact evaluation (success in achieving ultimate program goals).",
+        "Students do not have to actually evaluate, but must be able to identify the correct approach."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 12,
+      "domain": "Policy in Public Health",
+      "statement": "Discuss the policy-making process, including the roles of ethics and evidence",
+      "interpretation": [
+        "Broader than analyzing a specific policy. Students must be able to explain the technical aspects of how policies (on a local, state, or national level) are created and adopted, including legislative and/or regulatory roles and processes.",
+        "Didactic preparation and assessment should focus on how the policy may move from one legislative committee to another, the iterations a policy goes through, and incorporating feedback to garner enough legislative support for the final version.",
+        "Students should also consider how research or evaluation evidence and ethics influence the policy making process."
+      ],
+      "does_not_count": [
+        "Broader than analyzing a specific policy. Students must be able to explain the technical aspects of how policies (on a local, state, or national level) are created and adopted, including legislative and/or regulatory roles and processes."
+      ]
+    },
+    {
+      "id": 13,
+      "domain": "Policy in Public Health",
+      "statement": "Propose strategies to identify relevant communities and individuals and build coalitions and partnerships for influencing public health outcomes",
+      "interpretation": [
+        "Students should recognize the importance of community involvement and buy-in as instrumental to promoting community change and improvement and should think about how to bring relevant communities and individuals together.",
+        "Preparation and assessment should emphasize elements of engagement with relevant communities and individuals."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 14,
+      "domain": "Policy in Public Health",
+      "statement": "Advocate for political, social or economic policies and programs that will improve health in diverse populations",
+      "interpretation": [
+        "Students must understand how to advocate for a particular issue and have the ability to influence policy and/or decision making, such as through community mobilization, educating policy makers, etc.",
+        "Students must produce a product that would be part of an advocacy campaign or effort (e.g., legislative briefing paper or fact sheet, advocacy strategy outline, etc.)."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 15,
+      "domain": "Policy in Public Health",
+      "statement": "Evaluate policies for their impact on public health and health equity",
+      "interpretation": [
+        "Assessment should focus on the evaluation of policies rather than the development of policies.",
+        "Students should consider how groups are affected by policies, including both intended and unintended consequences with a focus on the impacts on equity."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 16,
+      "domain": "Leadership",
+      "statement": "Apply leadership and/or management principles to address a relevant issue",
+      "interpretation": [
+        "Principles of leadership and management may include creating a vision, empowering others, fostering collaboration, and guiding decision making.",
+        "Students must apply these principles by developing their own strategies or approaches to a given scenario, such as responding to a case study or scenario.",
+        "It is insufficient to simply describe principles in an essay or exam, observe these skills in others, or have students self -reflect on their leadership style.",
+        "It is not sufficient to rely on students’ prior experience or personal knowledge of leadership or management to guide the assessment."
+      ],
+      "does_not_count": [
+        "It is insufficient to simply describe principles in an essay or exam, observe these skills in others, or have students self -reflect on their leadership style.",
+        "It is not sufficient to rely on students’ prior experience or personal knowledge of leadership or management to guide the assessment."
+      ]
+    },
+    {
+      "id": 17,
+      "domain": "Leadership",
+      "statement": "Apply negotiation and mediation skills to address organizational or community challenges",
+      "interpretation": [
+        "Students need to know some ways to negotiate/mediate when another party has conflicting interests and/or different desired outcomes from their own and there is a need to come to a common conclusion.",
+        "Such skills extend beyond the level of negotiating required in a successful intra-group process and assessment must involve more than persuasive communication.",
+        "It is not sufficient to rely on students’ prior experience or personal knowledge of negotiation and mediation to guide the assessment."
+      ],
+      "does_not_count": [
+        "Such skills extend beyond the level of negotiating required in a successful intra-group process and assessment must involve more than persuasive communication.",
+        "It is not sufficient to rely on students’ prior experience or personal knowledge of negotiation and mediation to guide the assessment."
+      ]
+    },
+    {
+      "id": 18,
+      "domain": "Communication",
+      "statement": "Select communication strategies for different audiences and sectors",
+      "interpretation": [
+        "\"Select\" = determine how to communicate with different groups by considering the needs and usual practices of the target audience.",
+        "Students should be able to discern between different media, consider levels of health literacy, etc.",
+        "This competency is often conflated with #19, but it is different."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 19,
+      "domain": "Communication",
+      "statement": "Communicate audience-appropriate public health content, both in writing and through oral presentation to a nonacademic, non-peer audience with attention to factors such as literacy and health literacy",
+      "interpretation": [
+        "Students should communicate using words and images that are effective, accessible, and understandable for each audience.",
+        "Students should consider the venues or methods of delivery (e.g., social media, press release, oral presentation, journal article) that best fit the circumstances.",
+        "An audience of peers/fellow students or an academic audience is not sufficient.",
+        "One assessment may be sufficient if it has written and oral components, or multiple assessments are needed."
+      ],
+      "does_not_count": [
+        "An audience of peers/fellow students or an academic audience is not sufficient."
+      ]
+    },
+    {
+      "id": 20,
+      "domain": "Communication",
+      "statement": "Describe the importance of cultural humility in communicating public health content",
+      "interpretation": [
+        "Different from #8 – the focus is on communicating public health content and why cultural humility is an important consideration when crafting public health communications.",
+        "Students should consider the importance of ensuring that different groups can easily relate to and apply public health information."
+      ],
+      "does_not_count": []
+    },
+    {
+      "id": 21,
+      "domain": "Interprofessional and/or Intersectoral Practice",
+      "statement": "Integrate perspectives from other sectors and/or professions to promote and advance population health",
+      "interpretation": [
+        "Students must combine the external sector/profession’s perspective and/or knowledge with their own public health training to complete a task, solve a problem, etc.",
+        "Must actually interact with individuals in a profession or sector other than public health (in-person or online).",
+        "Role playing in which public health students assume the identity of an individual from another profession or sector to which they do not already belong is not an acceptable substitute.",
+        "Not acceptable to solely assess in an internship.",
+        "The preparation for this assessment should address concepts such as maintaining mutual respect and shared values, knowing your own role and the role of other professions, and communicating effectively with other professions to accomplish goals."
+      ],
+      "does_not_count": [
+        "Role playing in which public health students assume the identity of an individual from another profession or sector to which they do not already belong is not an acceptable substitute.",
+        "Not acceptable to solely assess in an internship."
+      ]
+    },
+    {
+      "id": 22,
+      "domain": "Systems Thinking",
+      "statement": "Apply a systems thinking tool to visually represent a public health issue in a format other than a standard narrative",
+      "interpretation": [
+        "Evidence of competency demonstration must be non-narrative.",
+        "Describing how systems thinking might apply is not sufficient; students must show that they can actually apply systems thinking tools by constructing something like a causal loop diagram, systems archetypes, network analyses, and concept maps.",
+        "Logic models and evidence tables are not sufficient to address this competency."
+      ],
+      "does_not_count": [
+        "Describing how systems thinking might apply is not sufficient; students must show that they can actually apply systems thinking tools by constructing something like a causal loop diagram, systems archetypes, network analyses, and concept maps.",
+        "Logic models and evidence tables are not sufficient to address this competency."
+      ]
+    }
+  ]
+}

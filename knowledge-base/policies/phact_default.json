@@ -1,0 +1,10 @@
+{
+  "_comment": "DRAFT. PHACT default, based on the ASPPH AI Framework (not ASPPH's official policy). Used when a school has no policy.",
+  "school_id": "_default",
+  "label": "PHACT default, based on the ASPPH AI Framework",
+  "allowed_range": ["prohibited", "restricted", "collaborative"],
+  "rules": [
+    { "id": "DEF-AI-1", "text": "Each course states its AI-use level in the syllabus." },
+    { "id": "DEF-AI-2", "text": "Any permitted AI use must be disclosed by the student." }
+  ]
+}

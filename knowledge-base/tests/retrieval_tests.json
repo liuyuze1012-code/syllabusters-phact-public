@@ -1,0 +1,128 @@
+{
+  "_comment": "Each question must return a chunk from expect_doc (and one of expect_sections, if given) in the top 3. Run with scripts/test_retrieval.py after every sync. If a test fails, fix the files (or the question if it was unfair), never lower the bar.",
+  "top_k": 3,
+  "tests": [
+    {
+      "q": "How should faculty define acceptable student use of AI in their courses?",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Teaching and Learning",
+        "Executive Summary"
+      ],
+      "filter_source_type": "guidance"
+    },
+    {
+      "q": "Funding AI-powered simulations and gamified tools that personalize instruction",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Teaching and Learning"
+      ]
+    },
+    {
+      "q": "Students should be exposed to AI tools followed by critical reflection on their use and limitations",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Strategic Recommendations: Teaching and Learning",
+        "Message from the Chair"
+      ]
+    },
+    {
+      "q": "A customizable ASPPH-wide AI policy template for member schools",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Policy, Regulatory and Architectural Frameworks",
+        "Strategic Recommendations: Policy, Regulatory and Architecture"
+      ]
+    },
+    {
+      "q": "AI should remain a tool for human decision-makers rather than replacing them",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Strategic Recommendations: Practice and Research",
+        "Practice and Research"
+      ]
+    },
+    {
+      "q": "Embedding AI competencies like machine learning fundamentals and digital ethics into accreditation",
+      "expect_doc": "aspph-ai-framework",
+      "expect_sections": [
+        "Education",
+        "Strategic Recommendations: Education"
+      ]
+    },
+    {
+      "q": "Negotiation and mediation skills public health leaders need",
+      "expect_doc": "competency-mapping",
+      "expect_sections": [
+        "Person: Leaders Must Understand Their Role and Influence"
+      ],
+      "filter_source_type": "workforce"
+    },
+    {
+      "q": "Data-informed decision making and problem solving for public health leaders",
+      "expect_doc": "competency-mapping",
+      "expect_sections": [
+        "Problem: Leaders Must Understand the Problem"
+      ],
+      "filter_source_type": "workforce"
+    },
+    {
+      "q": "What is the 4P framework of public health leadership?",
+      "expect_doc": "competency-mapping",
+      "expect_sections": [
+        "Competency Mapping: The 4P Framework",
+        "Executive Summary"
+      ]
+    },
+    {
+      "q": "Leadership training priorities for the governmental public health workforce",
+      "expect_doc": "competency-mapping",
+      "expect_sections": [
+        "National Public Health Leadership Training Agenda",
+        "Executive Summary",
+        "Introduction"
+      ],
+      "note": "Broad question: the Executive Summary describes the training agenda too, so it counts."
+    },
+    {
+      "q": "Recommended leadership trainings such as federal grant writing, crisis management and cultural competency audits",
+      "expect_doc": "competency-mapping",
+      "expect_sections": [
+        "National Public Health Leadership Training Agenda"
+      ]
+    },
+    {
+      "q": "Coaching and mentorship in public health leadership degree programs",
+      "expect_doc": "leadership-programs-2025",
+      "expect_sections": [
+        "Self-Assessment, Coaching and Mentorship"
+      ]
+    },
+    {
+      "q": "Online versus in-person delivery of leadership programs",
+      "expect_doc": "leadership-programs-2025",
+      "expect_sections": [
+        "Program Delivery, Student Selection and Infrastructure"
+      ]
+    },
+    {
+      "q": "Academic health departments as partnerships between schools of public health and health departments",
+      "expect_doc": "shared-vision-2024",
+      "expect_sections": [
+        "Characterizing Bi-Directional Relationships",
+        "Defining Bi-Directional Relationships"
+      ]
+    },
+    {
+      "q": "Challenges health departments face partnering with academic institutions on student training",
+      "expect_doc": "shared-vision-2024",
+      "expect_sections": [
+        "Challenges of Bi-Directional Relationships"
+      ]
+    },
+    {
+      "q": "ASPPH fellowship, internship and practicum opportunities with public health agencies",
+      "expect_doc": "applied-learning"
+    }
+  ]
+}

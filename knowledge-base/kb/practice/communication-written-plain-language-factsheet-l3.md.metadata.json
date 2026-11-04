@@ -1,0 +1,20 @@
+{
+  "metadataAttributes": {
+    "doc_id": "communication-written-plain-language-factsheet-l3",
+    "title": "AI-drafted fact sheet revised to a Clear Communication Index score",
+    "section": "written assignment \u00b7 AIAS level 3",
+    "source_type": "practice",
+    "material_type": "written",
+    "aias_level": 3,
+    "competencies": [
+      "19",
+      "20"
+    ],
+    "area": "communication",
+    "year": 2026,
+    "publisher": "PHACT pattern library (synthesized from cited sources)",
+    "original": "https://ai.ctl.columbia.edu/engage/public-health",
+    "status": "active",
+    "family": "communication-written-plain-language-factsheet-l3"
+  }
+}

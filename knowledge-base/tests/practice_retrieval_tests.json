@@ -1,0 +1,50 @@
+{
+  "_comment": "Retrieval tests for the practice pattern library (kb/practice/). Each question must return the expected card doc_id in the top 3. Run after syncing kb/practice/. Note: scripts/test_retrieval.py currently hardcodes retrieval_tests.json, so it needs a file-path option (or a merge of the two test files) to run these. If a test fails, fix the card (or the question if it was unfair), never lower the bar.",
+  "top_k": 3,
+  "tests": [
+    {
+      "q": "What are the five levels of the AI Assessment Scale and what may students do at each level?",
+      "expect_doc": "aias-levels"
+    },
+    {
+      "q": "How can I keep an epidemiology exam AI-free using an outbreak dataset students have never seen?",
+      "expect_doc": "epi-exam-novel-local-outbreak-l1",
+      "filter_source_type": "practice"
+    },
+    {
+      "q": "Students use ChatGPT to write R code for their biostatistics problem sets. How do I make them verify it?",
+      "expect_doc": "biostat-homework-ai-code-explainer-l3"
+    },
+    {
+      "q": "Add an oral defense to a policy brief so I know students understand their own analysis",
+      "expect_doc": "policy-written-brief-oral-defense-l1"
+    },
+    {
+      "q": "Assignment where students compare several AI tools' summaries of a chemical's toxicology and check for hallucinated citations",
+      "expect_doc": "environmental-written-multi-tool-tox-briefing-l3",
+      "filter_source_type": "practice"
+    },
+    {
+      "q": "Using the CDC Clear Communication Index to grade an AI-drafted plain language fact sheet",
+      "expect_doc": "communication-written-plain-language-factsheet-l3"
+    },
+    {
+      "q": "Can AI help students brainstorm a causal loop diagram for a systems thinking assignment?",
+      "expect_doc": "environmental-homework-causal-loop-diagram-l2",
+      "filter_source_type": "practice"
+    },
+    {
+      "q": "Budget and resource management assignment where AI builds the spreadsheet after a mid-year funding cut",
+      "expect_doc": "leadership-homework-midproject-budget-reallocation-l3"
+    },
+    {
+      "q": "Use an AI chatbot to role-play stakeholders in a public health emergency leadership simulation",
+      "expect_doc": "leadership-project-ai-crisis-simulation-l4",
+      "filter_source_type": "practice"
+    },
+    {
+      "q": "Students build and red-team their own health information chatbot for a specific community",
+      "expect_doc": "communication-project-community-health-chatbot-l5"
+    }
+  ]
+}

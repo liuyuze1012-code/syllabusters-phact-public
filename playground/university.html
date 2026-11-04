@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PHACT University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="/client.js"></script>
+<style>
+/* University admin portal: same visual system as the professor app (team Figma), its own workspace. */
+:root{--bg:#eef1f5;--panel:#fff;--ink:#1b2a3a;--muted:#5f6f80;--line:#dbe2ea;--accent:#2c5f8a;--navy:#15314d;--navy-2:#1f4467;--navy-ink:#c9d6e3;
+  --soft:#e4edf5;--ok:#2e8b57;--warn:#d99a1e;--bad:#c8453a}
+*{box-sizing:border-box} [hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Source Sans 3",-apple-system,"Segoe UI",sans-serif}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-family:inherit;font-weight:600;font-size:14px;line-height:1;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+button.ghost{background:var(--panel);color:var(--accent);border:1px solid var(--line)} button.sm{padding:6px 11px;font-size:13px} button:disabled{opacity:.5;cursor:wait}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+a{color:var(--accent)} .muted{color:var(--muted);font-size:13px}
+#shell{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
+.rail{background:var(--navy);color:var(--navy-ink);padding:20px 14px;display:flex;flex-direction:column;gap:14px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px;color:#fff;padding:0 6px}
+.logo{width:34px;height:34px;border-radius:8px;border:1.5px solid rgba(255,255,255,.55);display:grid;place-items:center;font-size:18px}
+.lbl{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8ea6bd;padding:10px 8px 0}
+nav{display:flex;flex-direction:column;gap:2px} nav a{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:8px;color:var(--navy-ink);text-decoration:none;font-weight:600}
+nav a:hover{background:rgba(255,255,255,.07);color:#fff} nav a.on{background:var(--navy-2);color:#fff}
+.unicard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;font-size:12.5px}
+.unicard b{display:block;color:#fff;font-size:14px}
+.foot{margin-top:auto} .me{display:flex;gap:10px;align-items:center;padding:10px 8px;border-top:1px solid rgba(255,255,255,.1)}
+.avatar{width:34px;height:34px;border-radius:50%;background:#3d6f99;color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.me b{display:block;color:#fff;font-size:13.5px} .me span{font-size:12px;color:#8ea6bd} .me button{margin-left:auto;background:none;color:#8ea6bd;padding:6px}
+.top{display:flex;align-items:center;gap:12px;padding:14px 40px;background:var(--panel);border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted)}
+.top .sp{flex:1} .top select{width:auto}
+main{padding:28px 40px 60px;max-width:1240px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.01em} .head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.panel h2{font-size:17px;margin:0 0 10px;display:flex;gap:8px;align-items:center} .panel h2 .ti{color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px} .tile b{display:block;font-size:26px} .tile span{font-size:13px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:14px} th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:9px 8px}
+td{padding:12px 8px;border-top:1px solid var(--line);vertical-align:top} tr.click{cursor:pointer} tr.click:hover td{background:#f6f8fb}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--soft);color:var(--accent)}
+.chip.ok{background:#dff3e8;color:#1d7a52} .chip.warn{background:#fdf0d5;color:#8a5a00} .chip.grey{background:#eef1f5;color:var(--muted)}
+.c{display:inline-block;border-radius:6px;padding:2px 8px;color:#fff;font-weight:700;font-size:12px}
+.readonly{background:var(--soft);border:1px solid #b9cde0;border-radius:10px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;display:flex;gap:8px}
+.rule{display:grid;grid-template-columns:120px 1fr auto;gap:8px;margin-bottom:8px} .seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.seg label{text-align:center;padding:11px 6px;font-weight:600;cursor:pointer;border-right:1px solid var(--line);color:var(--muted)} .seg label:last-child{border-right:0}
+.seg input{display:none} .seg label:has(input:checked){background:var(--accent);color:#fff}
+.code{font:700 18px/1 ui-monospace,Menlo,monospace;letter-spacing:.08em}
+.st{font-size:13px;color:var(--muted);min-height:18px;margin-top:8px}
+#gate{min-height:100vh;display:grid;place-items:center} #gate .panel{max-width:440px;text-align:center}
+@media (max-width:900px){#shell{grid-template-columns:1fr}.rail{position:static;height:auto}.tiles{grid-template-columns:1fr 1fr}main,.top{padding:18px 16px}}
+</style>
+</head>
+<body>
+<div id="gate" hidden><section class="panel"><h2 style="justify-content:center"><i class="ti ti-lock"></i>University admin sign-in</h2>
+  <p class="muted" id="gateMsg">Sign in with your university admin account.</p><a href="/?as=admin"><button>Go to sign-in</button></a></section></div>
+
+<div id="shell" hidden>
+  <aside class="rail">
+    <div class="brand"><span class="logo"><i class="ti ti-building"></i></span>PHACT</div>
+    <div class="lbl">University admin</div>
+    <nav>
+      <a href="#/" data-v="overview"><i class="ti ti-layout-dashboard"></i>Overview</a>
+      <a href="#/professors" data-v="professors"><i class="ti ti-users"></i>Professors</a>
+      <a href="#/courses" data-v="courses"><i class="ti ti-book"></i>Courses</a>
+      <a href="#/policy" data-v="policy"><i class="ti ti-shield-check"></i>AI policy</a>
+      <a href="#/invites" data-v="invites"><i class="ti ti-ticket"></i>Invite codes</a>
+    </nav>
+    <div class="unicard"><span class="muted" style="color:#8ea6bd">Your university</span><b id="uniName">…</b><span id="uniPol"></span></div>
+    <div class="foot"><div class="me" id="me"></div></div>
+  </aside>
+  <div>
+    <header class="top"><span id="crumb">Overview</span><span class="sp"></span>
+      <span><i class="ti ti-shield-check"></i> Read-only access to professors' work</span></header>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const LEVEL = {ban: "None", restricted: "Guided", open: "Integrated"};
+const STATUS = {covered: "var(--ok)", partial: "var(--warn)", missing: "var(--bad)"};
+const U = {me: null, uni: null, pick: null};
+const q = () => "";  // a university admin's university comes from their verified token, never from the page
+async function api(method, path, body){
+  const r = await fetch(path + (path.includes("?") ? q().replace("?", "&") : q()), {method, headers: body ? {"Content-Type": "application/json"} : {}, body: body ? JSON.stringify(body) : undefined});
+  if (r.status === 401) { gate("Your session ended. Please sign in again."); throw new Error("Please sign in."); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.detail || r.statusText);
+  return j;
+}
+function gate(msg){ $("shell").hidden = true; $("gate").hidden = false; if (msg) $("gateMsg").textContent = msg; }
+function ago(t){ if (!t) return "—"; const d = (Date.now() - new Date(t).getTime()) / 60000; return d < 60 ? `${Math.max(1, Math.round(d))} min ago` : d < 1440 ? `${Math.round(d / 60)} h ago` : new Date(t).toLocaleDateString(); }
+function initials(s){ return String(s || "").replace(/^(dr|prof)\.?\s+/i, "").split(/[\s@.()]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join(""); }
+
+async function boot(){
+  const st = await (await fetch("/api/auth/status")).json().catch(() => ({}));
+  PHACT.jobs = !!st.jobs; PHACT.authMode = st.auth_mode || "cookie";
+  let me = st.user;
+  if (!me && PHACT.hasToken()) { const r = await fetch("/api/me"); if (r.ok) me = await r.json(); }
+  if (!me) return gate();
+  if (!["school-admin", "aspph-admin", "aspph-staff"].includes(me.role)) return gate("This account isn't a university admin. Professors use the main PHACT app.");
+  U.me = me;
+  if (me.role !== "school-admin") { location.href = "/admin"; return; }  // ASPPH staff manage universities in the admin console
+  $("me").innerHTML = `<span class="avatar">${esc(initials(me.name || me.email))}</span><div style="min-width:0"><b>${esc(me.name || me.email)}</b><span>${me.role === "school-admin" ? "University admin" : "ASPPH admin"}</span></div>
+    <button title="Sign out" onclick="signOut()"><i class="ti ti-logout"></i></button>`;
+  $("gate").hidden = true; $("shell").hidden = false;
+  await load();
+}
+async function load(){
+  try { U.uni = await api("GET", "/api/uni"); } catch (e) { return gate(e.message); }
+  $("uniName").textContent = U.uni.name; $("uniPol").textContent = `AI policy: up to ${LEVEL[U.uni.policy?.max_ai_stance || "open"]}`;
+  route();
+}
+window.signOut = async () => { await fetch("/api/auth/logout", {method: "POST"}); PHACT.setToken(null); location.href = "/?as=admin"; };
+window.addEventListener("hashchange", route);
+function route(){
+  const parts = location.hash.slice(1).split("/").filter(Boolean), v = parts[0] || "overview";
+  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("on", a.dataset.v === (v === "course" ? "courses" : v)));
+  $("crumb").textContent = {overview: "Overview", professors: "Professors", courses: "Courses", course: "Courses › Course", policy: "AI policy", invites: "Invite codes"}[v] || "Overview";
+  ({overview, professors, courses, policy, invites, course: () => course(decodeURIComponent(parts[1] || ""), decodeURIComponent(parts[2] || ""))}[v] || overview)();
+}
+const main = html => { $("main").innerHTML = html; window.scrollTo(0, 0); };
+
+async function overview(){
+  const c = U.uni.counts, list = await api("GET", "/api/uni/courses");
+  main(`<div class="head"><div><h1>${esc(U.uni.name)}</h1><p class="muted">Every professor and course at your university, and the AI policy PHACT applies to all of them.</p></div>
+      <a href="#/invites"><button><i class="ti ti-user-plus"></i>Invite professors</button></a></div>
+    <div class="tiles">${[["professors", "professors"], ["courses", "courses"], ["analyzed", "analyzed by PHACT"], ["exported", "exported"], ["admins", "admins"]].map(([k, l]) => `<div class="tile"><b>${c[k]}</b><span>${l}</span></div>`).join("")}</div>
+    <section class="panel"><h2><i class="ti ti-shield-check"></i>AI policy in force</h2>
+      <p style="margin:0 0 6px">AI use at most <b>${LEVEL[U.uni.policy?.max_ai_stance || "open"]}</b> · ${(U.uni.policy?.rules || []).length} rule${(U.uni.policy?.rules || []).length === 1 ? "" : "s"}. Professors can't choose a higher level, and PHACT's suggestions follow these rules.</p>
+      <a href="#/policy">Edit the policy →</a></section>
+    <section class="panel"><h2><i class="ti ti-clock"></i>Recently updated courses</h2>${courseTable(list.slice(0, 6))}</section>`);
+}
+function courseTable(list){
+  if (!list.length) return `<p class="muted">No courses yet. Professors' courses appear here as soon as they save one.</p>`;
+  return `<table><tr><th>Course</th><th>Professor</th><th>AI level</th><th>Progress</th><th>Competencies</th><th>Updated</th></tr>${list.map(x => {
+    const c = x.course || {}, s = x.summary || {};
+    const prog = c.exportedAt ? `<span class="chip ok">Exported</span>` : s.changes ? `<span class="chip warn">In review · ${s.accepted || 0}/${s.changes} accepted</span>` : `<span class="chip grey">Setting up</span>`;
+    return `<tr class="click" onclick="location.hash='#/course/${encodeURIComponent(x.prof_sub)}/${encodeURIComponent(c.code)}'"><td><b>${esc(c.code)} · ${esc(c.name || "")}</b><div class="muted">${esc([c.term, c.level].filter(Boolean).join(" · "))}</div></td>
+      <td>${esc(x.professor)}</td><td>${esc(LEVEL[c.ai_stance] || "—")}</td><td>${prog}</td><td>${s.competencies ? `${s.covered || 0}/${s.competencies} covered` : "—"}</td><td class="muted">${ago(x.updated_at)}</td></tr>`;
+  }).join("")}</table>`;
+}
+async function professors(){
+  const list = await api("GET", "/api/uni/professors");
+  main(`<div class="head"><div><h1>Professors</h1><p class="muted">Everyone who joined ${esc(U.uni.name)} with an invite code.</p></div><a href="#/invites"><button><i class="ti ti-user-plus"></i>Invite professors</button></a></div>
+    <section class="panel"><table><tr><th>Name</th><th>Email</th><th>Role</th><th>Courses</th><th>Joined</th></tr>
+    ${list.map(m => `<tr><td><b>${esc(m.name)}</b></td><td>${esc(m.email)}</td><td><span class="chip ${m.role === "school-admin" ? "" : "grey"}">${m.role === "school-admin" ? "University admin" : "Professor"}</span></td>
+      <td>${m.courses}</td><td class="muted">${ago(m.joined_at)}</td></tr>`).join("") || `<tr><td colspan="5" class="muted">No one yet. Create an invite code for your faculty.</td></tr>`}</table></section>`);
+}
+async function courses(){
+  main(`<div class="head"><div><h1>Courses</h1><p class="muted">Every course at ${esc(U.uni.name)}. Open one to see PHACT's recommendations and the professor's decisions (read-only).</p></div></div>
+    <section class="panel">${courseTable(await api("GET", "/api/uni/courses"))}</section>`);
+}
+async function course(sub, code){
+  main(`<p class="muted">Loading…</p>`);
+  let d; try { d = await api("GET", `/api/uni/courses/${encodeURIComponent(sub)}/${encodeURIComponent(code)}`); }
+  catch (e) { return main(`<section class="panel"><b>${esc(e.message)}</b><p><a href="#/courses">Back to courses</a></p></section>`); }
+  const row = (await api("GET", "/api/uni/courses")).find(x => x.prof_sub === sub && x.course?.code === code) || {course: {code}};
+  main(`<p><a href="#/courses"><i class="ti ti-arrow-left"></i> All courses</a></p>
+    <div class="head"><div><h1>${esc(code)} · ${esc(row.course.name || "")}</h1><p class="muted">${esc(row.professor || "")}${row.course.term ? " · " + esc(row.course.term) : ""}</p></div></div>
+    <div class="readonly"><i class="ti ti-eye"></i><span>Read-only. The professor decides every change to their syllabus; you set the university policy PHACT applies to it.</span></div>
+    <section class="panel"><h2><i class="ti ti-target-arrow"></i>CEPH competencies</h2>
+      ${d.competencies.map(c => `<div style="margin:8px 0"><span class="c" style="background:${STATUS[c.status] || "#999"}">#${c.id} ${esc(c.status)}</span> <span class="muted">${esc(c.reason || "")}</span></div>`).join("") || `<p class="muted">Not analyzed yet.</p>`}</section>
+    <section class="panel"><h2><i class="ti ti-sparkles"></i>PHACT recommendations and decisions</h2>
+      <table><tr><th></th><th>Recommendation</th><th>AI level</th><th>Check</th><th>Decision</th></tr>${d.edits.map(e => `<tr><td><b>${esc(e.id)}</b></td><td>${esc(e.proposed)}${e.proposed.length >= 400 ? "…" : ""}</td>
+        <td>${e.aias_level ? "AIAS " + e.aias_level : "—"}</td><td><span class="chip ${e.supervisor === "pass" ? "ok" : "warn"}">${e.supervisor === "pass" ? "Verified" : "Flagged"}</span></td>
+        <td><span class="chip ${e.decision === "accepted" ? "ok" : e.decision === "rejected" ? "grey" : "warn"}">${esc(e.decision)}</span></td></tr>`).join("") || `<tr><td colspan="5" class="muted">No recommendations yet.</td></tr>`}</table></section>
+    <section class="panel"><h2><i class="ti ti-files"></i>Assessments</h2>${d.assessments.map(a => `<div>${esc(a.title)} <span class="muted">· ${esc(a.type)} · ${a.changes} changes, ${a.accepted} accepted</span></div>`).join("") || `<p class="muted">None yet.</p>`}</section>
+    <section class="panel"><h2><i class="ti ti-file-text"></i>Syllabus AI policy</h2><p style="margin:0">${esc(d.ai_policy || "The syllabus has no AI policy yet.")}</p></section>`);
+}
+function policy(){
+  const p = U.uni.policy || {};
+  main(`<div class="head"><div><h1>AI policy</h1><p class="muted">It goes above every professor at ${esc(U.uni.name)}: they can't choose a higher AI level, and PHACT's suggestions must follow these rules.</p></div></div>
+    <section class="panel"><h2>Highest AI level allowed</h2>
+      <div class="seg">${Object.entries(LEVEL).map(([k, l]) => `<label><input type="radio" name="mx" value="${k}" ${p.max_ai_stance === k || (!p.max_ai_stance && k === "open") ? "checked" : ""}>${l}</label>`).join("")}</div>
+      <p class="muted" style="margin:0">None: no student AI use. Guided: brainstorming and editing, disclosed. Integrated: collaborative use, disclosed and reflected on.</p></section>
+    <section class="panel"><h2>University AI rules</h2><p class="muted" style="margin-top:0">PHACT cites these by id in its suggestions (for example "WU-AI-1"). Leave empty to use PHACT's default rules.</p>
+      <div id="rules">${(p.rules || []).map(ruleRow).join("")}</div><button class="ghost sm" onclick="$('rules').insertAdjacentHTML('beforeend', ruleRow({}))"><i class="ti ti-plus"></i>Add a rule</button></section>
+    <section class="panel"><h2>Notes for PHACT</h2><textarea id="pnotes" rows="3" placeholder="e.g. Our honor code requires disclosure of any AI help.">${esc(p.notes || "")}</textarea></section>
+    <button onclick="savePolicy(this)"><i class="ti ti-device-floppy"></i>Save policy</button><div class="st" id="pst">${p.updated_at ? `Last changed ${ago(p.updated_at)} by ${esc(p.updated_by || "")}` : ""}</div>`);
+}
+window.ruleRow = r => `<div class="rule"><input placeholder="Rule id" value="${esc(r.id || "")}"><input placeholder="Rule text" value="${esc(r.text || "")}"><button class="ghost sm" onclick="this.parentElement.remove()" title="Remove"><i class="ti ti-x"></i></button></div>`;
+window.savePolicy = async b => {
+  const rules = [...document.querySelectorAll(".rule")].map(d => { const [i, t] = d.querySelectorAll("input"); return {id: i.value.trim(), text: t.value.trim()}; }).filter(r => r.text);
+  b.disabled = true;
+  try { U.uni.policy = await api("PUT", "/api/uni/policy", {max_ai_stance: document.querySelector("[name=mx]:checked").value, rules, notes: $("pnotes").value});
+        $("uniPol").textContent = `AI policy: up to ${LEVEL[U.uni.policy.max_ai_stance]}`; policy(); $("pst").textContent = "Saved. It applies to every professor's next analysis and chat."; }
+  catch (e) { $("pst").textContent = "Error: " + e.message; } finally { b.disabled = false; }
+};
+async function invites(){
+  const list = await api("GET", "/api/uni/invites"), aspph = false;
+  main(`<div class="head"><div><h1>Invite codes</h1><p class="muted">Professors enter a code when they create their PHACT account; it links them to ${esc(U.uni.name)}. Nobody can join without one.</p></div></div>
+    <section class="panel"><h2><i class="ti ti-ticket"></i>New invite code</h2>
+      <div style="display:grid;grid-template-columns:${aspph ? "1fr " : ""}1fr 1fr auto;gap:10px;align-items:end">
+        ${aspph ? `<label class="muted">For<select id="irole"><option value="faculty">Professors</option><option value="school-admin">University admins</option></select></label>` : ""}
+        <label class="muted">Valid for<select id="idays"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></label>
+        <label class="muted">Uses<select id="iuses"><option>10</option><option selected>50</option><option>200</option></select></label>
+        <button onclick="newInvite(this)">Create code</button></div><div class="st" id="ist"></div></section>
+    <section class="panel"><table><tr><th>Code</th><th>For</th><th>Used</th><th>Expires</th><th>Status</th><th></th></tr>
+      ${list.map(i => { const live = !i.revoked && i.expires_at * 1000 > Date.now() && i.uses < i.max_uses;
+        return `<tr><td class="code">${esc(i.code)}</td><td>${i.role === "school-admin" ? "University admins" : "Professors"}</td><td>${i.uses}/${i.max_uses}</td>
+        <td class="muted">${new Date(i.expires_at * 1000).toLocaleDateString()}</td><td><span class="chip ${live ? "ok" : "grey"}">${i.revoked ? "Revoked" : live ? "Active" : "Expired"}</span></td>
+        <td>${live ? `<button class="ghost sm" onclick="revoke('${esc(i.code)}')">Revoke</button>` : ""}</td></tr>`; }).join("") || `<tr><td colspan="6" class="muted">No codes yet.</td></tr>`}</table></section>`);
+}
+window.newInvite = async b => {
+  b.disabled = true;
+  try { const i = await api("POST", "/api/uni/invites", {role: $("irole")?.value || "faculty", days: +$("idays").value, max_uses: +$("iuses").value}); await invites();
+        $("ist").innerHTML = `New code <b class="code">${esc(i.code)}</b>: share it with your faculty. They enter it under "Create an account".`; }
+  catch (e) { $("ist").textContent = "Error: " + e.message; b.disabled = false; }
+};
+window.revoke = async code => { if (!confirm(`Revoke ${code}? Nobody can use it after this.`)) return; await api("DELETE", `/api/uni/invites/${code}`); invites(); };
+boot();
+</script>
+</body>
+</html>
