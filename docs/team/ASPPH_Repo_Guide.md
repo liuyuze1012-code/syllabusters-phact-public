@@ -1,7 +1,7 @@
 # PHACT Hackathon: File-by-File Guide to the ASPPH Folder
 
 Source: `github.com/12turnbullb/us-breaking-barriers-2026` → `ASPPH/` folder
-Event: AWS Breaking Barriers 2026, Washington DC, Nov 3–5 · Team 30 (one of 6 ASPPH teams)
+Event: AWS Breaking Barriers 2026, Washington DC, Nov 3–5 · Team 31 (one of 6 ASPPH teams)
 
 Each file has a **Value** rating for our MVP:
 - 🔴 **Critical:** read it before kickoff
@@ -244,7 +244,7 @@ ARIE (AI Resource for Institutional Excellence) is ASPPH's **existing** chatbot,
 
 ---
 
-## 6. Takeaways for Team 30
+## 6. Takeaways for Team 31
 
 1. **Build order:** follow the 10 MUST stories. Use the Tech doc's "Gotchas" as the engineers' checklist.
 2. **Demo input:** PHC6149 (real) as the main demo, BIOS 622 as backup. Plant a fake student email for the PII demo.

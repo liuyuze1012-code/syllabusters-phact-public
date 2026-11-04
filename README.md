@@ -1,4 +1,4 @@
-# PHACT, by Team 30 (Syllabusters)
+# PHACT, by Team 31 (Syllabusters)
 
 **PHACT (Public Health AI Curriculum Transformation)** helps a public health professor bring AI into a course
 responsibly. They upload a syllabus or an assessment, and PHACT:
@@ -88,4 +88,4 @@ This public copy starts from a single commit. Our working repo stays private wit
 
 ## Team
 
-Team 30, Syllabusters.
+Team 31, Syllabusters.
