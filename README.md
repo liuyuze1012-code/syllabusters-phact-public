@@ -94,4 +94,4 @@ Team 31, Syllabusters.
 - Leon Yan
 - Alice Bui
 - Gravin Liu
-- Shadman Jafif
+- Shadman Jarif
