@@ -96,9 +96,9 @@ This public copy starts from a single commit. Our working repo stays private wit
 |---|---|---|
 | **Gavin Liu** | Product & build lead | Sophomore in Science, Technology & International Affairs at Georgetown University's School of Foreign Service |
 | **Shadman Jarif** | Architecture & testing | Senior in Computer Science at George Mason University |
+| **Leon Yan** | Team member | |
 | **Alice Bui** | UI/UX design & storytelling | Graduate student in Learning Design and Technology at Georgetown University |
-| **Michael Asrat** | Solution architecture | Technology professional in government IT and cybersecurity; M.Eng., University of Illinois Chicago |
-| **Puneeth Ammapalli** | Cloud & AI engineering | Principal Cloud Engineer at CVS Health, 18+ years in cloud infrastructure and security |
+| **Puneeth Kumar Ammapalli** | Cloud & AI engineering | Principal Cloud Engineer at CVS Health, 18+ years in cloud infrastructure and security |
 
 ### Gavin Liu
 
@@ -115,12 +115,7 @@ tested and validated the application to find issues before the demo.
 Brings expertise in learning experience, curriculum design and program management. Alice designed PHACT's user
 interface and experience, and led research and storytelling for the presentation.
 
-### Michael Asrat
-
-Solution architect for PHACT. Michael identified technical challenges, evaluated requirements and guided the
-solution architecture, turning complex needs into practical, scalable designs on AWS.
-
-### Puneeth Ammapalli
+### Puneeth Kumar Ammapalli
 
 Specializes in AWS, Google Cloud, Azure, Terraform and generative AI, including Amazon Bedrock. Puneeth holds
 multiple AWS, GCP and Terraform certifications, and received the President's Award at Discover Financial Services.
