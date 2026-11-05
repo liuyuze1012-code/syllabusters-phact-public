@@ -88,4 +88,39 @@ This public copy starts from a single commit. Our working repo stays private wit
 
 ## Team
 
-Team 31, Syllabusters.
+**Team 31, Syllabusters** · AWS Breaking Barriers 2026, Washington DC · ASPPH challenge
+
+🏆 **Finalist**, AWS Breaking Barriers 2026
+
+| | Role | Background |
+|---|---|---|
+| **Gavin Liu** | Product & build lead | Sophomore in Science, Technology & International Affairs at Georgetown University's School of Foreign Service |
+| **Shadman Jarif** | Architecture & testing | Senior in Computer Science at George Mason University |
+| **Alice Bui** | UI/UX design & storytelling | Graduate student in Learning Design and Technology at Georgetown University |
+| **Michael Asrat** | Solution architecture | Technology professional in government IT and cybersecurity; M.Eng., University of Illinois Chicago |
+| **Puneeth Ammapalli** | Cloud & AI engineering | Principal Cloud Engineer at CVS Health, 18+ years in cloud infrastructure and security |
+
+### Gavin Liu
+
+A Georgetown sophomore passionate about AI, space tech and robotics. Gavin has scouted startups and founded
+Prototype, a podcast platform about technology and founders.
+
+### Shadman Jarif
+
+Helped design PHACT's overall architecture and AWS infrastructure, focusing on how the services fit together, and
+tested and validated the application to find issues before the demo.
+
+### Alice Bui
+
+Brings expertise in learning experience, curriculum design and program management. Alice designed PHACT's user
+interface and experience, and led research and storytelling for the presentation.
+
+### Michael Asrat
+
+Solution architect for PHACT. Michael identified technical challenges, evaluated requirements and guided the
+solution architecture, turning complex needs into practical, scalable designs on AWS.
+
+### Puneeth Ammapalli
+
+Specializes in AWS, Google Cloud, Azure, Terraform and generative AI, including Amazon Bedrock. Puneeth holds
+multiple AWS, GCP and Terraform certifications, and received the President's Award at Discover Financial Services.
