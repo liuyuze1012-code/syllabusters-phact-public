@@ -89,3 +89,9 @@ This public copy starts from a single commit. Our working repo stays private wit
 ## Team
 
 Team 31, Syllabusters.
+
+- Puneeth Kumar Ammapalli
+- Leon Yan
+- Alice Bui
+- Gravin Liu
+- Shadman Jafif
