@@ -38,6 +38,9 @@ TTL_S = 3600  # sign-in lasts 1 hour, the same as Cognito's ID token (Nov 5 requ
 ROLES = ("aspph-admin", "school-admin", "faculty")  # highest first; school-admin = a university admin
 ALIASES = {"aspph-staff": "aspph-admin"}
 LOCAL_USER = {"sub": "local", "email": "local@this-computer", "name": "You (local)", "role": "aspph-admin", "university_id": ""}
+# Local testing only (accounts off): PHACT_LOCAL_UNI_ADMIN=westbridge makes "you" that university's admin
+if os.getenv("PHACT_LOCAL_UNI_ADMIN"):
+    LOCAL_USER = {**LOCAL_USER, "name": "You (local university admin)", "role": "school-admin", "university_id": os.environ["PHACT_LOCAL_UNI_ADMIN"]}
 UNI_ATTR = "custom:university_id"  # readable in the ID token, never writable by the user (see setup_universities.py)
 JOB_USER: contextvars.ContextVar = contextvars.ContextVar("job_user", default=None)  # set only by the worker
 

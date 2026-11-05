@@ -118,6 +118,7 @@ tr.click{cursor:pointer} tr.click:hover td{background:#f6f8fb}
       <button data-t="unis"><i class="ti ti-building-community"></i>Universities</button>
       <button data-t="mon"><i class="ti ti-activity-heartbeat"></i>Agent monitor</button>
       <button data-t="subs"><i class="ti ti-file-like"></i>Example syllabi <span id="pendingN"></span></button>
+      <button data-t="pols"><i class="ti ti-shield-check"></i>AI policies <span id="polN"></span></button>
       <button data-t="audit"><i class="ti ti-history"></i>Audit log</button>
     </nav>
     <div class="railfoot"><div class="me"><span class="avatar" id="av">A</span><div style="min-width:0"><b id="who"></b><span>ASPPH admin</span></div>
@@ -192,6 +193,12 @@ tr.click{cursor:pointer} tr.click:hover td{background:#f6f8fb}
       <div id="monTip" class="tip" hidden></div>
     </section>
 
+    <section id="t-pols" hidden>
+      <div class="head"><h1>AI policies</h1></div>
+      <div class="card"><h2 style="margin-top:0">Shared by universities</h2><table id="polShares"></table></div>
+      <div class="card"><h2 style="margin-top:0">Library</h2><div id="polLib"></div></div>
+    </section>
+
     <section id="t-subs" hidden>
       <div class="head"><div><h1>Example syllabi</h1><p class="muted" style="margin:0">Shared by professors with consent. Approved parts become anonymous peer examples that inspire suggestions. They're never cited as evidence.</p></div>
         <label class="muted">Show <select id="sf" style="width:auto" onchange="loadSubs()"><option value="pending">Pending</option><option value="">All</option></select></label></div>
@@ -238,7 +245,7 @@ async function boot(){
 function enter(user){
   if (!["aspph-admin", "aspph-staff"].includes(user.role)) { $("role").textContent = user.role; return show("denied"); }
   $("who").textContent = user.name || user.email; $("av").textContent = (user.name || user.email || "A").replace(/^(dr|prof)\.?\s+/i, "").split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
-  show("app"); loadSources(); loadSubs();
+  show("app"); loadSources(); loadSubs(); loadPols();
 }
 window.login = async () => {
   $("go").disabled = true; $("lst").innerHTML = `<span class="spin">Logging in…</span>`;
@@ -253,9 +260,10 @@ $("p").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
 window.logout = async () => { await fetch("/api/auth/logout", {method: "POST"}); PHACT.setToken(null); show("login"); };
 document.querySelectorAll(".tabs button[data-t]").forEach(b => b.onclick = () => {
   document.querySelectorAll(".tabs button[data-t]").forEach(x => x.classList.toggle("on", x === b));
-  ["sources", "unis", "mon", "subs", "audit"].forEach(t => $("t-" + t).hidden = t !== b.dataset.t);
-  $("crumb").innerHTML = `<b>${{sources: "Knowledge base", unis: "Universities", mon: "Agent monitor", subs: "Example syllabi", audit: "Audit log"}[b.dataset.t]}</b>`;
+  ["sources", "unis", "mon", "subs", "pols", "audit"].forEach(t => $("t-" + t).hidden = t !== b.dataset.t);
+  $("crumb").innerHTML = `<b>${{sources: "Knowledge base", unis: "Universities", mon: "Agent monitor", subs: "Example syllabi", pols: "AI policies", audit: "Audit log"}[b.dataset.t]}</b>`;
   if (b.dataset.t === "mon") loadMon();
+  if (b.dataset.t === "pols") loadPols();
   if (b.dataset.t === "audit") loadAudit();
   if (b.dataset.t === "unis") loadUnis();
 });
@@ -339,7 +347,7 @@ window.renderUnis = () => {
   const order = by === "region" ? ["Northeast", "Midwest", "South", "West", "Outside the US", "Not set"] : [...new Set(list.map(key))].sort();
   const table = l => `<table class="unis"><colgroup><col style="width:34%"><col style="width:14%"><col style="width:14%"><col style="width:9%"><col style="width:16%"><col style="width:10%"><col style="width:3%"></colgroup><tr><th>University</th><th>Location</th><th>AI policy</th><th>Professors</th><th>Courses</th><th>Last activity</th><th></th></tr>${l.map(u => `
     <tr class="click" onclick="openUni('${esc(u.id)}')"><td><b>${esc(u.name)}</b>${u.admins ? "" : ` <span class="tag st-pending">no admin yet</span>`}</td>
-      <td class="muted">${esc([u.city, u.state].filter(Boolean).join(", ") || "—")}</td><td>${LEVEL[u.max_ai_stance] || "—"}${u.rules ? ` <span class="muted">· ${u.rules} rule${u.rules > 1 ? "s" : ""}</span>` : ""}</td>
+      <td class="muted">${esc([u.city, u.state].filter(Boolean).join(", ") || "—")}</td><td>${{none: "None", assistive: "Assistive", guided: "Guided", integrated: "Integrated"}[u.max_ai_level] || LEVEL[u.max_ai_stance] || "—"}${u.rules ? ` <span class="muted">· ${u.rules} rule${u.rules > 1 ? "s" : ""}</span>` : ""}</td>
       <td>${u.professors}</td><td>${u.courses ? `${u.analyzed} analyzed · ${u.exported} exported` : `<span class="muted">none yet</span>`}</td><td class="muted">${agoT(u.last_activity)}</td><td><i class="ti ti-chevron-right muted"></i></td></tr>`).join("")}</table>`;
   const groups = order.map(k => [k, list.filter(u => key(u) === k)]).filter(([, l]) => l.length);
   $("uniList").innerHTML = groups.map(([k, l]) => by === "none" ? table(l) : `<div class="grp"><h3><i class="ti ti-map-pin"></i>${esc(k)} <span class="n">${l.length}</span></h3>${table(l)}</div>`).join("")
@@ -363,7 +371,7 @@ window.openUni = async id => {
       <button class="ghost sm" onclick="$('uniDetail').innerHTML=''"><i class="ti ti-x"></i>Close</button></div>
     <p class="muted">${esc([u.city, u.state, u.region].filter(Boolean).join(" · "))} · joined ${new Date(u.created_at).toLocaleDateString()}</p>
     <div class="tiles"><div class="tile"><b>${admins.length}</b><span>university admins</span></div><div class="tile"><b>${profs.length}</b><span>professors</span></div>
-      <div class="tile"><b>${u.courses.length}</b><span>courses</span></div><div class="tile"><b>${LEVEL[pol.max_ai_stance] || "Integrated"}</b><span>highest AI level allowed</span></div></div>
+      <div class="tile"><b>${u.courses.length}</b><span>courses</span></div><div class="tile"><b>${{none: "None", assistive: "Assistive", guided: "Guided", integrated: "Integrated"}[pol.max_ai_level] || LEVEL[pol.max_ai_stance] || "Integrated"}</b><span>highest AI level allowed</span></div></div>
     <h3 style="font-size:15px">AI policy <span class="muted" style="font-weight:400">· set by the university's admin</span></h3>
     ${(pol.rules || []).map(r => `<div style="margin:4px 0"><span class="tag">${esc(r.id)}</span> ${esc(r.text)}</div>`).join("") || `<p class="muted">PHACT's default rules (the university hasn't set its own).</p>`}
     <h3 style="font-size:15px;margin-top:16px">People</h3>
@@ -502,6 +510,24 @@ window.publish = async () => {
 };
 
 // ---------- example syllabi ----------
+// ---------- AI policies: universities share, ASPPH reviews, approved ones join the library ----------
+const LVN = {none: "None", assistive: "Assistive", guided: "Guided", integrated: "Integrated"};
+const rulesList = rs => `<ol style="margin:6px 0 0;padding-left:20px">${(rs || []).map(r => `<li>${esc(r.text)} <span class="muted">${esc(r.id)}</span></li>`).join("")}</ol>`;
+async function loadPols(){
+  try {
+    const d = await api("GET", "/api/admin/policies"), pend = d.shares.filter(x => x.status === "pending").length;
+    $("polN").innerHTML = pend ? `<span class="tag st-pending">${pend}</span>` : "";
+    $("polShares").innerHTML = d.shares.length ? `<tr><th>Policy</th><th>University</th><th>Level</th><th>Sent</th><th>Status</th><th></th></tr>` + d.shares.map(x => `<tr>
+      <td><b>${esc(x.name)}</b><details><summary class="muted">${x.rules.length} rules</summary>${rulesList(x.rules)}</details></td>
+      <td>${esc(x.uni_name)}<div class="muted">${esc(x.by)}</div></td><td>${LVN[x.max_ai_level] || ""}</td><td class="muted">${new Date(x.submitted_at).toLocaleDateString()}</td>
+      <td><span class="tag st-${x.status}">${x.status}</span>${x.review_note ? `<div class="muted">${esc(x.review_note)}</div>` : ""}</td>
+      <td>${x.status === "pending" ? `<button class="sm" onclick="polOk('${x.id}', this)">Approve</button> <button class="ghost sm" onclick="polBack('${x.id}')">Return</button>` : ""}</td></tr>`).join("")
+      : `<tr><td class="muted">Nothing shared yet.</td></tr>`;
+    $("polLib").innerHTML = d.library.map(x => `<details style="padding:8px 0;border-top:1px solid var(--line)"><summary><b>${esc(x.name)}</b> <span class="muted">· ${esc(x.publisher)} · ${LVN[x.max_ai_level] || ""} · ${x.rules.length} rules</span></summary>${rulesList(x.rules)}</details>`).join("");
+  } catch (e) { $("polShares").innerHTML = `<tr><td>${esc(e.message)}</td></tr>`; }
+}
+window.polOk = async (id, b) => { b.disabled = true; try { await api("POST", `/api/admin/policies/${id}/approve`); } catch (e) { alert(e.message); } loadPols(); };
+window.polBack = async id => { const note = prompt("Note for the university:"); if (note === null) return; try { await api("POST", `/api/admin/policies/${id}/return`, {note}); } catch (e) { alert(e.message); } loadPols(); };
 async function loadSubs(){
   try {
     const list = await api("GET", "/api/admin/submissions" + ($("sf").value ? "?status=" + $("sf").value : ""));

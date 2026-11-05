@@ -1186,7 +1186,7 @@ const plain = h => String(h).replace(/<[^>]+>/g, "");
 const DETAIL_IDS = {name: "pf_name", code: "pf_code", term: "pf_term", credits: "pf_credits", professor: "pf_prof", department: "pf_dept", level: "pf_level", size: "pf_size"};
 function aiLevelOf(c){ return c.ai_level || ({ban: "none", restricted: "guided", open: "integrated"}[c.ai_stance] || "guided"); }
 const LEVEL_ORDER = ["none", "assistive", "guided", "integrated"], STANCE_TOP = {ban: "none", restricted: "guided", open: "integrated"};
-function uniCap(){ return ACC.uni ? STANCE_TOP[ACC.uni.policy?.max_ai_stance || "open"] : "integrated"; }
+function uniCap(){ const p = ACC.uni?.policy; return !ACC.uni ? "integrated" : LEVEL_ORDER.includes(p?.max_ai_level) ? p.max_ai_level : STANCE_TOP[p?.max_ai_stance || "open"]; }
 function pfNote(){
   const v = document.querySelector('[name=pf_ai]:checked')?.value, cap = uniCap();
   $("pf_ainote").innerHTML = (v ? AI_LEVELS[v].note : "") + (ACC.uni && cap !== "integrated"
@@ -2382,7 +2382,7 @@ async function loadReferenceData(){
 function renderChrome(){  // sidebar: institution card, signed-in user, admin link
   const pf = prefs(), u = ACC.user, name = myName();
   $("instName").textContent = ACC.uni?.name || pf.inst || "Not set";
-  $("instSub").textContent = ACC.uni ? `AI policy: up to ${{ban: "None", restricted: "Guided", open: "Integrated"}[ACC.uni.policy?.max_ai_stance] || "Integrated"}` : pf.dept || (pf.inst ? "" : "Add it in Privacy & data");
+  $("instSub").textContent = ACC.uni ? `AI policy: up to ${(c => c[0].toUpperCase() + c.slice(1))(uniCap())}` : pf.dept || (pf.inst ? "" : "Add it in Privacy & data");
   $("topAvatar").textContent = initials(name || u?.email);
   $("navAdmin").hidden = !(u && ["aspph-admin", "aspph-staff"].includes(u.role));
   $("acct").hidden = !u;

@@ -26,7 +26,7 @@ window.PHACT = (() => {
   P.sessionEnded = () => { try { const e = sessionStorage.getItem("phact_ended"); sessionStorage.removeItem("phact_ended"); return !!e; } catch { return false; } };
   P.hasToken = () => !!token;
   const LONG = ["/api/extract", "/api/structure", "/api/analyze", "/api/analyze_more", "/api/chat", "/api/classify",
-                "/api/assessment/structure", "/api/assessment/analyze"];
+                "/api/assessment/structure", "/api/assessment/analyze", "/api/uni/policy/extract"];
   P.isLong = path => LONG.includes(path) || /^\/api\/admin\/(sources\/(preview|publish|[^/]+\/status)|submissions\/[^/]+\/approve)$/.test(path);
   P.fileToB64 = file => new Promise((ok, bad) => {
     const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = bad; r.readAsDataURL(file);

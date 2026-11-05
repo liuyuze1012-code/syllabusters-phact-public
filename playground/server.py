@@ -123,8 +123,8 @@ def make_context(course: CourseIn, user: dict | None = None) -> Context:
         f"AI stance for this course: {STANCES.get(course.ai_stance, STANCES['restricted'])}\n"
         f"Professor's own comfort with AI: {course.ai_comfort}.\n"
         f"Professor's notes: {course.notes or 'none'}"
-        + (f"\nUniversity policy ({uni['name']}), which overrides the professor: AI use at most "
-           f"'{pol.get('max_ai_stance', 'open')}'. {pol.get('notes', '')}" if uni else "")
+        + (f"\nUniversity policy ({uni['name']}), which overrides the professor: student AI use at most "
+           f"'{universities.LEVEL_NAME[universities.level_of(pol)]}'." if uni else "")
     )
     if uni and pol.get("rules"):
         return Context(school_rules=[SchoolRule(**r) for r in pol["rules"]], policy_source="school", professor=professor)
@@ -604,17 +604,72 @@ def api_uni(uni: str | None = None, user: dict = Depends(current_user)):
 
 
 class PolicyIn(BaseModel):
-    max_ai_stance: str
+    max_ai_level: str = ""
+    max_ai_stance: str = ""  # older pages
     rules: list[dict] = []
-    notes: str = ""
+    adopted_from: str = ""
+    name: str = ""
 
 
 @app.put("/api/uni/policy")
 def api_uni_policy(body: PolicyIn, uni: str | None = None, user: dict = Depends(current_user)):
     uid = _uni(user, uni)
     pol = universities.set_policy(uid, body.model_dump(), user.get("email", ""))
-    userdata.log_event(user["sub"], "uni_policy", uid, f"max AI {pol['max_ai_stance']}, {len(pol['rules'])} rules")
+    userdata.log_event(user["sub"], "uni_policy", uid, f"max AI {pol['max_ai_level']}, {len(pol['rules'])} rules")
     return pol
+
+
+@app.get("/api/uni/policy/library")
+def api_uni_policy_library(user: dict = Depends(current_user)):
+    """ASPPH's suggested policies plus university policies ASPPH approved, and this university's own shares."""
+    uid = _uni(user)
+    return {"library": policies.list_library(), "my_shares": policies.list_shares(uid=uid)}
+
+
+@app.post("/api/uni/policy/extract")
+async def api_uni_policy_extract(file: UploadFile = File(...), user: dict = Depends(current_user)):
+    """A policy document → a clear list of rules (Claude Haiku, after the PII scrub). Nothing is saved until the admin saves."""
+    uid = _uni(user)
+    suffix = (Path(file.filename or "policy.txt").suffix or ".txt").lower()
+    if suffix not in (".pdf", ".docx", ".txt", ".md"):
+        raise HTTPException(400, "Upload a PDF, Word or text file.")
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / f"policy{suffix}"
+        path.write_bytes(await file.read())
+        text = extract(path)
+    if len(text.split()) < 20:
+        raise HTTPException(400, "Couldn't read enough text from that file.")
+    try:
+        out = policies.extract_rules(text, (universities.get(uid) or {}).get("name", "UNI").split()[0])
+    except Exception as e:
+        raise friendly(e)
+    userdata.log_event(user["sub"], "uni_policy_extract", uid, f"{len(out['rules'])} rules from {file.filename}")
+    return out
+
+
+@app.post("/api/uni/policy/share")
+def api_uni_policy_share(body: PolicyIn, user: dict = Depends(current_user)):
+    uid = _uni(user)
+    try:
+        return policies.share(uid, user, body.model_dump())
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+@app.get("/api/uni/competencies")
+def api_uni_competencies(user: dict = Depends(current_user)):
+    """The program view: for each of the 22 CEPH competencies, how many of this university's courses fulfill it,
+    judged by each course's syllabus analysis (not its assessments)."""
+    from concurrent.futures import ThreadPoolExecutor
+    uid = _uni(user)
+    courses = universities.list_courses(uid)
+
+    def one(c):
+        code = (c.get("course") or {}).get("code") or ""
+        return code, universities.course_coverage(userdata.get_progress(c["prof_sub"], code) or {})
+    with ThreadPoolExecutor(8) as ex:
+        per = dict(ex.map(one, courses)) if courses else {}
+    return {"courses": len(courses), "analyzed": sum(1 for m in per.values() if m), "rows": universities.program_competencies(per)}
 
 
 @app.get("/api/uni/professors")
@@ -654,30 +709,6 @@ class InviteIn(BaseModel):
     role: str = "faculty"
     days: int = 14
     max_uses: int = 50
-
-
-@app.get("/api/uni/invites")
-def api_uni_invites(uni: str | None = None, user: dict = Depends(current_user)):
-    return universities.list_invites(_uni(user, uni))
-
-
-@app.post("/api/uni/invites")
-def api_uni_invite(body: InviteIn, uni: str | None = None, user: dict = Depends(current_user)):
-    uid = _uni(user, uni)
-    if body.role != "faculty":  # university admins are created only by scripts/onboard_university.py
-        raise HTTPException(403, "University admin invites are created by ASPPH when a university is onboarded.")
-    inv = universities.create_invite(uid, body.role, user.get("email", ""), max(1, min(body.days, 90)), max(1, min(body.max_uses, 500)))
-    userdata.log_event(user["sub"], "uni_invite", uid, f"{body.role} code")
-    return inv
-
-
-@app.delete("/api/uni/invites/{code}")
-def api_uni_revoke(code: str, uni: str | None = None, user: dict = Depends(current_user)):
-    try:
-        universities.revoke_invite(_uni(user, uni), code.upper())
-    except userdata.table().meta.client.exceptions.ConditionalCheckFailedException:
-        raise HTTPException(404, "No such invite.")
-    return {"ok": True}
 
 
 # ---------- ASPPH admin: every member university (the organization's view; separate from the university portal) ----------
@@ -730,6 +761,39 @@ def api_admin_uni_invite(uid: str, body: InviteIn, user: dict = Depends(_aspph))
     if not universities.get(uid):
         raise HTTPException(404, "No such university.")
     return universities.create_invite(uid, body.role, user.get("email", ""), max(1, min(body.days, 90)), max(1, min(body.max_uses, 500)))
+
+
+# ---------- ASPPH admin: shared university AI policies (review before they join the library) ----------
+import policies  # noqa: E402
+
+
+@app.get("/api/admin/policies")
+def api_admin_policies(user: dict = Depends(_aspph)):
+    return {"library": policies.list_library(), "shares": policies.list_shares()}
+
+
+@app.post("/api/admin/policies/{sid}/approve")
+def api_admin_policy_approve(sid: str, user: dict = Depends(_aspph)):
+    try:
+        return policies.approve(user, sid)
+    except KeyError:
+        raise HTTPException(404, "No such share.")
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+
+
+class NoteIn(BaseModel):
+    note: str
+
+
+@app.post("/api/admin/policies/{sid}/return")
+def api_admin_policy_return(sid: str, body: NoteIn, user: dict = Depends(_aspph)):
+    try:
+        return policies.return_share(user, sid, body.note)
+    except KeyError:
+        raise HTTPException(404, "No such share.")
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
 
 # ---------- ASPPH admin: the Agent monitor (usage records + AgentCore's own CloudWatch metrics) ----------

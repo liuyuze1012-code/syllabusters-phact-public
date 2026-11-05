@@ -33,6 +33,7 @@ def client(user):
     return c
 
 
+ASPPH = {"sub": "test-aspph", "email": "a@aspph.test", "name": "ASPPH", "role": "aspph-admin", "university_id": ""}
 WB_ADMIN, WB_PROF = member("westbridge", "school-admin"), member("westbridge", "faculty")
 NF_ADMIN, NF_PROF = member("northfield", "school-admin"), member("northfield", "faculty")
 
@@ -77,26 +78,46 @@ def test_uni_parameter_is_ignored_for_university_admins(nf_course):
 
 
 def test_professors_cannot_use_the_admin_portal():
-    for path in ("/api/uni", "/api/uni/professors", "/api/uni/courses", "/api/uni/invites"):
+    for path in ("/api/uni", "/api/uni/professors", "/api/uni/courses", "/api/uni/competencies", "/api/uni/policy/library"):
         assert client(WB_PROF).get(path).status_code == 403
-    assert client(WB_PROF).put("/api/uni/policy", json={"max_ai_stance": "open"}).status_code == 403
+    assert client(WB_PROF).put("/api/uni/policy", json={"max_ai_level": "integrated"}).status_code == 403
+    assert client(WB_PROF).post("/api/uni/policy/share", json={"max_ai_level": "none", "rules": [{"text": "x"}]}).status_code == 403
     assert client(WB_ADMIN).get("/api/admin/universities").status_code == 403  # nor can a university admin act as ASPPH
+    assert client(WB_ADMIN).get("/api/admin/policies").status_code == 403
 
 
-def test_university_admin_can_invite_professors_but_not_admins():
-    c = client(WB_ADMIN)
-    assert c.post("/api/uni/invites", json={"role": "school-admin"}).status_code == 403
-    inv = c.post("/api/uni/invites", json={"role": "faculty", "max_uses": 1}).json()
-    assert inv["uni_id"] == "westbridge" and inv["role"] == "faculty"
-    universities.redeem_invite(inv["code"])            # the only use
-    with pytest.raises(Exception):
-        universities.redeem_invite(inv["code"])        # used up: can't join twice on one use
-    inv2 = c.post("/api/uni/invites", json={"role": "faculty"}).json()
-    assert client(NF_ADMIN).delete(f"/api/uni/invites/{inv2['code']}").status_code == 404  # not theirs to revoke
-    assert c.delete(f"/api/uni/invites/{inv2['code']}").status_code == 200
-    assert universities.check_invite(inv2["code"]) is None
-    with pytest.raises(Exception):
-        universities.redeem_invite(inv2["code"])       # revoked
+def test_university_admins_no_longer_make_invite_codes():
+    """Professors come from ASPPH's member records; only ASPPH issues codes (to onboard a university's admin)."""
+    assert client(WB_ADMIN).post("/api/uni/invites", json={"role": "faculty"}).status_code in (404, 405)
+
+
+def test_program_competencies_only_count_own_university(nf_course):
+    rows = {r["id"]: r for r in client(NF_ADMIN).get("/api/uni/competencies").json()["rows"]}
+    assert len(rows) == 22 and "ISO 101" in rows[1]["courses"] and rows[1]["color"] == "green"
+    wb = {r["id"]: r for r in client(WB_ADMIN).get("/api/uni/competencies").json()["rows"]}
+    assert "ISO 101" not in wb[1]["courses"]
+
+
+def test_shared_policy_goes_through_aspph_review():
+    import policies
+    wb = client(WB_ADMIN)
+    s = wb.post("/api/uni/policy/share", json={"name": "Test share (delete me)", "max_ai_level": "assistive",
+                                                "rules": [{"id": "T-1", "text": "Disclose AI use."}]}).json()
+    try:
+        assert s["status"] == "pending" and s["uni_id"] == "westbridge"
+        lib = wb.get("/api/uni/policy/library").json()
+        assert all(p["name"] != "Test share (delete me)" for p in lib["library"])            # not in the library before review
+        assert any(x["id"] == s["id"] for x in lib["my_shares"])
+        assert all(x["id"] != s["id"] for x in client(NF_ADMIN).get("/api/uni/policy/library").json()["my_shares"])
+        assert any(p["publisher"] == "ASPPH" for p in lib["library"])                        # ASPPH's suggested policies are there
+        r = client(ASPPH).post(f"/api/admin/policies/{s['id']}/approve").json()
+        assert r["status"] == "approved"
+        assert any(p["id"] == r["policy_id"] for p in wb.get("/api/uni/policy/library").json()["library"])
+        assert client(ASPPH).post(f"/api/admin/policies/{s['id']}/approve").status_code == 400  # only once
+    finally:
+        t = userdata.table()
+        t.delete_item(Key={"PK": f"POLICYSUB#{s['id']}", "SK": "META"})
+        t.delete_item(Key={"PK": f"POLICY#shared-{s['id']}", "SK": "META"})
 
 
 def test_policy_goes_above_the_professor():
@@ -110,7 +131,7 @@ def test_policy_goes_above_the_professor():
 
 def test_professor_sees_own_university_policy():
     r = client(WB_PROF).get("/api/data/university").json()
-    assert r["id"] == "westbridge" and r["policy"]["max_ai_stance"] == "restricted"
+    assert r["id"] == "westbridge" and universities.level_of(r["policy"]) in ("assistive", "guided")
 
 
 ASPPH = {"sub": "test-aspph", "email": "a@aspph.test", "name": "ASPPH", "role": "aspph-admin", "university_id": ""}

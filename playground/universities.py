@@ -22,6 +22,20 @@ from boto3.dynamodb.conditions import Key
 import userdata
 
 STANCES = ("ban", "restricted", "open")  # strictest first
+# The four AI levels the professor app uses (strictest first) and the stance each one maps to for the AI's context
+LEVELS = ("none", "assistive", "guided", "integrated")
+LEVEL_STANCE = {"none": "ban", "assistive": "restricted", "guided": "restricted", "integrated": "open"}
+STANCE_LEVEL = {"ban": "none", "restricted": "guided", "open": "integrated"}  # policies saved before levels existed
+LEVEL_NAME = {"none": "None", "assistive": "Assistive", "guided": "Guided", "integrated": "Integrated"}
+# The 22 CEPH MPH foundational competencies, in five words or fewer (the full statements are in the checklist)
+CEPH_SHORT = {1: "Apply epidemiological methods", 2: "Select data collection methods", 3: "Analyze data with biostatistics",
+              4: "Interpret data analysis results", 5: "Compare health systems", 6: "Structural bias and health inequities",
+              7: "Assess community needs and assets", 8: "Apply cultural awareness", 9: "Design population-based interventions",
+              10: "Budget and resource management", 11: "Select program evaluation methods", 12: "Explain policy-making process",
+              13: "Build coalitions and partnerships", 14: "Advocate for health policies", 15: "Evaluate policy equity impact",
+              16: "Apply leadership principles", 17: "Negotiation and mediation skills", 18: "Select communication strategies",
+              19: "Communicate to diverse audiences", 20: "Cultural humility in communication", 21: "Integrate cross-sector perspectives",
+              22: "Apply systems thinking tools"}
 # US Census regions, so ASPPH can group its member schools geographically
 REGIONS = {"Northeast": ["CT", "ME", "MA", "NH", "RI", "VT", "NJ", "NY", "PA"],
            "Midwest": ["IL", "IN", "MI", "OH", "WI", "IA", "KS", "MN", "MO", "NE", "ND", "SD"],
@@ -50,7 +64,7 @@ def create(name: str, uni_id: str | None = None, city: str = "", state: str = ""
     st = (state or "").strip().upper()[:2]
     item = {"PK": f"UNI#{uid}", "SK": "META", "id": uid, "name": name.strip()[:120], "created_at": userdata.now(),
             "city": city.strip()[:60], "state": st, "region": region_of(st),
-            "policy": {"max_ai_stance": "open", "rules": [], "notes": ""}}
+            "policy": {"max_ai_level": "integrated", "max_ai_stance": "open", "rules": []}}
     _t().put_item(Item=item, ConditionExpression="attribute_not_exists(PK)")
     return userdata._plain(item)
 
@@ -76,6 +90,7 @@ def directory() -> list[dict]:
             if sk == "META":
                 u.update({k: userdata._plain(it.get(k)) for k in ("name", "city", "state", "region", "created_at")})
                 u["max_ai_stance"] = (it.get("policy") or {}).get("max_ai_stance", "open")
+                u["max_ai_level"] = level_of(it.get("policy"))
                 u["rules"] = len((it.get("policy") or {}).get("rules") or [])
             elif sk.startswith("MEMBER#"):
                 u["admins" if it.get("role") == "school-admin" else "professors"] += 1
@@ -105,15 +120,24 @@ def list_all() -> list[dict]:
     return sorted((userdata._plain(i) for i in items), key=lambda u: u["name"])
 
 
+def level_of(policy: dict | None) -> str:
+    """A policy's highest AI level (older policies only stored a stance)."""
+    p = policy or {}
+    return p["max_ai_level"] if p.get("max_ai_level") in LEVELS else STANCE_LEVEL.get(p.get("max_ai_stance"), "integrated")
+
+
 def clean_policy(p: dict) -> dict:
-    stance = p.get("max_ai_stance") if p.get("max_ai_stance") in STANCES else "open"
+    level = level_of(p)
     rules = []
     for i, r in enumerate((p.get("rules") or [])[:20]):
         text = str(r.get("text", "")).strip()[:600]
         if text:
             rid = re.sub(r"[^A-Za-z0-9-]", "", str(r.get("id") or f"UNI-AI-{i + 1}"))[:20] or f"UNI-AI-{i + 1}"
             rules.append({"id": rid, "text": text})
-    return {"max_ai_stance": stance, "rules": rules, "notes": str(p.get("notes", "")).strip()[:1000]}
+    out = {"max_ai_level": level, "max_ai_stance": LEVEL_STANCE[level], "rules": rules}
+    if p.get("adopted_from"):
+        out["adopted_from"] = str(p["adopted_from"])[:60]
+    return out
 
 
 def set_policy(uid: str, policy: dict, by: str) -> dict:
@@ -128,6 +152,39 @@ def cap_stance(professor: str | None, university_max: str | None) -> str:
     p = professor if professor in STANCES else "restricted"
     u = university_max if university_max in STANCES else "open"
     return STANCES[min(STANCES.index(p), STANCES.index(u))]
+
+
+def cap_level(professor: str | None, university_max: str | None) -> str:
+    p = professor if professor in LEVELS else "guided"
+    u = university_max if university_max in LEVELS else "integrated"
+    return LEVELS[min(LEVELS.index(p), LEVELS.index(u))]
+
+
+# ---------- program view: how the university's courses cover the 22 CEPH competencies ----------
+def course_coverage(progress: dict) -> dict[int, str]:
+    """Each assigned competency's status for ONE course, judged by the syllabus only (not assessments):
+    covered if the syllabus covers it or an accepted syllabus change closes it, else partial / missing."""
+    dec = progress.get("decisions") or {}
+    fixed = {int(c) for e in progress.get("edits") or [] if dec.get(e.get("edit_id")) == "accepted" for c in e.get("ceph") or [] if str(c).isdigit()}
+    out = {}
+    for c in progress.get("comps") or []:
+        cid, st = c.get("id"), c.get("status")
+        if not isinstance(cid, int) or st == "not_assigned":
+            continue
+        out[cid] = "covered" if st == "covered" or cid in fixed else ("partial" if st == "partial" else "missing")
+    return out
+
+
+def program_competencies(per_course: dict[str, dict[int, str]]) -> list[dict]:
+    """per_course: {course code: {competency id: status}}. Color: green if at least 1 course fully covers it;
+    yellow if none does but 2 or more cover it partially ("limited"); red otherwise."""
+    rows = []
+    for cid, short in CEPH_SHORT.items():
+        full = sorted(code for code, m in per_course.items() if m.get(cid) == "covered")
+        part = sorted(code for code, m in per_course.items() if m.get(cid) == "partial")
+        color = "green" if full else "yellow" if len(part) >= 2 else "red"
+        rows.append({"id": cid, "short": short, "fulfilled": len(full), "courses": full, "limited": part, "color": color})
+    return rows
 
 
 # ---------- invite codes ----------

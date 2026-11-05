@@ -22,7 +22,8 @@ PRICES = {"opus": (4.00, 20.00), "haiku": (0.10, 0.50)}
 PRICE_NOTE = "Estimate: Haiku 5.5 $0.10/$0.50 and Opus 5.5 $4/$20 per million input/output tokens (list prices, Nov 4, 2026)."
 OPS = {"/api/analyze": "Syllabus analysis", "/api/assessment/analyze": "Assessment analysis", "/api/analyze_more": "Add competencies",
        "/api/chat": "Chat revision", "/api/structure": "Read syllabus", "/api/assessment/structure": "Read assessment",
-       "/api/classify": "Detect document type", "/api/extract": "Extract text"}
+       "/api/classify": "Detect document type", "/api/extract": "Extract text",
+       "/api/uni/policy/extract": "Read AI policy document"}
 ANALYSES = ("/api/analyze", "/api/assessment/analyze")
 
 

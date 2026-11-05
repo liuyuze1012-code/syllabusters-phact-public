@@ -23,7 +23,7 @@ import userdata
 LONG_PATHS = {  # routes that can outlast API Gateway's timeout
     "/api/extract", "/api/structure", "/api/analyze", "/api/analyze_more", "/api/chat", "/api/classify",
     "/api/assessment/structure", "/api/assessment/analyze",
-    "/api/admin/sources/publish", "/api/admin/submissions/approve", "/api/admin/sources/status",
+    "/api/admin/sources/publish", "/api/admin/submissions/approve", "/api/admin/sources/status", "/api/uni/policy/extract",
 }
 TTL_DAYS = 7
 
