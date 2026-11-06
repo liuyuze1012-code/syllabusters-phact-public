@@ -13,9 +13,6 @@ knowledge base and watch the agent across all member universities.
 
 Built for **ASPPH** at **AWS Breaking Barriers 2026**, Washington DC.
 
-**Live demo:** https://0rrbnzygi0.execute-api.us-west-2.amazonaws.com. Demo accounts are shared with the
-organizers directly, never in this repo.
-
 | Portal | Path | Who |
 |---|---|---|
 | Professor app | `/` | faculty |
@@ -57,7 +54,7 @@ Browser ──HTTPS──▶ API Gateway (Cognito JWT check) ──▶ Lambda "p
 | `shared/` | The contract between the app and the agent (Pydantic schemas) and sample fixtures |
 | `knowledge-base/` | How the knowledge base is built: source list, CEPH checklist, default AI policies, retrieval tests |
 | `scripts/` | Setup and deployment (Cognito, DynamoDB, Knowledge Base, Guardrail, AgentCore, Lambda), plus benchmarks and the quality A/B test |
-| `backend/`, `frontend/`, `infra/` | The first-day scaffold (FastAPI, React and AWS CDK) the team split work on. The live demo runs from `playground/` and `agent/`, deployed with the Python scripts in `scripts/` |
+| `backend/`, `frontend/`, `infra/` | The first-day scaffold (FastAPI, React and AWS CDK) the team split work on. The working app runs from `playground/` and `agent/`, deployed with the Python scripts in `scripts/` |
 | `data/` | Synthetic test syllabi and assessments (made up by us) |
 | `docs/` | Contracts, team planning notes, brand |
 
@@ -82,7 +79,7 @@ Deploying to your own account: `scripts/create_userdb.py`, `create_kb.py`, `crea
   [12turnbullb/us-breaking-barriers-2026](https://github.com/12turnbullb/us-breaking-barriers-2026/tree/main/ASPPH).
 - **A real university syllabus** we tested on privately, because it includes an instructor's contact details.
 - **Challenge materials** we were given (the brief, user stories, earlier ARIE architecture documents).
-- **Demo account passwords, AWS keys, user uploads.** These were never committed.
+- **Account passwords, AWS keys, user uploads.** These were never committed.
 
 This public copy starts from a single commit. Our working repo stays private with its full history.
 
@@ -94,7 +91,7 @@ This public copy starts from a single commit. Our working repo stays private wit
 
 | | Role | Background |
 |---|---|---|
-| **Gavin Liu** | Product & build lead | Sophomore in Science, Technology & International Affairs at Georgetown University's School of Foreign Service |
+| **Gavin Liu** | Product & build | Sophomore in Science, Technology & International Affairs at Georgetown University's School of Foreign Service |
 | **Shadman Jarif** | Architecture & testing | Senior in Computer Science at George Mason University |
 | **Leon Yan** | Client communication & UX | Sophomore in Operations and Analytics at Georgetown University's McDonough School of Business |
 | **Alice Bui** | UI/UX design & storytelling | Graduate student in Learning Design and Technology at Georgetown University |
