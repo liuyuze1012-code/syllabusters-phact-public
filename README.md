@@ -96,7 +96,7 @@ This public copy starts from a single commit. Our working repo stays private wit
 |---|---|---|
 | **Gavin Liu** | Product & build lead | Sophomore in Science, Technology & International Affairs at Georgetown University's School of Foreign Service |
 | **Shadman Jarif** | Architecture & testing | Senior in Computer Science at George Mason University |
-| **Leon Yan** | Team member | |
+| **Leon Yan** | Client communication & UX | Sophomore in Operations and Analytics at Georgetown University's McDonough School of Business |
 | **Alice Bui** | UI/UX design & storytelling | Graduate student in Learning Design and Technology at Georgetown University |
 | **Puneeth Kumar Ammapalli** | Cloud & AI engineering | Principal Cloud Engineer at CVS Health, 18+ years in cloud infrastructure and security |
 
@@ -109,6 +109,11 @@ Prototype, a podcast platform about technology and founders.
 
 Helped design PHACT's overall architecture and AWS infrastructure, focusing on how the services fit together, and
 tested and validated the application to find issues before the demo.
+
+### Leon Yan
+
+Led communication with ASPPH, brainstormed solutions, and reviewed PHACT's workflows to make sure they matched
+the project's goals and users' needs. Leon also helped refine the interface for usability.
 
 ### Alice Bui
 
